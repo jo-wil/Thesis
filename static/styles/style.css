@@ -1,0 +1,38 @@
+/* App specific CSS ids */
+#history {
+   height: 40vh;
+   padding: 3%;
+   overflow: auto;
+}
+#to {
+   padding: 3% 0%;
+}
+#message {
+   height: 15vh;
+   width: 100%;
+   overflow: auto;
+}
+
+/* App specific CSS classes */
+.contact {
+   color: blue;
+}
+.sent {
+   text-align: right;
+}
+.received {
+   color: green;
+}
+
+/* General CSS classes */
+.center {
+   text-align: center;
+}
+.border {
+   border: 1px solid black;
+}
+.pointer:hover {
+   cursor: pointer;
+}
+
+
