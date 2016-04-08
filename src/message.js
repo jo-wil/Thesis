@@ -2,13 +2,10 @@
 
 var MessageComponent = React.createClass({
    getInitialState: function () {
+      this.ws = utils.global.ws;
+      this.ws.addEventListener('message', this.receiveMessage);
       return {
-         convos: {
-            'Bob': [{  
-               type: 'received',
-               text: 'Hello Alice'
-            }]
-         },
+         convos: {},
          active: 'Bob'
       };
    },
@@ -21,13 +18,15 @@ var MessageComponent = React.createClass({
       var to = this.state.active;
       var messageInput = document.querySelector('#message');
       var text = messageInput.value;
-      // TODO encrypt and send message to server
+      // TODO encrypt message
+      this.ws.send(JSON.stringify({to: to, text: text}));
       this.updateConvo(to, 'sent', text);
       messageInput.value = '';
    },
    receiveMessage: function (evt) {
       var from = 'Bob';
-      var text = 'Yo'; 
+      var text = evt.data; 
+      // TODO decrypt message
       this.updateConvo(from, 'received', text);
    },
    updateConvo: function (who, type, text) {

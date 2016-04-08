@@ -9,21 +9,33 @@ var LoginComponent = React.createClass({
       var username = document.querySelector('#username').value;
       var passwordInput = document.querySelector('#password');
       var password = passwordInput.value;
-      //TODO login user to server, the rest of this will go in callback
-      if (username !== 'Alice' || password !== '1234') { // spoof login
-         passwordInput.value = '';
-         this.setState({error: 'Incorrect username or password'});
-         return;   
-      }
-      //TODO set global information for logged in user
-      var messageComponent = ReactDOM.render(
-         <MessageComponent username={username}/>,
-         document.querySelector('#container')
-      );
-      window.setInterval(function () {
-         messageComponent.receiveMessage();
-      }, 3000);
-
+      utils.ajax({
+         method: 'POST',
+         url: '/api/login',
+         data: JSON.stringify({
+            username: username, 
+            password: password
+         })
+      }).then(function (evt) {
+         var request = evt.target;
+         var token = request.response;
+         if (request.status === 200) {
+            utils.global.token = request.response;
+            var ws = new WebSocket('ws://localhost:8000/api/messaging');
+            ws.addEventListener('open', function () {
+               var messageComponent = ReactDOM.render(
+                  <MessageComponent username={username}/>,
+                  document.querySelector('#container')
+               );
+            });
+            utils.global.ws = ws;
+         } else {
+            this.setState({error: 'Incorrect username or password'});
+            passwordInput.value = '';
+         } 
+      }.bind(this)).catch(function (err) {
+         this.setState({error: err});
+      }.bind(this));
    },
    render: function () {
       return (
