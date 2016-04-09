@@ -6,9 +6,14 @@ var MessageComponent = React.createClass({
    getInitialState: function getInitialState() {
       this.ws = utils.global.ws;
       this.ws.addEventListener('message', this.receiveMessage);
+      this.ws.send(JSON.stringify({
+         username: utils.global.username,
+         token: utils.global.token
+      }));
       return {
          convos: {},
-         active: 'Bob'
+         users: ['Alice', 'Bob'],
+         active: ''
       };
    },
    setActive: function setActive(evt) {
@@ -21,13 +26,19 @@ var MessageComponent = React.createClass({
       var messageInput = document.querySelector('#message');
       var text = messageInput.value;
       // TODO encrypt message
-      this.ws.send(JSON.stringify({ to: to, text: text }));
+      this.ws.send(JSON.stringify({
+         to: to,
+         from: utils.global.username,
+         text: text,
+         token: utils.global.token
+      }));
       this.updateConvo(to, 'sent', text);
       messageInput.value = '';
    },
    receiveMessage: function receiveMessage(evt) {
-      var from = 'Bob';
-      var text = evt.data;
+      var message = JSON.parse(evt.data);
+      var from = message.from;
+      var text = message.text;
       // TODO decrypt message
       this.updateConvo(from, 'received', text);
    },
@@ -59,6 +70,26 @@ var MessageComponent = React.createClass({
             ));
          }
       }
+      var users = this.state.users;
+      var contacts = [];
+      for (var i = 0; i < users.length; i++) {
+         var user = users[i];
+         if (user !== utils.global.username) {
+            contacts.push(React.createElement(
+               'li',
+               { key: i, onClick: this.setActive },
+               React.createElement(
+                  'span',
+                  { className: 'pointer contact' },
+                  user
+               )
+            ));
+         }
+      }
+      var submit = React.createElement('input', { type: 'submit', className: 'pure-button pure-button-primary', value: 'Send' });
+      if (!this.state.active) {
+         submit = React.createElement('input', { type: 'submit', className: 'pure-button pure-button-primary', value: 'Send', disabled: true });
+      }
       return React.createElement(
          'div',
          { className: 'pure-g' },
@@ -70,7 +101,7 @@ var MessageComponent = React.createClass({
                'h1',
                null,
                'Hi ',
-               this.props.username,
+               utils.global.username,
                '!'
             ),
             React.createElement(
@@ -81,39 +112,31 @@ var MessageComponent = React.createClass({
             React.createElement(
                'ul',
                null,
-               React.createElement(
-                  'li',
-                  { onClick: this.setActive },
-                  React.createElement(
-                     'span',
-                     { className: 'pointer contact' },
-                     'Bob'
-                  )
-               )
+               contacts
             )
          ),
          React.createElement(
             'div',
             { className: 'pure-u-1-3' },
             React.createElement(
+               'div',
+               { id: 'to' },
+               React.createElement(
+                  'h2',
+                  null,
+                  this.state.active
+               )
+            ),
+            React.createElement(
+               'div',
+               { id: 'history', className: 'border' },
+               history
+            ),
+            React.createElement(
                'form',
                { className: 'pure-form pure-form-stacked', onSubmit: this.sendMessage },
-               React.createElement(
-                  'div',
-                  { id: 'to' },
-                  React.createElement(
-                     'h2',
-                     null,
-                     this.state.active
-                  )
-               ),
-               React.createElement(
-                  'div',
-                  { id: 'history', className: 'border' },
-                  history
-               ),
                React.createElement('textarea', { id: 'message', type: 'text', placeholder: 'Message', required: true }),
-               React.createElement('input', { type: 'submit', className: 'pure-button pure-button-primary', value: 'Send' })
+               submit
             )
          ),
          React.createElement('div', { className: 'pure-u-1-3' })

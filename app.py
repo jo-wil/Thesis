@@ -9,29 +9,20 @@ from geventwebsocket.handler import WebSocketHandler
 import werkzeug.serving
 
 import json
-import functools
 
 app = Flask(__name__)
 sockets = Sockets(app)
 
 DB = {
     'Alice': {
-        'password': '1234'
+        'password': '1234',
+        'ws': None
     },
     'Bob': {
-        'password': 'abc'
+        'password': 'abc',
+        'ws': None
     }
 }
-
-def authenticated(old_func):
-    @functools.wraps(old_func)
-    def new_func(*args, **kwargs):
-        token = flask.request.headers.get('Authorization')
-        if token:
-            token = token.replace('Bearer ','') 
-            return old_func(*args, **kwargs)
-        abort(400)
-    return new_func
 
 @app.route('/')
 def index():
@@ -54,16 +45,24 @@ def login():
 @sockets.route('/api/messaging')
 def messaging(ws):
     while not ws.closed:
-        message = ws.receive()
-        print 'message', message
-        ws.send(message)
-#        if 'username' in message:
-#           user_sockets[message['username']] = ws 
-#           print user_sockets
-#        else:
-#           to = message['to']
-#           user_sockets[to].send(json.dumps(message))
-
+        json_data = json.loads(ws.receive())
+        token = json_data.get('token')
+        if token:
+           # register the user socket
+           username = json_data.get('username')
+           if username:
+              user = DB.get(username)
+              user['ws'] = ws
+           # send messages
+           to = json_data.get('to')
+           _from = json_data.get('from')
+           text = json_data.get('text')
+           if to and _from and text:
+              user = DB.get(to)
+              user_ws = user.get('ws')
+              if user_ws:
+                 user_ws.send(json.dumps({'from': _from, 'text': text})) 
+     
 @werkzeug.serving.run_with_reloader
 def main():
     app.debug = True

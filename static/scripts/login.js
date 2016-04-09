@@ -23,9 +23,10 @@ var LoginComponent = React.createClass({
          var token = request.response;
          if (request.status === 200) {
             utils.global.token = request.response;
+            utils.global.username = username;
             var ws = new WebSocket('ws://localhost:8000/api/messaging');
             ws.addEventListener('open', function () {
-               var messageComponent = ReactDOM.render(React.createElement(MessageComponent, { username: username }), document.querySelector('#container'));
+               var messageComponent = ReactDOM.render(React.createElement(MessageComponent, null), document.querySelector('#container'));
             });
             utils.global.ws = ws;
          } else {
