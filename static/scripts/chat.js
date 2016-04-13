@@ -3,7 +3,6 @@
 var chat = {
    init: function () {
       app.globals.ws = new WebSocket('ws://localhost:8000/socket');
-      this.log = {};
    },
    render: function () {
       this.init();
@@ -48,7 +47,8 @@ var chat = {
          text: text
       };
       ws.send(JSON.stringify(message));
-      this.updateLog(message); 
+      this.updateLog(message);
+      
    },
    handleRecieve: function (evt) {
       var data = JSON.parse(evt.data);
@@ -56,14 +56,15 @@ var chat = {
       switch (action) {
          case 'contacts': 
             var contacts = data.contacts;
-            var html = ``;
+            var ul = document.querySelector('#contacts');
             for (var i = 0; i < contacts.length; i++) {
                var contact = contacts[i];
                if (contact !== app.globals.username) {
-                  html += `<li>${contact}</li>`;
+                  var li = document.createElement('li');
+                  li.innerText = contact;
+                  ul.appendChild(li);
                }
             } 
-            document.querySelector('#contacts').innerHTML = html;           
             break;
          case 'message':
             this.updateLog(data);
@@ -71,9 +72,8 @@ var chat = {
       }
    },
    updateLog: function (message) {
-      console.log(message);
       var p = document.createElement('p');
-      p.innerText = message.text;
+      p.innerText = `To: ${message.to} From: ${message.from} Text: ${message.text}`;
       document.querySelector('#log').appendChild(p);
    } 
 }
