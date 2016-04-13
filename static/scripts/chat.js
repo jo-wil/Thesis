@@ -36,17 +36,12 @@ var chat = {
          case 'contacts': 
             var contacts = data.contacts;
             var html = ``;
-            var active = '';
             for (var i = 0; i < contacts.length; i++) {
                var contact = contacts[i];
-               if (active === '' && contact !== app.globals.username) {
-                  active = contact;
-               }
                if (contact !== app.globals.username) {
                   html += `<li>${contact}</li>`;
                }
             } 
-            document.querySelector('#to').value = active;           
             document.querySelector('#contacts').innerHTML = html;           
             break; 
       }
