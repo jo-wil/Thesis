@@ -13,7 +13,9 @@ var login = {
       this.listeners();
    },
    listeners: function () {
-      document.querySelector('#login-form').addEventListener('submit', this.handleLogin);
+      document.querySelector('#login-form').addEventListener('submit', function (evt) {
+         this.handleLogin.call(this, evt);
+      }.bind(this));
    },
    handleLogin: function (evt) {
       evt.preventDefault();
