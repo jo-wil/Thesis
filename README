@@ -1,5 +1,3 @@
 Repo for my thesis.
 
-install -- installs the relevant npm modules to build js
-build -- builds the js files
 run -- runs the server

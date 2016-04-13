@@ -1,11 +1,9 @@
 'use strict';
 
-(function () {
+var app = {};
 
-   var main = function main() {
-      // TODO check login status to decide whether to render login or message
-      ReactDOM.render(React.createElement(LoginComponent, null), document.querySelector('#container'));
-   };
+var main = function main() {
+   login.render(); 
+};
 
-   window.addEventListener('load', main);
-})();
+window.addEventListener('load', main);

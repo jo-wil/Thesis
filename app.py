@@ -31,37 +31,43 @@ def index():
     f.close()
     return html, 200
 
-@app.route('/api/login', methods=['GET','POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
-      if request.method == 'GET':
-          return json.dumps(DB), 200
-      elif request.method == 'POST':
+      if request.method == 'POST':
           data = json.loads(request.data)
-          user = DB.get(data.get('username'))
-          if user and user.get('password') == data.get('password'):
-              return 'server_token', 200
+          username = data.get('username')
+          password = data.get('password')
+          user = DB.get(username)
+          # TODO do password correctly
+          if user and user.get('password') == password: 
+              return json.dumps({'token': username+'.SERVER_TOKEN'}), 200
       abort(400)
 
-@sockets.route('/api/messaging')
+@sockets.route('/socket')
 def messaging(ws):
+    username = ''
     while not ws.closed:
-        json_data = json.loads(ws.receive())
-        token = json_data.get('token')
-        if token:
-           # register the user socket
-           username = json_data.get('username')
-           if username:
-              user = DB.get(username)
-              user['ws'] = ws
-           # send messages
-           to = json_data.get('to')
-           _from = json_data.get('from')
-           text = json_data.get('text')
-           if to and _from and text:
-              user = DB.get(to)
-              user_ws = user.get('ws')
-              if user_ws:
-                 user_ws.send(json.dumps({'from': _from, 'text': text})) 
+        try:
+            data = ws.receive()
+            json_data = json.loads(data)
+            action = json_data.get('action')            
+            token = json_data.get('token') 
+            # TODO validate the token
+            # TODO validate the input
+            if action == 'register':
+                username = token.split('.')[0]
+                user = DB.get(username)
+                user['ws'] = ws
+                ws.send(json.dumps({'action': 'contacts', 'contacts': DB.keys()}))
+            elif action == 'message':
+                to = json_data.get('to')
+                user = DB.get(to)
+                to_ws = user.get('ws')
+                to_ws.send(data)
+        # TODO check which exception to catch, I think type error
+        except:
+            user = DB.get(username)
+            user['ws'] = None
      
 @werkzeug.serving.run_with_reloader
 def main():
