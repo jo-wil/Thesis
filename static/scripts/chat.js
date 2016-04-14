@@ -6,16 +6,18 @@ var chat = {
    },
    render: function () {
       this.init();
-      var html = ` 
-         <h2>Contacts</h2>
-         <ul id="contacts"></ul>
-         <div id="log"></div>
-         <form id="message-form" class="pure-form pure-form-stacked">
-            <input id="to" type="text" placeholder="To" required/>
-            <textarea id="text" placeholder="Text" required></textarea>
-            <input type="submit" class="pure-button pure-button-primary" value="Send"/>
-         </form>
-         <p id="error"></p>`;
+      var html = `
+         <div id="chat">
+            <p>Hi ${app.globals.username}!</p> 
+            <div id="contacts"></div>
+            <div id="log"></div>
+            <form id="message-form" class="pure-form pure-form-stacked">
+               <input id="to" type="text" placeholder="To" required/>
+               <textarea id="text" placeholder="Text" required></textarea>
+               <input type="submit" class="pure-button pure-button-primary" value="Send"/>
+            </form>
+            <p id="error"></p>
+         </div>`;
       document.querySelector('#container').innerHTML = html;
       this.listeners();
    },
@@ -48,23 +50,15 @@ var chat = {
       };
       ws.send(JSON.stringify(message));
       this.updateLog(message);
-      
+      document.querySelector('#text').value = '';
    },
    handleRecieve: function (evt) {
       var data = JSON.parse(evt.data);
       var action = data.action;
       switch (action) {
          case 'contacts': 
-            var contacts = data.contacts;
-            var ul = document.querySelector('#contacts');
-            for (var i = 0; i < contacts.length; i++) {
-               var contact = contacts[i];
-               if (contact !== app.globals.username) {
-                  var li = document.createElement('li');
-                  li.innerText = contact;
-                  ul.appendChild(li);
-               }
-            } 
+            data.contacts.splice(data.contacts.indexOf(app.globals.username), 1);
+            document.querySelector('#contacts').innerText = `contacts: ${data.contacts}`;
             break;
          case 'message':
             this.updateLog(data);

@@ -3,12 +3,14 @@
 var login = {
    render: function () {
       var html = `
-         <form id="login-form" class="pure-form pure-form-stacked">
-            <input id="username" type="text" placeholder="Username" required/>
-            <input id="password" type="password" placeholder="Password" required/>
-            <input type="submit" class="pure-button pure-button-primary" value="Login"/>
-         </form>
-         <p id="error"></p>`;
+         <div id="login">
+            <form id="login-form">
+               <input id="username" type="text" placeholder="Username" required/>
+               <input id="password" type="password" placeholder="Password" required/>
+               <input type="submit" value="Login"/>
+            </form>
+            <p id="error"></p>
+         <div id="login">`;
       document.querySelector('#container').innerHTML = html;
       this.listeners();
    },

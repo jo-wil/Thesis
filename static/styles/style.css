@@ -1,6 +1,21 @@
+* {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+
 /* App specific CSS ids */
+#container {
+   height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+#chat {
+   width: 75%;
+}
 #log {
-   height: 40vh;
+   height: 50vh;
    border: 1px solid black;
    overflow: auto;
 }
@@ -12,3 +27,4 @@
    width: 100%;
    overflow: auto;
 }
+
