@@ -44,6 +44,7 @@ var chat = {
       var text = document.querySelector('#text').value;
       var message = {
          action: 'message',
+         token: app.globals.token,
          from: from,
          to: to, // TODO
          text: text

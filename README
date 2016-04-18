@@ -1,3 +1,9 @@
 Repo for my thesis.
 
 run -- runs the server
+
+Dependencies
+
+Flask
+Flask-Sockets
+pycrypto

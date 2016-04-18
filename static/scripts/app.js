@@ -51,3 +51,23 @@ window.crypto.subtle.generateKey({
 }).catch(function(err){
    console.error(err);
 });
+
+
+window.crypto.subtle.generateKey(
+    {
+        name: "ECDH",
+        namedCurve: "P-256", //can be "P-256", "P-384", or "P-521"
+    },
+    false, //whether the key is extractable (i.e. can be used in exportKey)
+    ["deriveKey", "deriveBits"] //can be any combination of "deriveKey" and "deriveBits"
+)
+.then(function(key){
+    //returns a keypair object
+    console.log(key);
+    console.log(key.publicKey);
+    console.log(key.privateKey);
+})
+.catch(function(err){
+    console.error(err);
+});
+
