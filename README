@@ -4,6 +4,6 @@ run -- runs the server
 
 Dependencies
 
-Flask
-Flask-Sockets
-pycrypto
+[Flask](http://flask.pocoo.org/)
+[Flask-Sockets](https://github.com/kennethreitz/flask-sockets)
+[PyCrypto](https://www.dlitz.net/software/pycrypto/)
