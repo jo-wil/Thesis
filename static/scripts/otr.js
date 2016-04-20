@@ -26,22 +26,20 @@ var otr = {
          var iv = window.crypto.getRandomValues(new Uint8Array(16));
          window.crypto.subtle.generateKey({
                name: "AES-CBC",
-               length: 128, //can be  128, 192, or 256
+               length: 128,
             },
-            true, //whether the key is extractable (i.e. can be used in exportKey)
-            ["encrypt", "decrypt"] //can be "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+            true,
+            ["encrypt", "decrypt"]
          ).then(function(key){         
             g_key = key;
             var encoder = new TextEncoder();
             var plaintext = encoder.encode(data.text);
             return window.crypto.subtle.encrypt({
                   name: 'AES-CBC',
-                  //Don't re-use initialization vectors!
-                  //Always generate a new iv every time your encrypt!
                   iv: iv,
                },
-               g_key, //from generateKey or importKey above
-               plaintext // ArrayBuffer of data you want to encrypt
+               g_key,
+               plaintext
             );
          }).then(function(ciphertext) {
             delete data.text;

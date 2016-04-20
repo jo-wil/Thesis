@@ -28,7 +28,7 @@ DB = {
 
 @app.route('/')
 def index():
-    f = open('index.html')
+    f = open('./static/index.html')
     html = f.read()
     f.close()
     return html, 200
