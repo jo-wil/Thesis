@@ -56,18 +56,17 @@ def messaging(ws):
             token_data = jwt.decode(json_data.get('token')) 
             # TODO validate the token
             # TODO validate the input
-            print 'token', token_data
             if token_data:
-                print action
                 if action == 'register':
                     username = token_data.get('username')
                     user = DB.get(username)
                     user['ws'] = ws
-                    ws.send(json.dumps({'action': 'contacts', 'contacts': DB.keys()}))
+                    ws.send(json.dumps({'action': action, 'contacts': DB.keys()}))
                 elif action == 'message':
                     to = json_data.get('to')
                     user = DB.get(to)
                     to_ws = user.get('ws')
+                    print data
                     to_ws.send(data) # todo filter what data gets sent
             # else TODO send you are not logged in?
         # TODO check which exception to catch, I think type error

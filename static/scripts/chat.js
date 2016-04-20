@@ -42,33 +42,39 @@ var chat = {
       var from = app.globals.username;
       var to = document.querySelector('#to').value;
       var text = document.querySelector('#text').value;
-      var message = {
+      var data = {
          action: 'message',
          token: app.globals.token,
          from: from,
-         to: to, // TODO
+         to: to,
          text: text
       };
-      ws.send(JSON.stringify(message));
-      this.updateLog(message);
+      this.updateLog(data);
+      otr.send(data).then(function (data) {
+         ws.send(JSON.stringify(data));
+      }.bind(this));
       document.querySelector('#text').value = '';
    },
    handleRecieve: function (evt) {
       var data = JSON.parse(evt.data);
       var action = data.action;
       switch (action) {
-         case 'contacts': 
+         case 'register': 
             data.contacts.splice(data.contacts.indexOf(app.globals.username), 1);
             document.querySelector('#contacts').innerText = `contacts: ${data.contacts}`;
             break;
          case 'message':
-            this.updateLog(data);
+            otr.recieve(data).then(function (data) {
+               this.updateLog(data);
+            }.bind(this));
             break; 
       }
    },
    updateLog: function (message) {
-      var p = document.createElement('p');
-      p.innerText = `To: ${message.to} From: ${message.from} Text: ${message.text}`;
-      document.querySelector('#log').appendChild(p);
+      if (message) {
+         var p = document.createElement('p');
+         p.innerText = `To: ${message.to} From: ${message.from} Text: ${message.text}`;
+         document.querySelector('#log').appendChild(p);
+      }
    } 
 }
