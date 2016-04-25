@@ -1,84 +1,75 @@
 'use strict';
 
-var g_key;
-
-var otr = {
-   utils: {
-      hton: function (options) {
-         var array = options.array;
-         var tmp = [];
-         for (var i = 0; i < array.length; i++) {
-            tmp.push(array[i]);
-         }
-         return tmp;
-      },
-      ntoh: function (options) {
-         var array = options.array;
-         var tmp = new Uint8Array(array.length);
-         for (var i = 0; i < array.length; i++) {
-            tmp[i] = array[i];
-         }
-         return tmp;
+// Regular class
+class Convo {
+   constructor() {
+      this._authStates = {
+         0: 'AUTHSTATE_NONE',
+         1: 'AUTHSTATE_AWAITING_DHKEY',
+         2: 'AUTHSTATE_AWAITING_REVEALSIG',
+         3: 'AUTHSTATE_AWAITING_SIG'
+      };
+      this._msgStates = {
+         0: 'MSGSTATE_PLAINTEXT',
+         1: 'MSGSTATE_ENCRYPTED',
+         2: 'MSGSTATE_FINISHED'
+      };
+      this._state = {
+         auth: 0,
+         msg: 0
       }
-   },
-   send: function (data) {
+   }
+   next () {
+      console.log(this._state);
+   }
+}
+
+// Singleton class
+class Otr {
+   constructor () {
+      this._convos = {};
+   }
+
+   static get instance() {
+      if (!this._instance) {
+         this._instance = new Otr();
+      } 
+      return this._instance;
+   }
+
+   static hton (array) {
+      var tmp = [];
+      for (var i = 0; i < array.length; i++) {
+         tmp.push(array[i]);
+      }
+      return tmp;
+   }
+
+   static ntoh (array) {
+      var tmp = new Uint8Array(array.length);
+      for (var i = 0; i < array.length; i++) {
+         tmp[i] = array[i];
+      }
+      return tmp;
+   }
+
+   send (data, ws) {
+      var convo = this._convos[data.to] || new Convo();
       var promise = new Promise(function (resolve, reject) {
-         var iv = window.crypto.getRandomValues(new Uint8Array(16));
-         window.crypto.subtle.generateKey({
-               name: "AES-CBC",
-               length: 128,
-            },
-            true,
-            ["encrypt", "decrypt"]
-         ).then(function(key){         
-            g_key = key;
-            var encoder = new TextEncoder();
-            var plaintext = encoder.encode(data.text);
-            return window.crypto.subtle.encrypt({
-                  name: 'AES-CBC',
-                  iv: iv,
-               },
-               g_key,
-               plaintext
-            );
-         }).then(function(ciphertext) {
-            delete data.text;
-            ciphertext = new Uint8Array(ciphertext);
-            data.otr = {
-               iv: this.utils.hton({
-                  array: iv
-               }),
-               ciphertext: this.utils.hton({
-                  array: ciphertext
-               })
-            }
-            resolve(data);
-         }.bind(this));
-      }.bind(this));
-      return promise;
-   },
-   recieve: function (data) {
-      var promise = new Promise(function (resolve, reject) {
-         var iv = this.utils.ntoh({
-            array: data.otr.iv
-         });
-         var ciphertext = this.utils.ntoh({
-            array: data.otr.ciphertext
-         });
-         window.crypto.subtle.decrypt({
-               name: 'AES-CBC',
-               iv: iv, 
-            },
-            g_key,
-            ciphertext
-         ).then(function (plaintext) {
-            var decoder = new TextDecoder();
-            var plaintext = decoder.decode(plaintext);
-            data.text = plaintext;
-            delete data.otr;
-            resolve(data); 
-         });
-      }.bind(this));
+         // TODO figure out this async stuff
+         resolve(data);
+      });
+      this._convos[data.to] = convo;
       return promise;
    }
+
+   recieve (data) {
+      var convo = this._convos[data.from] || new Convo();
+      var promise = new Promise(function (resolve, reject) {
+         console.log(convo);
+         resolve(data);
+      });
+      this._convos[data.from] = convo;
+      return promise;
+   }      
 }
