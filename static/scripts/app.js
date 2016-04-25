@@ -64,8 +64,8 @@ class LoginView extends View {
    }
 
    handleLogin () {
-      var username = document.querySelector('#username').value;
-      var password = document.querySelector('#password').value;
+      let username = document.querySelector('#username').value;
+      let password = document.querySelector('#password').value;
       fetch('/api/login', {
          method: 'POST',
          body: JSON.stringify({
@@ -83,7 +83,6 @@ class LoginView extends View {
          Globals.token = json.token;
          const chatView = ChatView.instance;
          chatView.render();
-         return; // TODO Do I need this
       });/*.catch(function (error) {
          document.querySelector('#info').innerText = error;
       });*/ // TODO handle errors a little cleaner
@@ -96,7 +95,7 @@ class ChatView extends View {
 
    constructor(template, container) {
       super(template, container);
-      this._ws = new WebSocket('ws://localhost:8000/socket');
+      Globals.ws = new WebSocket('ws://localhost:8000/socket');
    }
 
    static get instance() {
@@ -123,7 +122,7 @@ class ChatView extends View {
          evt.preventDefault();
          this.handleSend.call(this);
       }.bind(this));
-      var ws = this._ws;
+      const ws = Globals.ws;
       ws.addEventListener('message', function (evt) {
          evt.preventDefault();
          this.handleRecieve.call(this, evt);
@@ -137,11 +136,11 @@ class ChatView extends View {
    }
 
    handleSend () {
-      var ws = this._ws;
-      var from = Globals.username;
-      var to = document.querySelector('#to').value;
-      var text = document.querySelector('#text').value;
-      var data = {
+      const ws = Globals.ws;
+      let from = Globals.username;
+      let to = document.querySelector('#to').value;
+      let text = document.querySelector('#text').value;
+      let data = {
          action: 'message',
          token: Globals.token,
          from: from,
@@ -149,21 +148,22 @@ class ChatView extends View {
          text: text
       };
       this.updateLog(data);
-      Otr.instance.send(data, ws).then(function (data) {
+      Otr.instance.send(data).then(function (data) {
+         console.log('send', data);
          ws.send(JSON.stringify(data));
          document.querySelector('#text').value = '';
       }.bind(this)); // TODO catch errors
    }
 
    handleRecieve (evt) {
-      var data = JSON.parse(evt.data);
-      var action = data.action;
-      switch (action) {
+      let data = JSON.parse(evt.data);
+      switch (data.action) {
          case 'register': 
             data.contacts.splice(data.contacts.indexOf(Globals.username), 1);
             document.querySelector('#contacts').innerText = `contacts: ${data.contacts}`;
             break;
          case 'message':
+            console.log('recieve', data);
             Otr.instance.recieve(data).then(function (data) {
                if (data.text) {
                   this.updateLog(data);
@@ -174,7 +174,7 @@ class ChatView extends View {
    }
 
    updateLog (message) {
-      var p = document.createElement('p');
+      let p = document.createElement('p');
       p.innerText = `To: ${message.to} From: ${message.from} Text: ${message.text}`;
       document.querySelector('#log').appendChild(p);
    }
