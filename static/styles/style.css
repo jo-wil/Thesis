@@ -3,7 +3,9 @@
    margin: 0;
    padding: 0;
 }
-
+body {
+   background: grey;
+}
 /* App specific CSS ids */
 #container {
    height: 100vh;
@@ -15,6 +17,7 @@
    width: 75%;
 }
 #log {
+   background : white;
    height: 50vh;
    border: 1px solid black;
    overflow: auto;

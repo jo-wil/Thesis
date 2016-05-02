@@ -149,7 +149,6 @@ class ChatView extends View {
       };
       this.updateLog(data);
       Otr.instance.send(data).then(function (data) {
-         console.log('send', data);
          ws.send(JSON.stringify(data));
          document.querySelector('#text').value = '';
       }.bind(this)); // TODO catch errors
@@ -163,7 +162,6 @@ class ChatView extends View {
             document.querySelector('#contacts').innerText = `contacts: ${data.contacts}`;
             break;
          case 'message':
-            console.log('recieve', data);
             Otr.instance.recieve(data).then(function (data) {
                if (data.text) {
                   this.updateLog(data);
