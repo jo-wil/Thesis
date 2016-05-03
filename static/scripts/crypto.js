@@ -6,19 +6,10 @@
  */
 class Crypto {
 
-   /*static toBuffer (data) {
-      return (new TextEncoder('utf-8')).encode(data);
-   }
-   
-   // TODO might have to deal with DataView if stuff breaks
-   static toString (data) {
-      return (new TextDecoder('utf-8')).decode(data);
-   }*/
- 
    constructor () {
       this._crypto = window.crypto.subtle; 
       if(!this._crypto) { 
-         throw 'Crypto.constructor: WebCrpyto API unsupported';
+        throw 'Crypto.constructor: WebCrpyto API unsupported';
       }
       this._state = {};
    }
@@ -62,7 +53,7 @@ class Crypto {
       switch (algo.name) {
          case 'ECDH':
             algo.namedCurve = algo.namedCurve || 'P-256'; // TODO verify P-256 is okay
-            usages = usages || ['deriveKey', 'deriveBits'];      
+            usages = usages || [];//['deriveKey', 'deriveBits']; TODO this seems to work for the public key which doesn't have usages???      
             break;
          case 'AES-CTR': // TODO possible fall through for all AES
             algo.length = algo.length || 128; // TODO verify 128 is okay
@@ -83,6 +74,27 @@ class Crypto {
       return this._crypto.exportKey(format, key); 
    }
 
+
+   deriveKey (algo, masterKey, derivedKeyAlgo, extractable, keyUsages) {
+      if (!algo) {
+         throw 'Crypto.deriveKey: algo undefined';
+      }
+      algo.name = algo.name || 'ECDH';
+      algo.namedCurve = algo.namedCurve || 'P-256';
+      if (!algo.public) {
+         throw 'Crypto.deriveKey: algo.public undefined';
+      }
+      if (!masterKey) {
+         throw 'Crypto.deriveKey: masterKey undefined';
+      }
+      derivedKeyAlgo = derivedKeyAlgo || {};
+      derivedKeyAlgo.name = derivedKeyAlgo.name || 'AES-CTR';
+      derivedKeyAlgo.length = derivedKeyAlgo.length || 128;
+      extractable = extractable || true;
+      keyUsages = keyUsages || ['encrypt', 'decrypt'];
+      return this._crypto.deriveKey(algo, masterKey, derivedKeyAlgo, extractable, keyUsages);
+   }
+   
    encrypt (algo, key, cleartext) {
       if (!algo) {
          throw 'Crypto.encrypt: algo undefined';

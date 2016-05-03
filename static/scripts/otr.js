@@ -13,6 +13,7 @@
 */
 
 // TODO ask Peterson about this, utf-8 vs utf-16
+// TODO move this somewhere else
 const encoder = new TextEncoder('utf-16');
 const decoder = new TextDecoder('utf-16', {fatal: true});
 
@@ -67,8 +68,6 @@ class Convo {
                return Promise.all([encryptGX, hashGX]);
             }.bind(this)).then(function (results) {
                let otr = {};
-               console.log(new Uint8Array(results[0]));
-               console.log(new Uint8Array(results[1]));
                otr.aes_r_gx = decoder.decode(results[0]); 
                otr.hash_gx = decoder.decode(results[1]);
                data.otr = otr;
@@ -78,15 +77,23 @@ class Convo {
          }.bind(this));
       }
       if (type === 'recieve') {
+         this._data.aes_r_gx = encoder.encode(data.otr.aes_r_gx);
+         this._data.hash_gx = encoder.encode(data.otr.hash_gx);
          promise = new Promise(function (resolve, reject) {
             let pickGY = this._crypto.generateKey({name: 'ECDH'});
             pickGY.then(function (result) {
                this._data.gy = result;
                return this._crypto.exportKey('jwk', this._data.gy.publicKey);
             }.bind(this)).then(function (result) {
+               let ws = Globals.ws;
                let otr = {};
+               let newData = data;
+               let tmp = newData.to;
+               newData.to = newData.from;
+               newData.from = tmp;
                otr.gy = result; 
-               data.otr = otr;
+               newData.otr = otr;
+               ws.send(JSON.stringify(data)); 
                this._state.auth = 'AUTHSTATE_AWAITING_REVEALSIG';
                resolve(data);
             }.bind(this));
@@ -97,20 +104,44 @@ class Convo {
    
    _AUTHSTATE_AWAITING_DHKEY (type, data) {
       console.log('AUTHSTATE_AWAITING_DHKEY', type, data); 
+      let promise;
       if (type === 'send') {
+         throw 'Not implemented AUTHSTATE_AWAITING_DHKEY type === send';
       }
-      if (type === 'recieve') {
-         let otr = data.otr;
-         console.log(encoder.encode(otr.aes_r_gx));
-         console.log(encoder.encode(otr.hash_gx));
+      if (type === 'recieve') { 
+         promise = new Promise(function (resolve, reject) {
+            this._crypto.importKey('jwk', data.otr.gy, {name: 'ECDH'})
+            .then(function (result) {
+               this._data.gy = result;
+               return this._crypto.deriveKey({
+                         public: this._data.gy
+                      }, 
+                      this._data.gx.privateKey)
+            }.bind(this)).then(function (result) {
+               console.log(result);
+            });        
+         }.bind(this));      
       }
+      return promise;
    }
 
    _AUTHSTATE_AWAITING_REVEALSIG (type, data) {
       console.log('AUTHSTATE_AWAITING_REVEALSIG', type, data); 
       if (type === 'send') {
+         throw 'Not implemented AUTHSTATE_AWAITING_REVEALSIG type === send';
       }
       if (type === 'recieve') {
+         throw 'Not implemented AUTHSTATE_AWAITING_REVEALSIG type === recieve';
+      }
+   }
+
+   _AUTHSTATE_AWAITING_SIG (type, data) {
+      console.log('AUTHSTATE_AWAITING_SIG', type, data); 
+      if (type === 'send') {
+         throw 'Not implemented AUTHSTATE_AWAITING_SIG type === send';
+      }
+      if (type === 'recieve') {
+         throw 'Not implemented AUTHSTATE_AWAITING_SIG type === recieve';
       }
    }
 }

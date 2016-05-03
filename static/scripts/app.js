@@ -42,11 +42,12 @@ class LoginView extends View {
 
    static get instance() {
       if (!this._instance) {
+         // TODO readd requred to the password field
          const template = `
             <div id="login">
                <form id="login-form">
                   <input id="username" type="text" placeholder="Username" required/>
-                  <input id="password" type="password" placeholder="Password" required/>
+                  <input id="password" type="password" placeholder="Password"/> 
                   <input type="submit" value="Login"/>
                </form>
                <p id="info"></p>
@@ -151,7 +152,7 @@ class ChatView extends View {
       Otr.instance.send(data).then(function (data) {
          ws.send(JSON.stringify(data));
          document.querySelector('#text').value = '';
-      }.bind(this)); // TODO catch errors
+      }.bind(this));
    }
 
    handleRecieve (evt) {
@@ -181,3 +182,9 @@ class ChatView extends View {
 
 // Start the app on page load
 window.addEventListener('load', Main.run);
+
+let c = new Crypto();
+
+c.generateKey({name: 'ECDH'}).then(function (result) {
+   console.log(result);
+});
