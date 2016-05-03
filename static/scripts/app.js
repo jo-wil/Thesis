@@ -183,8 +183,25 @@ class ChatView extends View {
 // Start the app on page load
 window.addEventListener('load', Main.run);
 
+// This is the most important code of the project !!!
 let c = new Crypto();
+let gentest = function* () { 
+   let publicKey = yield c.generateKey({name: 'ECDH'});
+   console.log(publicKey);
+   let privateKey = yield c.generateKey({name: 'AES-CTR'});
+   console.log(privateKey);
+};
 
-c.generateKey({name: 'ECDH'}).then(function (result) {
-   console.log(result);
-});
+let gen = gentest();
+
+let r = function (g, p) {
+   let next = g.next(p);
+   if (next.done) {
+      return;
+   }
+   Promise.resolve(next.value).then(function (result) {
+      r(g, result);
+   });
+};
+
+r(gen, null);
