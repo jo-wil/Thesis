@@ -183,6 +183,29 @@ class ChatView extends View {
 // Start the app on page load
 window.addEventListener('load', Main.run);
 
+this.test = 'this is a test';
+
+// Put these in Utils
+
+let hton = function (array) {
+   let string = '';
+   for (let i = 0 ; i < array.length; i++) {
+      string += String.fromCharCode(array[i]);
+   }
+   return btoa(string);
+}
+
+let ntoh = function (string) {
+   string = atob(string);
+   let array = new Uint8Array(string.length);
+   for (let i = 0; i < string.length; i++) {
+      array[i] = string.charCodeAt(i);
+   }
+   return array;
+}
+
+
+
 // This is the most important code of the project !!!
 let c = new Crypto();
 let gentest = function* () { 
@@ -190,18 +213,37 @@ let gentest = function* () {
    console.log(publicKey);
    let privateKey = yield c.generateKey({name: 'AES-CTR'});
    console.log(privateKey);
-};
+   let plaintext = new Uint8Array(4);
+   plaintext[0] = 65;
+   plaintext[1] = 66;
+   plaintext[2] = 67;
+   plaintext[3] = 68;
+   let ciphertext = yield c.encrypt({
+      name: 'AES-CTR', 
+      counter: new Uint8Array(16)
+   }, privateKey, plaintext);
+   console.log('ciphertext', new Uint8Array(ciphertext));
+   console.log('ciphertext', hton(new Uint8Array(ciphertext)));
+   console.log('ciphertext', ntoh(hton(new Uint8Array(ciphertext))));
+   console.log('ciphertext', new Uint8Array(ciphertext).length);
+
+}.bind(this);
 
 let gen = gentest();
 
-let r = function (g, p) {
+let r = function (g, p, d) {
    let next = g.next(p);
    if (next.done) {
+      d('done');
       return;
    }
    Promise.resolve(next.value).then(function (result) {
-      r(g, result);
+      r(g, result, d);
    });
 };
 
-r(gen, null);
+let pw = new Promise(function (resolve, reject) {
+   r(gen, null, resolve);
+}).then(function (result) {
+   console.log(result);
+});
