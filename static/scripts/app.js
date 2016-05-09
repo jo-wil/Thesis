@@ -224,32 +224,69 @@ let run = function (generator) {
 // ----- Start OTR -----
 
 const crypto = new Crypto();
-
+let bob = {};
+let alice = {};
+let network = {};
 
 let ake1 = function* () {
+   // picks random value r (128 bits)
    let r = yield crypto.generateKey({name: 'AES-CTR'});   
-   console.log('r', r);
+   // picks random value x (320 bits)
    let gx = yield crypto.generateKey({name: 'ECDH'});   
-   console.log('gx', gx);
    let exportedGx = yield crypto.exportKey('jwk', gx.publicKey);
-   console.log('exportedGx', exportedGx);
+   // sends Alice AESr(gx), HASH(gx)
    let encryptedGx = yield crypto.encrypt({
       name: 'AES-CTR',
       counter: new Uint8Array(16)
    }, r, toArray(JSON.stringify(exportedGx))); 
-   console.log('encryptedGx', new Uint8Array(encryptedGx));
    let digestGx = yield crypto.digest({}, toArray(JSON.stringify(exportedGx))); 
+  
+   //Emulate storage and network
+   bob.r = r;
+   bob.gx = gx;
+   network.encryptedGx = encryptedGx;
+   network.digestGx = digestGx;
+   // Print the results 
+   console.log('r', r);
+   console.log('gx', gx);
+   console.log('exportedGx', exportedGx);
+   console.log('encryptedGx', new Uint8Array(encryptedGx));
    console.log('digestGx', new Uint8Array(digestGx));
    console.log('done with ake1');
 };
 
 let ake2 = function* () {
+   // picks random value y (320 bits)
+   let gy = yield crypto.generateKey({name: 'ECDH'});
+   alice.gy = gy;
+   // sends Bod gy
+   let exportedGy = yield crypto.exportKey('jwk', gy.publicKey);
+
+   //Emulate the network
+   network.exportedGy = exportedGy;
+   // Print the results 
+   console.log('gy', gy);
+   console.log('exportedGy', exportedGy);
    console.log('done with ake2'); 
 };
 
+let ake3 = function* () {
+   // verfies that Alice's gy is a legal value
+   let gy = yield crypto.importKey('jwk', network.exportedGy, {name: 'ECDH'});
+   // compute s = (gy)x
+   let s = yield crypto.deriveKey({
+      public: gy
+   }, bob.gx.privateKey);
+   // TODO ...
+  
+   console.log('s', s);
+   console.log('done with ake3'); 
+};
+
 run(ake1).then(function (result) {
-   console.log(result);
    return run(ake2);
 }).then(function (result) {
-   console.log(result);
+   return run(ake3);
+}).then(function (result) {
+   console.log('NETWORK', network);
 });
