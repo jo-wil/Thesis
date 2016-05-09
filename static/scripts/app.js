@@ -183,20 +183,19 @@ class ChatView extends View {
 // Start the app on page load
 window.addEventListener('load', Main.run);
 
-this.test = 'this is a test';
+// ----- TEST CODE BELOW HERE -----
 
-// Put these in Utils
-
-let hton = function (array) {
+// ----- Start Utils -----
+let toString = function (array) {
    let string = '';
    for (let i = 0 ; i < array.length; i++) {
       string += String.fromCharCode(array[i]);
    }
-   return btoa(string);
+   return string; //btoa
 }
 
-let ntoh = function (string) {
-   string = atob(string);
+let toArray = function (string) {
+   //string = atob(string);
    let array = new Uint8Array(string.length);
    for (let i = 0; i < string.length; i++) {
       array[i] = string.charCodeAt(i);
@@ -204,46 +203,53 @@ let ntoh = function (string) {
    return array;
 }
 
-
-
-// This is the most important code of the project !!!
-let c = new Crypto();
-let gentest = function* () { 
-   let publicKey = yield c.generateKey({name: 'ECDH'});
-   console.log(publicKey);
-   let privateKey = yield c.generateKey({name: 'AES-CTR'});
-   console.log(privateKey);
-   let plaintext = new Uint8Array(4);
-   plaintext[0] = 65;
-   plaintext[1] = 66;
-   plaintext[2] = 67;
-   plaintext[3] = 68;
-   let ciphertext = yield c.encrypt({
-      name: 'AES-CTR', 
-      counter: new Uint8Array(16)
-   }, privateKey, plaintext);
-   console.log('ciphertext', new Uint8Array(ciphertext));
-   console.log('ciphertext', hton(new Uint8Array(ciphertext)));
-   console.log('ciphertext', ntoh(hton(new Uint8Array(ciphertext))));
-   console.log('ciphertext', new Uint8Array(ciphertext).length);
-
-}.bind(this);
-
-let gen = gentest();
-
-let r = function (g, p, d) {
-   let next = g.next(p);
+let runner = function (generator, resolve, result) {
+   let next = generator.next(result);
    if (next.done) {
-      d('done');
-      return;
+      resolve('done');
+      return;   
    }
    Promise.resolve(next.value).then(function (result) {
-      r(g, result, d);
+      runner(generator, resolve, result);
    });
 };
 
-let pw = new Promise(function (resolve, reject) {
-   r(gen, null, resolve);
+let run = function (generator) {
+   let promise = new Promise(function (resolve, reject) {
+      runner(generator(), resolve, null);
+   });
+   return promise;
+};
+
+// ----- Start OTR -----
+
+const crypto = new Crypto();
+
+
+let ake1 = function* () {
+   let r = yield crypto.generateKey({name: 'AES-CTR'});   
+   console.log('r', r);
+   let gx = yield crypto.generateKey({name: 'ECDH'});   
+   console.log('gx', gx);
+   let exportedGx = yield crypto.exportKey('jwk', gx.publicKey);
+   console.log('exportedGx', exportedGx);
+   let encryptedGx = yield crypto.encrypt({
+      name: 'AES-CTR',
+      counter: new Uint8Array(16)
+   }, r, toArray(JSON.stringify(exportedGx))); 
+   console.log('encryptedGx', new Uint8Array(encryptedGx));
+   let digestGx = yield crypto.digest({}, toArray(JSON.stringify(exportedGx))); 
+   console.log('digestGx', new Uint8Array(digestGx));
+   console.log('done with ake1');
+};
+
+let ake2 = function* () {
+   console.log('done with ake2'); 
+};
+
+run(ake1).then(function (result) {
+   console.log(result);
+   return run(ake2);
 }).then(function (result) {
    console.log(result);
 });
