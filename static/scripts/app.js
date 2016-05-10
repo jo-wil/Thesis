@@ -277,9 +277,42 @@ let ake3 = function* () {
    let s = yield crypto.deriveKey({
       public: gy
    }, bob.gx.privateKey);
-   // TODO ...
-  
+   let exportedS = yield crypto.exportKey('raw', s);
+
+   // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways
+   exportedS = new Uint8Array(exportedS);
+   let lens = new Uint8Array(4);
+   lens.set([0, 0, 0, exportedS.length]);
+   let secbytes = new Uint8Array(4 + exportedS.length); 
+   secbytes.set(lens, 0); 
+   secbytes.set(exportedS, 4);
+   let h2 = function (b) {
+      let result = new Uint8Array(1 + 4 + exportedS.length);
+      result.set([b], 0);
+      result.set(secbytes, 1);
+      return result; 
+   }
+
+   let hash0 = yield crypto.digest({}, h2(0));
+   let ssid = hash0.slice(0,8); 
+   let hash1 = yield crypto.digest({}, h2(1));
+   let c1 = hash1.slice(0,16); 
+   let c1prime = hash1.slice(16,32); 
+   let m1 = yield crypto.digest({}, h2(2));
+   let m2 = yield crypto.digest({}, h2(3)); 
+   let m1prime = yield crypto.digest({}, h2(4)); 
+   let m2prime = yield crypto.digest({}, h2(5)); 
+
    console.log('s', s);
+   console.log('exportedS', exportedS); 
+   console.log('secbytes', secbytes); 
+   console.log('ssid', new Uint8Array(ssid));
+   console.log('c1', new Uint8Array(c1));
+   console.log('c1prime', new Uint8Array(c1prime));
+   console.log('m1', new Uint8Array(m1));
+   console.log('m2', new Uint8Array(m2));
+   console.log('m1prime', new Uint8Array(m1prime));
+   console.log('m2prime', new Uint8Array(m2prime));
    console.log('done with ake3'); 
 };
 
@@ -288,5 +321,7 @@ run(ake1).then(function (result) {
 }).then(function (result) {
    return run(ake3);
 }).then(function (result) {
+   console.log('ALICE', alice);
+   console.log('BOB', bob);
    console.log('NETWORK', network);
 });
