@@ -187,6 +187,9 @@ window.addEventListener('load', Main.run);
 
 // ----- Start Utils -----
 let toString = function (array) {
+   if (array instanceof Uint8Array) {
+      array = new Uint8Array(array);
+   } 
    let string = '';
    for (let i = 0 ; i < array.length; i++) {
       string += String.fromCharCode(array[i]);
@@ -201,6 +204,24 @@ let toArray = function (string) {
       array[i] = string.charCodeAt(i);
    }
    return array;
+}
+
+let equalArray = function (array1, array2) {
+   if (array1 instanceof Uint8Array) {
+      array1 = new Uint8Array(array1);
+   } 
+   if (array2 instanceof Uint8Array) {
+      array2 = new Uint8Array(array2);
+   } 
+   if (array1.length !== array2.length) {
+      return false;
+   }
+   for (let i = 0; i < array1.length; i++) {
+      if (array1[i] !== array2[i]) {
+         return false;
+      }
+   }
+   return true;
 }
 
 let runner = function (generator, resolve, result) {
@@ -224,52 +245,65 @@ let run = function (generator) {
 // ----- Start OTR -----
 
 const crypto = new Crypto();
+
+// Emulate Network
 let bob = {};
 let alice = {};
 let network = {};
 
 let ake1 = function* () {
-   // picks random value r (128 bits)
-   let r = yield crypto.generateKey({name: 'AES-CTR'});   
-   // picks random value x (320 bits)
-   let gx = yield crypto.generateKey({name: 'ECDH'});   
-   let exportedGx = yield crypto.exportKey('jwk', gx.publicKey);
-   // sends Alice AESr(gx), HASH(gx)
+   
+   // Picks a random value r (128 bits)
+   let r = yield crypto.generateKey({
+      algo: {name: 'AES-GCM'}
+   }); 
+
+   // Picks a random value x (at least 320 bits)
+   let gx = yield crypto.generateKey({
+      algo: {name: 'ECDH'}
+   }); 
+
+   //Sends Alice AESr(gx), HASH(gx)  
    let encryptedGx = yield crypto.encrypt({
-      name: 'AES-CTR',
-      counter: new Uint8Array(16)
-   }, r, toArray(JSON.stringify(exportedGx))); 
-   let digestGx = yield crypto.digest({}, toArray(JSON.stringify(exportedGx))); 
-  
-   //Emulate storage and network
+      key: r,
+      cleartext: JSON.stringify(gx.publicKey) 
+   });
+   let digestGx = yield crypto.digest({
+      buffer: JSON.stringify(gx.publicKey)
+   });
+        
+   // Emulate storage and network
    bob.r = r;
    bob.gx = gx;
    network.encryptedGx = encryptedGx;
    network.digestGx = digestGx;
+   
    // Print the results 
    console.log('r', r);
    console.log('gx', gx);
-   console.log('exportedGx', exportedGx);
-   console.log('encryptedGx', new Uint8Array(encryptedGx));
-   console.log('digestGx', new Uint8Array(digestGx));
+   console.log('encryptedGx', encryptedGx);
+   console.log('digestGx', digestGx);
    console.log('done with ake1');
 };
 
 let ake2 = function* () {
-   // picks random value y (320 bits)
-   let gy = yield crypto.generateKey({name: 'ECDH'});
-   alice.gy = gy;
-   // sends Bod gy
-   let exportedGy = yield crypto.exportKey('jwk', gy.publicKey);
+   
+   // Picks a random value y (at least 320 bits)
+   // Sends Bob gy
+   let gy = yield crypto.generateKey({
+      algo: {name: 'ECDH'}
+   });
 
-   //Emulate the network
-   network.exportedGy = exportedGy;
-   // Print the results 
+   // Emulate storage and network
+   alice.gy = gy;
+   network.gy = gy.publicKey;
+  
+    // Print the results 
    console.log('gy', gy);
-   console.log('exportedGy', exportedGy);
    console.log('done with ake2'); 
 };
 
+/*
 let ake3 = function* () {
    // verfies that Alice's gy is a legal value
    let gy = yield crypto.importKey('jwk', network.exportedGy, {name: 'ECDH'});
@@ -303,6 +337,10 @@ let ake3 = function* () {
    let m1prime = yield crypto.digest({}, h2(4)); 
    let m2prime = yield crypto.digest({}, h2(5)); 
 
+   // TODO the rest of this one
+
+   network.r = bob.r;
+
    console.log('s', s);
    console.log('exportedS', exportedS); 
    console.log('secbytes', secbytes); 
@@ -316,11 +354,68 @@ let ake3 = function* () {
    console.log('done with ake3'); 
 };
 
+let ake4 = function* () {
+
+   let encryptedGx = network.encryptedGx; 
+   let digestGx = network.digestGx;
+   let r = network.r;
+   // Decrypt gx
+   let tmp = yield crypto.decrypt({
+      name: 'AES-GCM',
+      iv: encryptedGx.slice(0,16)
+   }, r, encryptedGx.slice(16, encryptedGx.length));
+   // Verifies that HASH(gx) matches the value sent earlier
+   let digestCheck = yield crypto.digest({}, new Uint8Array(tmp));
+   let gx = yield crypto.importKey('jwk', JSON.parse(toString(new Uint8Array(tmp))), {name: 'ECDH'});
+   let s = yield crypto.deriveKey({
+      public: gx
+   }, alice.gy.privateKey);
+   let exportedS = yield crypto.exportKey('raw', s);
+   
+   // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways
+   exportedS = new Uint8Array(exportedS);
+   let lens = new Uint8Array(4);
+   lens.set([0, 0, 0, exportedS.length]);
+   let secbytes = new Uint8Array(4 + exportedS.length); 
+   secbytes.set(lens, 0); 
+   secbytes.set(exportedS, 4);
+   let h2 = function (b) {
+      let result = new Uint8Array(1 + 4 + exportedS.length);
+      result.set([b], 0);
+      result.set(secbytes, 1);
+      return result; 
+   }
+
+   let hash0 = yield crypto.digest({}, h2(0));
+   let ssid = hash0.slice(0,8); 
+   let hash1 = yield crypto.digest({}, h2(1));
+   let c1 = hash1.slice(0,16); 
+   let c1prime = hash1.slice(16,32); 
+   let m1 = yield crypto.digest({}, h2(2));
+   let m2 = yield crypto.digest({}, h2(3)); 
+   let m1prime = yield crypto.digest({}, h2(4)); 
+   let m2prime = yield crypto.digest({}, h2(5)); 
+
+   console.log('digest check', equalArray(digestCheck, digestGx)); 
+   console.log('s', s);
+   console.log('exportedS', exportedS);
+   console.log('secbytes', secbytes); 
+   console.log('ssid', new Uint8Array(ssid));
+   console.log('c1', new Uint8Array(c1));
+   console.log('c1prime', new Uint8Array(c1prime));
+   console.log('m1', new Uint8Array(m1));
+   console.log('m2', new Uint8Array(m2));
+   console.log('m1prime', new Uint8Array(m1prime));
+   console.log('m2prime', new Uint8Array(m2prime));
+};*/
+
 run(ake1).then(function (result) {
    return run(ake2);
 }).then(function (result) {
-   return run(ake3);
+/*   return run(ake3);
 }).then(function (result) {
+   return run(ake4);
+}).then(function (result) {*/
    console.log('ALICE', alice);
    console.log('BOB', bob);
    console.log('NETWORK', network);

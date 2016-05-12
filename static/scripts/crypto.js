@@ -1,20 +1,47 @@
 'use strict';
 
-/**
- * This class aims to wrap the native WebCrypto API with sensible defaults. 
- * All of the API is still available to the user of this class.
- */
+class Utils {
+
+   static toString (array) {
+      let string = '';
+      for (let i = 0 ; i < array.length; i++) {
+         string += String.fromCharCode(array[i]);
+      }
+      return string; 
+   }
+
+   static toArray (string) {
+      let array = new Uint8Array(string.length);
+      for (let i = 0; i < string.length; i++) {
+         array[i] = string.charCodeAt(i);
+      }
+      return array;
+   }
+}
+
 class Crypto {
 
    constructor () {
-      this._crypto = window.crypto.subtle; 
-      if(!this._crypto) { 
-        throw 'Crypto.constructor: WebCrpyto API unsupported';
+      if(!window.crypto.subtle) { 
+        throw 'Crypto.constructor: WebCrypto API unsupported';
       }
-      this._state = {};
+      this.crypto = window.crypto.subtle; 
    }
 
-   generateKey (algo, extractable, keyUsages) {
+   getRandomValues(bytes) {
+      
+      if (this._pure || (bytes instanceof Uint8Array)) {
+         return window.crypto.getRandomValues(bytes);
+      }
+      return window.crypto.getRandomValues(new Uint8Array(bytes));
+   }
+
+   generateKey (options) {
+      
+      let algo = options.algo;
+      let extractable = options.extractable;
+      let keyUsages = options.extractable;
+      
       if (!algo) {
          throw 'Crypto.generateKey: algo undefined';
       }
@@ -24,21 +51,49 @@ class Crypto {
       extractable = extractable || true;
       switch (algo.name) {
          case 'ECDH':
-            algo.namedCurve = algo.namedCurve || 'P-256'; // TODO verify P-256 is okay
+            algo.namedCurve = algo.namedCurve || 'P-256';
             keyUsages = keyUsages || ['deriveKey', 'deriveBits'];      
             break;
-         case 'AES-CTR': // TODO possible fall through for all AES
-            algo.length = algo.length || 128; // TODO verify 128 is okay
+         case 'AES-GCM':
+            algo.length = algo.length || 128;
             keyUsages = keyUsages || ['encrypt', 'decrypt']; 
             break;
          default:
-            throw 'Cryto.generateKey: algo.name unsupported';
+            throw 'Cryto.generateKey: algo.name unsupported ' + algo.name;
             break;
       }
-      return this._crypto.generateKey(algo, extractable, keyUsages);
+      
+      let promise = new Promise(function (resolve, reject) { 
+         this.crypto.generateKey(algo, extractable, keyUsages)
+         .then(function (result) {
+            switch (algo.name) {
+               case 'ECDH':
+                  return Promise.all([this.exportKey({key: result.publicKey}), crypto.exportKey({key: result.privateKey})]);
+               case 'AES-GCM':
+                  return this.exportKey({key: result});
+            }     
+         }.bind(this)).then(function (result) {
+            if (result.length === 2) {
+               resolve({
+                  publicKey: result[0],
+                  privateKey: result[1]
+               });
+            } else {
+               resolve(result);
+            }
+         }.bind(this));
+      }.bind(this)); 
+      return promise;
    }
 
-   importKey (format, keyData, algo, extractable, usages) {
+   importKey (options) {
+
+      let format  = options.format ;    
+      let keyData = options.keyData ;    
+      let algo = options.algo ;    
+      let extractable = options.extractable ;    
+      let usages = options.usages ;    
+ 
       format = format || 'jwk';
       if (!keyData) {
          throw 'Crypto.importKey: keyData undefined';
@@ -49,32 +104,35 @@ class Crypto {
       if (!algo.name) { 
          throw 'Crypto.importKey: algo.name undefined';
       }
-      extractable = extractable || true;
       switch (algo.name) {
          case 'ECDH':
-            algo.namedCurve = algo.namedCurve || 'P-256'; // TODO verify P-256 is okay
-            usages = usages || [];//['deriveKey', 'deriveBits']; TODO this seems to work for the public key which doesn't have usages???      
+            algo.namedCurve = algo.namedCurve || 'P-256'; 
             break;
-         case 'AES-CTR': // TODO possible fall through for all AES
-            algo.length = algo.length || 128; // TODO verify 128 is okay
-            usages = usages || ['encrypt', 'decrypt']; 
+         case 'AES-GCM': 
+            algo.length = algo.length || 128; 
             break;
          default:
-            throw 'Cryto.importKey: algo.name unsupported';
+            throw 'Cryto.importKey: algo.name unsupported ' + algo.name;
             break;
       }
-      return this._crypto.importKey(format, keyData, algo, extractable, usages);
+      extractable = extractable || true;
+      usages = usages || keyData.key_ops; 
+      return this.crypto.importKey(format, keyData, algo, extractable, usages);
    }
 
-   exportKey (format, key) {
+   exportKey (options) {
+      
+      let format = options.format;
+      let key = options.key;
+
       format = format || 'jwk';
       if (!key) {
          throw 'Crypto.exportKey: key undefined';
       }
-      return this._crypto.exportKey(format, key); 
+      return this.crypto.exportKey(format, key); 
    }
 
-
+   // TODO
    deriveKey (algo, masterKey, derivedKeyAlgo, extractable, keyUsages) {
       if (!algo) {
          throw 'Crypto.deriveKey: algo undefined';
@@ -88,26 +146,25 @@ class Crypto {
          throw 'Crypto.deriveKey: masterKey undefined';
       }
       derivedKeyAlgo = derivedKeyAlgo || {};
-      derivedKeyAlgo.name = derivedKeyAlgo.name || 'AES-CTR';
+      derivedKeyAlgo.name = derivedKeyAlgo.name || 'AES-GCM';
       derivedKeyAlgo.length = derivedKeyAlgo.length || 128;
       extractable = extractable || true;
       keyUsages = keyUsages || ['encrypt', 'decrypt'];
-      return this._crypto.deriveKey(algo, masterKey, derivedKeyAlgo, extractable, keyUsages);
+      return this.crypto.deriveKey(algo, masterKey, derivedKeyAlgo, extractable, keyUsages);
    }
    
-   encrypt (algo, key, cleartext) {
-      if (!algo) {
-         throw 'Crypto.encrypt: algo undefined';
-      }
-      if (!algo.name) { 
-         throw 'Crypto.encrypt: algo.name undefined';
-      }
+   encrypt (options) {
+
+      let algo = options.algo; 
+      let key = options.key; 
+      let cleartext = options.cleartext; 
+
+      algo = algo || {};
+      algo.name = algo.name || 'AES-GCM';
       switch (algo.name) {
-         case 'AES-CTR':
-            if (!algo.counter) {
-               throw 'Crypto.encrypt: algo.counter undefined';
-            }
-            algo.length = algo.length || 128; // TODO verify 128 is okay https://www.w3.org/TR/WebCryptoAPI/#dfn-AesCtrParams
+         case 'AES-GCM':
+            algo.iv = this.getRandomValues(new Uint8Array(16));
+            algo.length = algo.length || 128; 
             break;
          default:
             throw 'Cryto.encrypt: algo.name unsupported';
@@ -118,23 +175,38 @@ class Crypto {
       }
       if (!cleartext) {
          throw 'Crypto.encrypt: cleartext undefined';
-      } 
-      return this._crypto.encrypt(algo, key, cleartext); 
+      }
+      cleartext = Utils.toArray(cleartext);      
+ 
+      let promise = new Promise(function (resolve, reject) {
+         this.importKey({
+            keyData: key,
+            algo: algo
+         }).then(function (result) {
+            return this.crypto.encrypt(algo, result, cleartext);
+         }.bind(this)).then(function (result) {
+            result = new Uint8Array(result);
+            let ciphertext = new Uint8Array(algo.iv.length + result.length);
+            ciphertext.set(algo.iv, 0);
+            ciphertext.set(result, 16);
+            resolve(btoa(Utils.toString(ciphertext)));
+         }.bind(this));   
+      }.bind(this));
+      return promise;
    }
 
-   decrypt (algo, key, ciphertext) {
-      if (!algo) {
-         throw 'Crypto.decrypt: algo undefined';
-      }
-      if (!algo.name) { 
-         throw 'Crypto.decrypt: algo.name undefined';
-      }
+   decrypt (options) { //algo, key, ciphertext) {
+      
+      let algo = options.algo; 
+      let key = options.key; 
+      let ciphertext = Utils.toArray(atob(options.ciphertext)); 
+ 
+      algo = algo || {};
+      algo.name = algo.name || 'AES-GCM';
       switch (algo.name) {
-         case 'AES-CTR':
-            if (!algo.counter) {
-               throw 'Crypto.decrypt: algo.counter undefined';
-            }
-            algo.length = algo.length || 128; // TODO verify 128 is okay https://www.w3.org/TR/WebCryptoAPI/#dfn-AesCtrParams
+         case 'AES-GCM':
+            algo.iv = ciphertext.slice(0, 16)
+            algo.length = algo.length || 128; 
             break;
          default:
             throw 'Cryto.decrypt: algo.name unsupported';
@@ -146,15 +218,34 @@ class Crypto {
       if (!ciphertext) {
          throw 'Crypto.decrypt: ciphertext undefined';
       } 
-      return this._crypto.decrypt(algo, key, ciphertext); 
+      let promise = new Promise(function (resolve, reject) {
+         this.importKey({
+            keyData: key,
+            algo: algo
+         }).then(function (result) {
+            return this.crypto.decrypt(algo, result, ciphertext.slice(16, ciphertext.length));
+         }.bind(this)).then(function (result) {
+            resolve(Utils.toString(new Uint8Array(result)));
+         }.bind(this));   
+      }.bind(this));
+      return promise;
+
    }
 
-   digest (algo, buffer) {
+   digest (options) {
+      let algo = options.algo;
+      let buffer = Utils.toArray(options.buffer);
       algo = algo || {};
       if (!buffer) {
          throw 'Crypto.buffer: buffer undefined';
       }
-      algo.name = algo.name || 'SHA-256'; // TODO verify this is an sensible default  
-      return this._crypto.digest(algo, buffer);
+      algo.name = algo.name || 'SHA-256'; 
+      let promise = new Promise(function (resolve, reject) {
+         this.crypto.digest(algo, buffer)
+         .then(function (result) {
+            resolve(btoa(Utils.toString(new Uint8Array(result))));   
+         }.bind(this));
+      }.bind(this));
+      return promise;
    }
 }
