@@ -183,64 +183,6 @@ class ChatView extends View {
 // Start the app on page load
 window.addEventListener('load', Main.run);
 
-// ----- TEST CODE BELOW HERE -----
-
-// ----- Start Utils -----
-let toString = function (array) {
-   if (array instanceof Uint8Array) {
-      array = new Uint8Array(array);
-   } 
-   let string = '';
-   for (let i = 0 ; i < array.length; i++) {
-      string += String.fromCharCode(array[i]);
-   }
-   return string; //btoa
-}
-
-let toArray = function (string) {
-   //string = atob(string);
-   let array = new Uint8Array(string.length);
-   for (let i = 0; i < string.length; i++) {
-      array[i] = string.charCodeAt(i);
-   }
-   return array;
-}
-
-let equalArray = function (array1, array2) {
-   if (array1 instanceof Uint8Array) {
-      array1 = new Uint8Array(array1);
-   } 
-   if (array2 instanceof Uint8Array) {
-      array2 = new Uint8Array(array2);
-   } 
-   if (array1.length !== array2.length) {
-      return false;
-   }
-   for (let i = 0; i < array1.length; i++) {
-      if (array1[i] !== array2[i]) {
-         return false;
-      }
-   }
-   return true;
-}
-
-let runner = function (generator, resolve, result) {
-   let next = generator.next(result);
-   if (next.done) {
-      resolve('done');
-      return;   
-   }
-   Promise.resolve(next.value).then(function (result) {
-      runner(generator, resolve, result);
-   });
-};
-
-let run = function (generator) {
-   let promise = new Promise(function (resolve, reject) {
-      runner(generator(), resolve, null);
-   });
-   return promise;
-};
 
 // ----- Start OTR -----
 
@@ -303,15 +245,97 @@ let ake2 = function* () {
    console.log('done with ake2'); 
 };
 
-/*
+let computeSeven = function (s) {
+   let promise = new Promise (function (resolve, reject) {
+      crypto.importKey({
+         keyData: s,
+         algo: {name: 'AES-GCM'}
+      }).then(function (result) {
+         return crypto.exportKey({
+            format: 'raw',
+            key: result
+         });
+      }).then(function (result) {
+         let s = new Uint8Array(result); 
+         let lens = new Uint8Array(4);
+         lens.set([0, 0, 0, s.length]);
+         let secbytes = new Uint8Array(4 + s.length); 
+         secbytes.set(lens, 0); 
+         secbytes.set(s, 4);
+         let h2 = function (b) {
+            let result = new Uint8Array(1 + 4 + s.length);
+            result.set([b], 0);
+            result.set(secbytes, 1);
+            return result;
+         };
+         let next = [];
+         for (let i = 0; i < 6; i++) {
+            next.push(crypto.digest({buffer: Utils.toString(h2(i))}));
+         }
+         return Promise.all(next);
+      }).then(function (result) {
+         let next = [];
+         next.push(Utils.toString(Utils.toArray(result[0]).slice(0,8)));
+         next.push(crypto.importKey({
+            format: 'raw',
+            keyData: Utils.toArray(result[1]).slice(0,16),
+            algo: {name: 'AES-GCM'},
+            usages: ['encrypt', 'decrypt']
+         }));
+         next.push(crypto.importKey({
+            format: 'raw',
+            keyData: Utils.toArray(result[1]).slice(16,32),
+            algo: {name: 'AES-GCM'},
+            usages: ['encrypt', 'decrypt']
+         }));
+         for (let i = 2; i < 6; i++) {
+            next.push( crypto.importKey({
+               format: 'raw',
+               keyData: Utils.toArray(result[i]),
+               algo: {name: 'HMAC'},
+               usages: ['sign', 'verify']
+            }));
+         }
+         return Promise.all(next);
+      }).then(function (result) {
+         let next = [];
+         next.push(result[0]);
+         for (let i = 1; i < 7; i++) {
+            next.push(crypto.exportKey({
+               format: 'jwk',
+               key: result[i]
+            }));
+         }
+         return Promise.all(next);
+      }).then(function (result) {
+         resolve({
+            ssid: result[0],
+            c1: result[1],
+            c1prime: result[2],
+            m1: result[3],
+            m2: result[4],
+            m1prime: result[5],
+            m2prime: result[6],
+         });
+      });
+   });
+   return promise;
+}
+
 let ake3 = function* () {
    // verfies that Alice's gy is a legal value
-   let gy = yield crypto.importKey('jwk', network.exportedGy, {name: 'ECDH'});
+   let gy = network.gy;
    // compute s = (gy)x
    let s = yield crypto.deriveKey({
-      public: gy
-   }, bob.gx.privateKey);
-   let exportedS = yield crypto.exportKey('raw', s);
+      algo: {
+         public: gy
+      },
+      masterKey: bob.gx.privateKey
+   });
+   console.log('s', s);
+   let values = yield computeSeven(s);
+   console.log('values', values);
+   /*let exportedS = yield crypto.exportKey('raw', s);
 
    // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways
    exportedS = new Uint8Array(exportedS);
@@ -351,9 +375,10 @@ let ake3 = function* () {
    console.log('m2', new Uint8Array(m2));
    console.log('m1prime', new Uint8Array(m1prime));
    console.log('m2prime', new Uint8Array(m2prime));
-   console.log('done with ake3'); 
+   console.log('done with ake3');*/ 
 };
 
+/*
 let ake4 = function* () {
 
    let encryptedGx = network.encryptedGx; 
@@ -409,13 +434,13 @@ let ake4 = function* () {
    console.log('m2prime', new Uint8Array(m2prime));
 };*/
 
-run(ake1).then(function (result) {
-   return run(ake2);
+Utils.run(ake1).then(function (result) {
+   return Utils.run(ake2);
 }).then(function (result) {
-/*   return run(ake3);
+   return Utils.run(ake3);
+/*}).then(function (result) {
+   return run(ake4);*/
 }).then(function (result) {
-   return run(ake4);
-}).then(function (result) {*/
    console.log('ALICE', alice);
    console.log('BOB', bob);
    console.log('NETWORK', network);

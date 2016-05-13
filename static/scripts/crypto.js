@@ -1,24 +1,5 @@
 'use strict';
 
-class Utils {
-
-   static toString (array) {
-      let string = '';
-      for (let i = 0 ; i < array.length; i++) {
-         string += String.fromCharCode(array[i]);
-      }
-      return string; 
-   }
-
-   static toArray (string) {
-      let array = new Uint8Array(string.length);
-      for (let i = 0; i < string.length; i++) {
-         array[i] = string.charCodeAt(i);
-      }
-      return array;
-   }
-}
-
 class Crypto {
 
    constructor () {
@@ -58,6 +39,10 @@ class Crypto {
             algo.length = algo.length || 128;
             keyUsages = keyUsages || ['encrypt', 'decrypt']; 
             break;
+         case 'HMAC':
+            algo.hash = {name: 'SHA-256'};
+            keyUsages = keyUsages || ['sign', 'verify']; 
+            break;
          default:
             throw 'Cryto.generateKey: algo.name unsupported ' + algo.name;
             break;
@@ -70,6 +55,8 @@ class Crypto {
                case 'ECDH':
                   return Promise.all([this.exportKey({key: result.publicKey}), crypto.exportKey({key: result.privateKey})]);
                case 'AES-GCM':
+                  return this.exportKey({key: result});
+               case 'HMAC':
                   return this.exportKey({key: result});
             }     
          }.bind(this)).then(function (result) {
@@ -111,6 +98,9 @@ class Crypto {
          case 'AES-GCM': 
             algo.length = algo.length || 128; 
             break;
+         case 'HMAC':
+            algo.hash = {name: 'SHA-256'};
+            break;
          default:
             throw 'Cryto.importKey: algo.name unsupported ' + algo.name;
             break;
@@ -132,8 +122,14 @@ class Crypto {
       return this.crypto.exportKey(format, key); 
    }
 
-   // TODO
-   deriveKey (algo, masterKey, derivedKeyAlgo, extractable, keyUsages) {
+   deriveKey (options) {
+      
+      let algo = options.algo;
+      let masterKey = options.masterKey;
+      let derivedKeyAlgo = options.derivedKeyAlgo;
+      let extractable = options.extractable;
+      let keyUsages = options.keyUsages;
+
       if (!algo) {
          throw 'Crypto.deriveKey: algo undefined';
       }
@@ -150,7 +146,28 @@ class Crypto {
       derivedKeyAlgo.length = derivedKeyAlgo.length || 128;
       extractable = extractable || true;
       keyUsages = keyUsages || ['encrypt', 'decrypt'];
-      return this.crypto.deriveKey(algo, masterKey, derivedKeyAlgo, extractable, keyUsages);
+      
+      let promise = new Promise(function (resolve, reject) {
+         Promise.all([
+         this.importKey({
+            algo: algo,
+            keyData: algo.public             
+         }),
+         this.importKey({
+            algo: algo,
+            keyData: masterKey
+         })
+         ]).then(function (result) {
+            algo.public = result[0];
+            masterKey = result[1];
+            return this.crypto.deriveKey(algo, masterKey, derivedKeyAlgo, extractable, keyUsages);
+         }.bind(this)).then(function (result) {
+            return this.exportKey({key: result});
+         }.bind(this)).then(function (result) {
+            resolve(result);
+         }.bind(this));
+      }.bind(this));
+      return promise;
    }
    
    encrypt (options) {
@@ -195,7 +212,7 @@ class Crypto {
       return promise;
    }
 
-   decrypt (options) { //algo, key, ciphertext) {
+   decrypt (options) { 
       
       let algo = options.algo; 
       let key = options.key; 
@@ -233,13 +250,17 @@ class Crypto {
    }
 
    digest (options) {
+
       let algo = options.algo;
-      let buffer = Utils.toArray(options.buffer);
+      let buffer = options.buffer;
+
       algo = algo || {};
       if (!buffer) {
          throw 'Crypto.buffer: buffer undefined';
       }
       algo.name = algo.name || 'SHA-256'; 
+      buffer = Utils.toArray(buffer);
+
       let promise = new Promise(function (resolve, reject) {
          this.crypto.digest(algo, buffer)
          .then(function (result) {
