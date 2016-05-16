@@ -1,76 +1,236 @@
 'use strict';
 
-// Regular class
-class Convo {
-  constructor() {
-      this._crypto = new Crypto();
-      this._state = {
-         auth: 'AUTHSTATE_NONE',
-         msg: 'MSGSTATE_PLAINTEXT'
-      };
-      this._data = {};
-   }
+const crypto = new Crypto();
 
-   nextSend (data) {
-        let promise = new Promise(function(resolve, reject) {
-           resolve(data);
-        });
-        return promise;
-//      return this.__proto__['_'+this._state.msg].call(this, 'send', data);
-   }
+// Emulate Network
+let bob = {};
+let alice = {};
+let network = {};
 
-   nextRecieve (data) {
-        let promise = new Promise(function(resolve, reject) {
-           resolve(data);
-        });
-        return promise;
-//      return this.__proto__['_'+this._state.msg].call(this, 'recieve', data);
-   }
+// Helpers
+let computeKeys = function (s) {
+   let promise = new Promise (function (resolve, reject) {
+      crypto.importKey({
+         keyData: s,
+         algo: {name: 'AES-GCM'}
+      }).then(function (result) {
+         return crypto.exportKey({
+            format: 'raw',
+            key: result
+         });
+      }).then(function (result) {
+         let s = new Uint8Array(result); 
+         let lens = new Uint8Array(4);
+         lens.set([0, 0, 0, s.length]);
+         let secbytes = new Uint8Array(4 + s.length); 
+         secbytes.set(lens, 0); 
+         secbytes.set(s, 4);
+         let h2 = function (b) {
+            let result = new Uint8Array(1 + 4 + s.length);
+            result.set([b], 0);
+            result.set(secbytes, 1);
+            return result;
+         };
+         let promises = [];
+         for (let i = 0; i < 6; i++) {
+            promises.push(crypto.digest({buffer: Utils.toString(h2(i))}));
+         }
+         return Promise.all(promises);
+      }).then(function (result) {
+         let promises = [];
+         promises.push(Utils.toString(Utils.toArray(result[0]).slice(0,8)));
+         promises.push(crypto.importKey({
+            format: 'raw',
+            keyData: Utils.toArray(result[1]).slice(0,16),
+            algo: {name: 'AES-GCM'},
+            usages: ['encrypt', 'decrypt']
+         }));
+         promises.push(crypto.importKey({
+            format: 'raw',
+            keyData: Utils.toArray(result[1]).slice(16,32),
+            algo: {name: 'AES-GCM'},
+            usages: ['encrypt', 'decrypt']
+         }));
+         for (let i = 2; i < 6; i++) {
+            promises.push( crypto.importKey({
+               format: 'raw',
+               keyData: Utils.toArray(result[i]),
+               algo: {name: 'HMAC'},
+               usages: ['sign', 'verify']
+            }));
+         }
+         return Promise.all(promises);
+      }).then(function (result) {
+         let promises = [];
+         promises.push(result[0]);
+         for (let i = 1; i < 7; i++) {
+            promises.push(crypto.exportKey({
+               format: 'jwk',
+               key: result[i]
+            }));
+         }
+         return Promise.all(promises);
+      }).then(function (result) {
+         resolve({
+            ssid: result[0],
+            c1: result[1],
+            c1prime: result[2],
+            m1: result[3],
+            m2: result[4],
+            m1prime: result[5],
+            m2prime: result[6],
+         });
+      });
+   });
+   return promise;
+}
 
-   _MSGSTATE_PLAINTEXT (type, data) {
-//      return this.__proto__['_'+this._state.auth].call(this, type, data);
-   }
-
-   __MSGSTATE_ENCRYPTED (type, data) {
-      // TODO this is where the message will actually be encryped
-   }
-   _AUTHSTATE_NONE (type, data) {
-   }
+let ake1 = function* () {
    
-   _AUTHSTATE_AWAITING_DHKEY (type, data) {
+   // Picks a random value r (128 bits)
+   let r = yield crypto.generateKey({
+      algo: {name: 'AES-GCM'}
+   }); 
+
+   // Picks a random value x (at least 320 bits)
+   let gx = yield crypto.generateKey({
+      algo: {name: 'ECDH'}
+   }); 
+
+   //Sends Alice AESr(gx), HASH(gx)  
+   let encryptedGx = yield crypto.encrypt({
+      key: r,
+      cleartext: JSON.stringify(gx.publicKey) 
+   });
+   let digestGx = yield crypto.digest({
+      buffer: JSON.stringify(gx.publicKey)
+   });
+        
+   // Emulate storage and network
+   bob.r = r;
+   bob.gx = gx;
+   network.encryptedGx = encryptedGx;
+   network.digestGx = digestGx;
+   
+   // Print the results 
+   console.log('r', r);
+   console.log('gx', gx);
+   console.log('encryptedGx', encryptedGx);
+   console.log('digestGx', digestGx);
+   console.log('done with ake1');
+};
+
+let ake2 = function* () {
+   
+   // Picks a random value y (at least 320 bits)
+   // Sends Bob gy
+   let gy = yield crypto.generateKey({
+      algo: {name: 'ECDH'}
+   });
+
+   // Emulate storage and network
+   alice.encryptedGx = network.encryptedGx;
+   alice.digestGx = network.digestGx;
+   alice.gy = gy;
+   network.gy = gy.publicKey;
+  
+    // Print the results 
+   console.log('gy', gy);
+   console.log('done with ake2'); 
+};
+
+
+
+let ake3 = function* () {
+   // verfies that Alice's gy is a legal value
+   let gy = network.gy;
+   let gx = bob.gx;
+   // compute s = (gy)x
+   let s = yield crypto.deriveKey({
+      algo: {
+         public: gy
+      },
+      masterKey: gx.privateKey
+   });
+   // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways
+   let keys = yield computeKeys(s);
+   // Picks keyidB, a serial number for his D-H key gx
+   let keyidB = 1;
+   // Computes MB = MACm1(gx, gy, pubB, keyidB)
+   let mB = yield crypto.sign({
+      algo: {name: 'HMAC'},
+      key: keys.m1,
+      text2sign: JSON.stringify(gy) + 
+                 JSON.stringify(gx.publicKey) + // TODO pubB
+                 keyidB
+   });  
+   // Computes XB = pubB, keyidB, sigB(MB)
+   let xB = {
+      pubB: '', // TODO
+      keyidB: keyidB,
+      sigB: '' // TODO
+   }; 
+   //Sends Alice r, AESc(XB), MACm2(AESc(XB))
+   
+ 
+   // Emulate storage and network
+   network.r = bob.r;
+   
+   // Print the results
+   console.log('s', s);
+   console.log('keys', keys);
+   console.log('mB', mB);
+
+};
+
+
+let ake4 = function* () {
+
+   console.log('AKE4', alice);
+
+   // TODO alice should get the first two during ake2
+   let r = network.r;
+   let gy = alice.gy;
+   let encryptedGx = alice.encryptedGx;
+   let digestGx = alice.digestGx;
+
+   let gx = yield crypto.decrypt({
+      key: r,
+      ciphertext: encryptedGx
+   });
+
+   gx = JSON.parse(gx);
+   
+   let computedDigestGx = yield crypto.digest({
+      buffer: JSON.stringify(gx)
+   }) 
+
+   if (computedDigestGx !== digestGx) {
+      throw 'OTR: hashes not equal aborting ake4';
    }
 
-   _AUTHSTATE_AWAITING_REVEALSIG (type, data) {
-    }
+   let s = yield crypto.deriveKey({
+      algo: {
+         public: gx
+      },
+      masterKey: gy.privateKey
+   });
 
-   _AUTHSTATE_AWAITING_SIG (type, data) {
-    }
-}
+   let keys = yield computeKeys(s);
 
-// Singleton class
-class Otr {
-   constructor () {
-      this._convos = {};
-   }
+   console.log('s', s);
+   console.log('keys', keys);
 
-   static get instance() {
-      if (!this._instance) {
-         this._instance = new Otr();
-      } 
-      return this._instance;
-   }
+};
 
-   send (data) {
-      if (!this._convos[data.to]) {
-         this._convos[data.to] = new Convo();
-      }
-      return this._convos[data.to].nextSend(data);
-   }
-
-   recieve (data) {
-      if (!this._convos[data.from]) {
-         this._convos[data.from] = new Convo();
-      }
-      return this._convos[data.from].nextRecieve(data);
-   }      
-}
+Utils.run(ake1).then(function (result) {
+   return Utils.run(ake2);
+}).then(function (result) {
+   return Utils.run(ake3);
+}).then(function (result) {
+   return Utils.run(ake4);
+}).then(function (result) {
+   console.log('ALICE', alice);
+   console.log('BOB', bob);
+   console.log('NETWORK', network);
+});

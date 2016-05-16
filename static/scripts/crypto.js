@@ -35,6 +35,10 @@ class Crypto {
             algo.namedCurve = algo.namedCurve || 'P-256';
             keyUsages = keyUsages || ['deriveKey', 'deriveBits'];      
             break;
+         case 'ECDSA':
+            algo.namedCurve = algo.namedCurve || 'P-256';
+            keyUsages = keyUsages || ['sign', 'verify']; 
+            break;
          case 'AES-GCM':
             algo.length = algo.length || 128;
             keyUsages = keyUsages || ['encrypt', 'decrypt']; 
@@ -53,6 +57,8 @@ class Crypto {
          .then(function (result) {
             switch (algo.name) {
                case 'ECDH':
+                  return Promise.all([this.exportKey({key: result.publicKey}), crypto.exportKey({key: result.privateKey})]);
+               case 'ECDSA':
                   return Promise.all([this.exportKey({key: result.publicKey}), crypto.exportKey({key: result.privateKey})]);
                case 'AES-GCM':
                   return this.exportKey({key: result});
@@ -95,6 +101,9 @@ class Crypto {
          case 'ECDH':
             algo.namedCurve = algo.namedCurve || 'P-256'; 
             break;
+         case 'ECDSA':
+            algo.namedCurve = algo.namedCurve || 'P-256'; 
+            break;
          case 'AES-GCM': 
             algo.length = algo.length || 128; 
             break;
@@ -130,9 +139,7 @@ class Crypto {
       let extractable = options.extractable;
       let keyUsages = options.keyUsages;
 
-      if (!algo) {
-         throw 'Crypto.deriveKey: algo undefined';
-      }
+      algo = algo || {};
       algo.name = algo.name || 'ECDH';
       algo.namedCurve = algo.namedCurve || 'P-256';
       if (!algo.public) {
@@ -181,7 +188,6 @@ class Crypto {
       switch (algo.name) {
          case 'AES-GCM':
             algo.iv = this.getRandomValues(new Uint8Array(16));
-            algo.length = algo.length || 128; 
             break;
          default:
             throw 'Cryto.encrypt: algo.name unsupported';
@@ -196,10 +202,31 @@ class Crypto {
       cleartext = Utils.toArray(cleartext);      
  
       let promise = new Promise(function (resolve, reject) {
-         this.importKey({
-            keyData: key,
-            algo: algo
-         }).then(function (result) {
+         let promise = new Promise(function (resolve, reject) {
+           if (algo.additionalData) { 
+              this.importKey({
+                  keyData: algo.additionalData,
+                  algo: {name: 'HMAC'}
+               }).then(function (result) {
+                  return this.exportKey({
+                     format: 'raw',
+                     key: result
+                  });
+               }.bind(this)).then(function (result) {
+                  algo.additionalData = result;
+                  resolve(this.importKey({
+                     keyData: key,
+                     algo: algo
+                  }));
+               }.bind(this));
+            } else {
+               resolve(this.importKey({
+                  keyData: key,
+                  algo: algo
+               }));
+            }
+         }.bind(this));
+         promise.then(function (result) {
             return this.crypto.encrypt(algo, result, cleartext);
          }.bind(this)).then(function (result) {
             result = new Uint8Array(result);
@@ -216,10 +243,11 @@ class Crypto {
       
       let algo = options.algo; 
       let key = options.key; 
-      let ciphertext = Utils.toArray(atob(options.ciphertext)); 
+      let ciphertext = options.ciphertext; 
  
       algo = algo || {};
       algo.name = algo.name || 'AES-GCM';
+      ciphertext = Utils.toArray(atob(options.ciphertext)); 
       switch (algo.name) {
          case 'AES-GCM':
             algo.iv = ciphertext.slice(0, 16)
@@ -234,7 +262,7 @@ class Crypto {
       }
       if (!ciphertext) {
          throw 'Crypto.decrypt: ciphertext undefined';
-      } 
+      }
       let promise = new Promise(function (resolve, reject) {
          this.importKey({
             keyData: key,
@@ -246,7 +274,91 @@ class Crypto {
          }.bind(this));   
       }.bind(this));
       return promise;
+   }
 
+   sign (options) {
+
+      let algo = options.algo;
+      let key = options.key;
+      let text2sign = options.text2sign;
+
+      if (!algo) {
+         throw 'Crypto.sign: algo undefined';
+      }
+      if (!algo.name) { 
+         throw 'Crypto.sign: algo.name undefined';
+      }
+      switch (algo.name) {
+         case 'ECDSA':
+            algo.hash = {name: 'SHA-256'};
+            break;
+         case 'HMAC':
+            break;
+      }
+      if (!key) {
+         throw 'Crypto.sign: key undefined';
+      }
+      if (!text2sign) {
+         throw 'Crypto.sign: text2sign undefined';
+      }
+      text2sign = Utils.toArray(text2sign);      
+
+      let promise = new Promise(function (resolve, reject) {
+         this.importKey({
+            keyData: key,
+            algo: algo
+         }).then(function (result) {
+            return this.crypto.sign(algo, result, text2sign);
+         }.bind(this)).then(function (result) {
+            resolve(btoa(Utils.toString(new Uint8Array(result))));
+         });
+      }.bind(this));
+      return promise;  
+   }
+
+   verify (options) {
+
+      let algo = options.algo;
+      let key = options.key;
+      let signature = options.signature;
+      let text2verify = options.text2verify;
+
+      if (!algo) {
+         throw 'Crypto.sign: algo undefined';
+      }
+      if (!algo.name) { 
+         throw 'Crypto.sign: algo.name undefined';
+      }
+      switch (algo.name) {
+         case 'ECDSA':
+            algo.hash = {name: 'SHA-256'};
+            break;
+         case 'HMAC':
+            break;
+      }
+      if (!key) {
+         throw 'Crypto.verify: key undefined';
+      }
+      if (!signature) {
+         throw 'Crypto.verify: signature undefined';
+      }
+      if (!text2verify) {
+         throw 'Crypto.verfiy: text2verify undefined';
+      }
+      signature = Utils.toArray(atob(signature));
+      text2verify = Utils.toArray(text2verify);      
+
+      let promise = new Promise(function (resolve, reject) {
+         this.importKey({
+            keyData: key,
+            algo: algo
+         }).then(function (result) {
+            return this.crypto.verify(algo, result, signature, text2verify);
+         }.bind(this)).then(function (result) {
+            resolve(result);
+         });
+      }.bind(this));
+      return promise;
    }
 
    digest (options) {
