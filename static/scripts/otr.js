@@ -14,7 +14,10 @@ Promise.all([
 ]).then(function (result) {
    bob.pubB = result[0];
    alice.pubA = result[1];
+   network.pubB = bob.pubB.publicKey;
+   network.pubA = alice.pubA.publicKey;
 });
+
 
 // Helpers
 let computeKeys = function (s) {
@@ -204,7 +207,6 @@ let ake3 = function* () {
    console.log('keys', keys);
    console.log('mB', mB);
    console.log('xB', xB);
-
 };
 
 
@@ -214,6 +216,7 @@ let ake4 = function* () {
 
    let r = network.r;
    let aesMacM2xB = network.aesMacM2xB;
+   let pubB = network.pubB;
    let gy = alice.gy;
    let encryptedGx = alice.encryptedGx;
    let digestGx = alice.digestGx;
@@ -247,11 +250,41 @@ let ake4 = function* () {
    // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways (the same as Bob)
    let keys = yield computeKeys(s);
 
-   // TODO decrypt needs to handle additional data
- 
+   // Uses m2 to verify MACm2(AESc(XB))
+   // Uses c to decrypt AESc(XB) to obtain XB = pubB, keyidB, sigB(MB)
+   let xB = yield crypto.decrypt({
+      algo: {
+         additionalData: keys.m2
+      },
+      key: keys.c1,
+      ciphertext: aesMacM2xB
+   });
+   xB = JSON.parse(xB); 
+
+    // Computes MB = MACm1(gx, gy, pubB, keyidB)
+   let mB = yield crypto.sign({
+      algo: {name: 'HMAC'},
+      key: keys.m1,
+      text2sign: JSON.stringify(gy.publicKey) + 
+                 JSON.stringify(gx) +
+                 JSON.stringify(pubB) +
+                 xB.keyidB
+   });
+
+   //Uses pubB to verify sigB(MB)
+   let verifySigBmB = yield crypto.verify({
+      algo: {
+         name: 'ECDSA'
+      },
+      key: pubB,
+      signature: xB.sigBmB,
+      text2verify: mB   
+   });  
+
    console.log('s', s);
    console.log('keys', keys);
-
+   console.log('xB', xB);
+   console.log('verifySigBmB', verifySigBmB);
 };
 
 Utils.run(ake1).then(function (result) {

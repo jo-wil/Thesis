@@ -264,17 +264,38 @@ class Crypto {
          throw 'Crypto.decrypt: ciphertext undefined';
       }
       let promise = new Promise(function (resolve, reject) {
-         this.importKey({
-            keyData: key,
-            algo: algo
-         }).then(function (result) {
+         let promise = new Promise(function (resolve, reject) {
+           if (algo.additionalData) { 
+              this.importKey({
+                  keyData: algo.additionalData,
+                  algo: {name: 'HMAC'}
+               }).then(function (result) {
+                  return this.exportKey({
+                     format: 'raw',
+                     key: result
+                  });
+               }.bind(this)).then(function (result) {
+                  algo.additionalData = result;
+                  resolve(this.importKey({
+                     keyData: key,
+                     algo: algo
+                  }));
+               }.bind(this));
+            } else {
+               resolve(this.importKey({
+                  keyData: key,
+                  algo: algo
+               }));
+            }
+         }.bind(this));
+         promise.then(function (result) {
             return this.crypto.decrypt(algo, result, ciphertext.slice(16, ciphertext.length));
          }.bind(this)).then(function (result) {
             resolve(Utils.toString(new Uint8Array(result)));
          }.bind(this));   
       }.bind(this));
       return promise;
-   }
+  }
 
    sign (options) {
 
