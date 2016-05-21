@@ -7,6 +7,15 @@ let bob = {};
 let alice = {};
 let network = {};
 
+//Alice and Bob's long term authentication keys
+Promise.all([
+   crypto.generateKey({algo: {name:'ECDSA'}}),
+   crypto.generateKey({algo: {name:'ECDSA'}})
+]).then(function (result) {
+   bob.pubB = result[0];
+   alice.pubA = result[1];
+});
+
 // Helpers
 let computeKeys = function (s) {
    let promise = new Promise (function (resolve, reject) {
@@ -145,6 +154,7 @@ let ake3 = function* () {
    // verfies that Alice's gy is a legal value
    let gy = network.gy;
    let gx = bob.gx;
+   let pubB = bob.pubB;
    // compute s = (gy)x
    let s = yield crypto.deriveKey({
       algo: {
@@ -161,25 +171,39 @@ let ake3 = function* () {
       algo: {name: 'HMAC'},
       key: keys.m1,
       text2sign: JSON.stringify(gy) + 
-                 JSON.stringify(gx.publicKey) + // TODO pubB
+                 JSON.stringify(gx.publicKey) +
+                 JSON.stringify(pubB.publicKey) +
                  keyidB
    });  
    // Computes XB = pubB, keyidB, sigB(MB)
+   let sigBmB = yield crypto.sign({
+      algo: {name: 'ECDSA'},
+      key: pubB.privateKey,
+      text2sign: mB 
+   });
    let xB = {
-      pubB: '', // TODO
+      pubB: pubB.publicKey,
       keyidB: keyidB,
-      sigB: '' // TODO
+      sigBmB: sigBmB 
    }; 
    //Sends Alice r, AESc(XB), MACm2(AESc(XB))
-   
+   let aesMacM2xB = yield crypto.encrypt({
+      algo: {
+         additionalData: keys.m2
+      },
+      key: keys.c1,
+      cleartext: JSON.stringify(xB)
+   });  
  
    // Emulate storage and network
    network.r = bob.r;
+   network.aesMacM2xB = aesMacM2xB;
    
    // Print the results
    console.log('s', s);
    console.log('keys', keys);
    console.log('mB', mB);
+   console.log('xB', xB);
 
 };
 
@@ -188,12 +212,13 @@ let ake4 = function* () {
 
    console.log('AKE4', alice);
 
-   // TODO alice should get the first two during ake2
    let r = network.r;
+   let aesMacM2xB = network.aesMacM2xB;
    let gy = alice.gy;
    let encryptedGx = alice.encryptedGx;
    let digestGx = alice.digestGx;
 
+   // Uses r to decrypt the value of gx sent earlier
    let gx = yield crypto.decrypt({
       key: r,
       ciphertext: encryptedGx
@@ -201,6 +226,7 @@ let ake4 = function* () {
 
    gx = JSON.parse(gx);
    
+   // Verifies that HASH(gx) matches the value sent earlier
    let computedDigestGx = yield crypto.digest({
       buffer: JSON.stringify(gx)
    }) 
@@ -208,7 +234,9 @@ let ake4 = function* () {
    if (computedDigestGx !== digestGx) {
       throw 'OTR: hashes not equal aborting ake4';
    }
-
+   //Verifies that Bob's gx is a legal value (2 <= gx <= modulus-2)
+   //Computes s = (gx)y 
+   //(note that this will be the same as the value of s Bob calculated)
    let s = yield crypto.deriveKey({
       algo: {
          public: gx
@@ -216,8 +244,11 @@ let ake4 = function* () {
       masterKey: gy.privateKey
    });
 
+   // Computes two AES keys c, c' and four MAC keys m1, m1', m2, m2' by hashing s in various ways (the same as Bob)
    let keys = yield computeKeys(s);
 
+   // TODO decrypt needs to handle additional data
+ 
    console.log('s', s);
    console.log('keys', keys);
 
