@@ -173,8 +173,8 @@ let ake3 = function* () {
    let mB = yield crypto.sign({
       algo: {name: 'HMAC'},
       key: keys.m1,
-      text2sign: JSON.stringify(gy) + 
-                 JSON.stringify(gx.publicKey) +
+      text2sign: JSON.stringify(gx.publicKey) +
+                 JSON.stringify(gy) + 
                  JSON.stringify(pubB.publicKey) +
                  keyidB
    });  
@@ -201,12 +201,14 @@ let ake3 = function* () {
    // Emulate storage and network
    network.r = bob.r;
    network.aesMacM2xB = aesMacM2xB;
+   bob.keys = keys;
    
    // Print the results
    console.log('s', s);
    console.log('keys', keys);
    console.log('mB', mB);
    console.log('xB', xB);
+   console.log('done with ake3'); 
 };
 
 
@@ -220,6 +222,7 @@ let ake4 = function* () {
    let gy = alice.gy;
    let encryptedGx = alice.encryptedGx;
    let digestGx = alice.digestGx;
+   let pubA = alice.pubA;
 
    // Uses r to decrypt the value of gx sent earlier
    let gx = yield crypto.decrypt({
@@ -265,8 +268,8 @@ let ake4 = function* () {
    let mB = yield crypto.sign({
       algo: {name: 'HMAC'},
       key: keys.m1,
-      text2sign: JSON.stringify(gy.publicKey) + 
-                 JSON.stringify(gx) +
+      text2sign: JSON.stringify(gx) +
+                 JSON.stringify(gy.publicKey) +
                  JSON.stringify(pubB) +
                  xB.keyidB
    });
@@ -281,11 +284,97 @@ let ake4 = function* () {
       text2verify: mB   
    });  
 
+   // Picks keyidA, a serial number for her D-H key gy
+   let keyidA = 1;
+   
+   // Computes MA = MACm1'(gy, gx, pubA, keyidA)
+   let mA = yield crypto.sign({
+      algo: {name: 'HMAC'},
+      key: keys.m1prime,
+      text2sign: JSON.stringify(gy.publicKey) + 
+                 JSON.stringify(gx) +
+                 JSON.stringify(pubA.publicKey) +
+                 keyidA
+   });
+   
+   // Computes XA = pubA, keyidA, sigA(MA)
+   let sigAmA = yield crypto.sign({
+      algo: {name: 'ECDSA'},
+      key: pubA.privateKey,
+      text2sign: mA 
+   });
+   let xA = {
+      pubA: pubA.publicKey,
+      keyidA: keyidA,
+      sigAmA: sigAmA 
+   };
+
+   // Sends Bob AESc'(XA), MACm2'(AESc'(XA))
+   let aesMacM2primexA = yield crypto.encrypt({
+      algo: {
+         additionalData: keys.m2prime
+      },
+      key: keys.c1prime,
+      cleartext: JSON.stringify(xA)
+   });
+
+   // Emulate storage and network
+   network.aesMacM2primexA = aesMacM2primexA;
+   
    console.log('s', s);
    console.log('keys', keys);
    console.log('xB', xB);
    console.log('verifySigBmB', verifySigBmB);
+   console.log('mA', mA);
+   console.log('xA', xA);
+   console.log('done with ake4'); 
 };
+
+let ake5 = function* () {
+
+   let gx = bob.gx;
+   let keys = bob.keys;
+   let gy = network.gy;
+   let pubA = network.pubA;
+   let aesMacM2primexA = network.aesMacM2primexA;
+
+   //Uses m2' to verify MACm2'(AESc'(XA))
+   //Uses c' to decrypt AESc'(XA) to obtain XA = pubA, keyidA, sigA(MA)
+   let xA = yield crypto.decrypt({
+      algo: {
+         additionalData: keys.m2prime
+      },
+      key: keys.c1prime,
+      ciphertext: aesMacM2primexA
+   });
+   xA = JSON.parse(xA); 
+
+   //Computes MA = MACm1'(gy, gx, pubA, keyidA)
+   let mA = yield crypto.sign({
+      algo: {name: 'HMAC'},
+      key: keys.m1prime,
+      text2sign: JSON.stringify(gy)+ 
+                 JSON.stringify(gx.publicKey) +
+                 JSON.stringify(pubA) +
+                 xA.keyidA
+   });
+
+   //Uses pubA to verify sigA(MA)
+   let verifySigAmA = yield crypto.verify({
+      algo: {
+         name: 'ECDSA'
+      },
+      key: pubA,
+      signature: xA.sigAmA,
+      text2verify: mA  
+   });
+
+   console.log('xA', xA);
+   console.log('mA', mA);
+   console.log('verifySigAmA', verifySigAmA);
+   console.log('done with ake5'); 
+};
+
 
 Utils.run(ake1).then(function (result) {
    return Utils.run(ake2);
@@ -293,6 +382,8 @@ Utils.run(ake1).then(function (result) {
    return Utils.run(ake3);
 }).then(function (result) {
    return Utils.run(ake4);
+}).then(function (result) {
+   return Utils.run(ake5);
 }).then(function (result) {
    console.log('ALICE', alice);
    console.log('BOB', bob);
