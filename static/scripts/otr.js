@@ -376,6 +376,14 @@ let ake5 = function* () {
 };
 
 
+let de1 = function* () {
+
+}
+
+let de2 = function* () {
+
+}
+
 Utils.run(ake1).then(function (result) {
    return Utils.run(ake2);
 }).then(function (result) {
@@ -384,6 +392,10 @@ Utils.run(ake1).then(function (result) {
    return Utils.run(ake4);
 }).then(function (result) {
    return Utils.run(ake5);
+}).then(function (result) {
+   return Utils.run(de1);
+}).then(function (result) {
+   return Utils.run(de2);
 }).then(function (result) {
    console.log('ALICE', alice);
    console.log('BOB', bob);
