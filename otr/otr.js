@@ -1,6 +1,8 @@
 'use strict';
 
-(function () {
+var otr = (function () {
+
+var otr = {};
 
 var alice = {};
 var bob = {};
@@ -31,7 +33,6 @@ var ake1 = function () {
          ]);
       })
       .then(function (result) {
-         network = {}; 
          network.AES_r_gx = result[0];
          network.HASH_gx = result[1];
          resolve();
@@ -47,7 +48,6 @@ var ake2 = function () {
       jcrypt.ecdh.generate()
       .then(function (result) {
          alice.gy = result;
-         network = {}; 
          network.gy = alice.gy.publicKey;
          resolve();
       });
@@ -60,12 +60,23 @@ var ake3 = function () {};
 var ake4 = function () {};
 var ake5 = function () {};
 
+otr.ake1 = ake1;
+otr.ake2 = ake2;
+otr.ake3 = ake3;
+otr.ake4 = ake4;
+otr.ake5 = ake5;
+
 // Run
 ake1()
-.then(function (result) {
+.then(function () {
    return ake2(); 
 })
-.then(function (result) {
+.then(function () {
+   console.log('alice', alice);
+   console.log('bob', bob);
+   console.log('network', network);
 });
+
+return otr;
 
 })();

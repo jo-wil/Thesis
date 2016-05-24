@@ -4,8 +4,6 @@
 
 var tests = {};
 
-var results = {};
-
 var test = function (name, expected, result) {
    if (expected !== result) {
       console.log(
