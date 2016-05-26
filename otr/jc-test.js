@@ -4,16 +4,30 @@
 
 var tests = {};
 
-var test = function (name, expected, result) {
+var test = function (name, result, expected) {
+   var p = document.createElement('p');
    if (expected !== result) {
-      console.log(
+      p.innerText =
          name + '... fail\n' +
-         '   expected: ' + expected + '\n' +
-         '   result: ' + result
-      );
+         '   result: ' + result + '\n' +
+         '   expected: ' + expected;
       return;
    }
-   console.log(name + '... pass');
+   p.innerText = name + '... pass';
+   document.body.appendChild(p);
+};
+
+var testnot = function (name, result, notexpected) {
+   var p = document.createElement('p');
+   if (notexpected === result) {
+      p.innerText = 
+         name + '... fail\n' +
+         '   result: ' + result + '\n' +
+         '   notexpected: ' + notexpected;
+      return;
+   }
+   p.innerText = name + '... pass';
+   document.body.appendChild(p);
 };
 
 tests.gen = function () {
@@ -116,9 +130,13 @@ tests.ecdsa = function () {
 };
 
 // Run tests
-var keys = Object.keys(tests);
-for (var i = 0; i < keys.length; i++) {
-   tests[keys[i]]();
-}
+var runtests = function () {
+   var keys = Object.keys(tests);
+   for (var i = 0; i < keys.length; i++) {
+      tests[keys[i]]();
+   }
+};
+
+window.addEventListener('load', runtests);
 
 })();
