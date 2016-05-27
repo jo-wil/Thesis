@@ -4,9 +4,9 @@ var otr = (function () {
 
 var otr = {};
 
-var ake1 = function (user, network) {
+var ake1 = function (local, network) {
    var promise = new Promise(function (resolve, reject) {
-      // Picks a random value r (128 bits)
+/*      // Picks a random value r (128 bits)
       var r = jc.random(16);
       // Picks a random value x (at least 320 bits)
       var gx;
@@ -26,14 +26,14 @@ var ake1 = function (user, network) {
          network.aes_r_gx = result[0];
          network.hash_gx = result[1];
          resolve();
-      });
+      });*/
    });
    return promise;
 };
 
-var ake2 = function (user, network) {
+var ake2 = function (local, network) {
    var promise = new Promise(function (resolve, reject) {
-      var gy;
+      /*var gy;
       // Picks a random value y (at least 320 bits)
       jc.ecdh.generate()
       .then(function (result) {
@@ -41,7 +41,7 @@ var ake2 = function (user, network) {
          user.gy = gy;
          network.gy = gy.publicKey;
          resolve();
-      });
+      });*/
    });
    return promise;
 };
@@ -49,7 +49,6 @@ var ake2 = function (user, network) {
 var ake3 = function (user, network) {};
 var ake4 = function (user, network) {};
 var ake5 = function (user, network) {};
-
 
 var h1 = function (b, secbytes) {
    var promise = new Promise(function (resolve, reject) {
@@ -109,19 +108,20 @@ var edk = function (dh, pdh) {
    return promise;
 };
 
-var ed1 = function (msg, user, network) {
+var ed1 = function (local, network, msg) {
    var promise = new Promise(function (resolve, reject) {
-      var keyA = user.dh;
-      var keyIdA = 1;
 
-      var keyB = user.pdh;    
-      var keyIdB = 1;
+      var sendKey = local.ourKeys[local.ourKeyId - 1];
+      var recvKey = local.theirKeys[local.theirKeyId];
+      var sendKeyId = local.ourKeyId - 1; 
+      var recvKeyId = local.theirKeyId; 
+      var nextDh = local.ourKeys[local.ourKeyId].publicKey;
 
       var keys;
       var ctr;
       var ta;
       
-      edk(keyA, keyB)
+      edk(sendKey, recvKey)
       .then(function (result) {
          keys = result;
          ctr = jc.random(16);
@@ -129,16 +129,15 @@ var ed1 = function (msg, user, network) {
       })
       .then(function (result) {
          ta = JSON.stringify({
-            keyIdA: keyIdA,
-            keyIdB: keyIdB,
-            next_dh: 'TODO',
+            send_key_id: sendKeyId,
+            recv_key_id: recvKeyId,
+            next_dh: nextDh,
             ctr: ctr,
             aes_msg: result
          });
          return jc.hmac.sign(keys.sendMacKey, ta);
       })
       .then(function (result) {
-         user.keys = keys; 
          network.ta = ta;
          network.mac_ta = result;
          resolve();
@@ -147,32 +146,46 @@ var ed1 = function (msg, user, network) {
    return promise;
 };
 
-var ed2 = function (user, network) {
+var ed2 = function (local, network) {
    var promise = new Promise(function (resolve, reject) {
-      var keyA = user.dh;
-      var keyIdA = 1;
 
-      var keyB = user.pdh;    
-      var keyIdB = 1;
+      var ta = JSON.parse(network.ta);
+      var ta_str = network.ta;
+      var mac_ta = network.mac_ta; 
+
+      var sendKeyId = ta.send_key_id; 
+      var recvKeyId = ta.recv_key_id; 
+      var sendKey = local.ourKeys[sendKeyId];
+      var recvKey = local.theirKeys[recvKeyId];
 
       var keys;
-      var ta = network.ta;
-      var mac_ta = network.mac_ta; 
-      
-      edk(keyA, keyB)
+     
+      // Key Rotation
+      if (recvKeyId === local.ourKeyId) {
+         console.log('our');
+         // TODO
+         // delete local.ourKeyId - 1;
+         // local.ourKeyId++
+         // local.ourKeys[local.ourKeyId] = generate dh
+         // remeber the above will have to be a promise in the chain
+      }
+      if (sendKeyId === local.theirKeyId) {
+         local.theirKeyId++;
+         local.theirKeys[local.theirKeyId] = ta.next_dh;
+      }
+ 
+      edk(sendKey, recvKey)
       .then(function (result) {
          keys = result;
-         return jc.hmac.verify(keys.recvMacKey, ta, mac_ta); 
+         return jc.hmac.verify(keys.recvMacKey, ta_str, mac_ta); 
       })
       .then(function (result) {
          if (result === true) {
-            ta = JSON.parse(ta);
             return jc.aes.ctr.decrypt(keys.recvAesKey, ta.aes_msg);
          } 
          throw "ERROR";
       })
       .then(function (result) {
-         user.keys = keys; 
          resolve(result);
       });
    

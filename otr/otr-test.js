@@ -60,34 +60,47 @@ otr.ake1(bob, network)
 });*/
 
 tests.ed = function () {
+   
    var alice = {};
+   alice.ourKeys = {};
+   alice.ourKeyId = 2; 
+   alice.theirKeys = {}; 
    var bob = {};
+   bob.ourKeys = {}; 
+   bob.ourKeyId = 2;
+   bob.theirKeys = {}; 
+   
    var network = {};
-
+   
    Promise.all([
+      jc.ecdh.generate(),
+      jc.ecdh.generate(),
       jc.ecdh.generate(),
       jc.ecdh.generate()
    ])
    .then(function (result) {
-      alice.dh = result[0];
-      alice.keyId = 1;
-      alice.pkeyId = 1;
-      bob.dh = result[1];
-      bob.keyId = 1;
-      bob.pkeyId = 1;
-      alice.pdh = bob.dh.publicKey;
-      bob.pdh = alice.dh.publicKey;
-      return otr.ed1('abc123', alice, network)
+      // Generate the DH keys
+      alice.ourKeys[alice.ourKeyId - 1] = result[0];
+      alice.ourKeys[alice.ourKeyId] = result[1];
+      bob.ourKeys[bob.ourKeyId - 1] = result[2];
+      bob.ourKeys[bob.ourKeyId] = result[3];
+  
+      // Pretend we did the AKE
+      alice.theirKeyId = 1;     
+      bob.theirKeyId = 1;
+      alice.theirKeys[alice.theirKeyId] = bob.ourKeys[alice.theirKeyId].publicKey;
+      bob.theirKeys[bob.theirKeyId] = alice.ourKeys[bob.theirKeyId].publicKey;
+ 
+      // Send a message from alice to bob 
+      return otr.ed1(alice, network, 'abc123');
    })
    .then(function (result) {
       return otr.ed2(bob, network); 
    })
    .then(function (result) {
-      test('ed aeskeys', bob.keys.sendAesKey, alice.keys.recvAesKey); 
-      test('ed aeskeys', alice.keys.sendAesKey, bob.keys.recvAesKey); 
-      test('ed mackeys', bob.keys.sendMacKey, alice.keys.recvMacKey); 
-      test('ed mackeys', alice.keys.sendMacKey, bob.keys.recvMacKey); 
       test('ed msg', 'abc123', result);
+      console.log('alice', alice);
+      console.log('bob', bob);
    });
 };
 
