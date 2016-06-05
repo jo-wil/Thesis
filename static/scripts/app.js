@@ -33,11 +33,11 @@ class LoginView extends View {
       if (!this._instance) {
          // TODO readd requred to the password field
          const template = `
-            <div id="login">
+            <div id="login" class="pure-form pure-form-stacked">
                <form id="login-form">
                   <input id="username" type="text" placeholder="Username" required/>
                   <input id="password" type="password" placeholder="Password"/> 
-                  <input type="submit" value="Login"/>
+                  <input type="submit" class="pure-button pure-button-primary" value="Login"/>
                </form>
                <p id="info"></p>
             </div>`;
@@ -147,7 +147,7 @@ class ChatView extends View {
       switch (data.action) {
          case 'register': 
             data.contacts.splice(data.contacts.indexOf(Globals.username), 1);
-            document.querySelector('#contacts').innerText = `contacts: ${data.contacts}`;
+            document.querySelector('#contacts').innerText = `Contacts: ${data.contacts}`;
             break;
          case 'message':
             if (data.text) {
