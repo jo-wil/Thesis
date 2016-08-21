@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": "./build/",
+        "target": "es6",
+        "sourceMap": true,
+        "noImplicitAny": false,
+        "strictNullChecks": true
+    },
+    "files": [
+       "./src/jwcl.ts",
+       "./src/otr.ts",
+       "./src/main.ts"
+    ]
+}

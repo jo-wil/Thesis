@@ -69,6 +69,7 @@ def messaging(ws):
                     print data
                     to_ws.send(data) # todo filter what data gets sent
             # else TODO send you are not logged in?
+            # TODO what happens when a recipient is not logged in
         # TODO check which exception to catch, I think type error
         except:
             user = DB.get(username)
