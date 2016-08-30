@@ -8,78 +8,123 @@ from gevent import pywsgi
 from geventwebsocket.handler import WebSocketHandler
 import werkzeug.serving
 
-import json
+from Crypto.Protocol import KDF
+from Crypto.Hash import HMAC
+from Crypto.Hash import SHA256
 
-from lib import jwt
+import os
+import json
+import base64
 
 app = Flask(__name__)
 sockets = Sockets(app)
 
-DB = {
-    'Alice': {
-        'password': '1234',
-        'ws': None
-    },
-    'Bob': {
-        'password': 'abc',
-        'ws': None
-    }
-}
+DB = {}
+#DB = {
+#   'Alice': {
+#      'password': 'salt.'+KDF.PBKDF2('1234', 'salt', 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
+#      'websocket': None
+#   },
+#   'Bob': {
+#      'password': 'salt.'+KDF.PBKDF2('abc', 'salt', 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
+#      'websocket': None
+#   }
+#}
+
+KEY = b'changeme'
+
+def encode(data):                                    
+    global KEY              
+    header = base64.urlsafe_b64encode(json.dumps({'alg': 'HS256', 'typ': 'JWT'})) 
+    payload = base64.urlsafe_b64encode(json.dumps(data))                        
+    signature = base64.urlsafe_b64encode(HMAC.new(KEY, msg=header+payload, digestmod=SHA256).hexdigest())
+    jwt = header + '.' + payload + '.' + signature                              
+    return jwt
+
+def decode(token):
+    global KEY                                                              
+    token = token.split('.')                                                    
+    if len(token) != 3:                                                         
+        return None                                                             
+    header = str(token[0])                                                      
+    payload = str(token[1])                                                     
+    signature = base64.urlsafe_b64decode(str(token[2]))                         
+    test = HMAC.new(KEY, msg=header+payload, digestmod=SHA256).hexdigest()                       
+    if signature != test:                                                       
+        return None                                                             
+    payload = json.loads(base64.urlsafe_b64decode(payload))                                 
+    return payload  
 
 @app.route('/')
 def index():
-    f = open('./static/index.html')
-    html = f.read()
-    f.close()
-    return html, 200
+   f = open('./static/index.html')
+   html = f.read()
+   f.close()
+   return html, 200
 
 @app.route('/api/login', methods=['POST'])
 def login():
-      if request.method == 'POST':
-          data = json.loads(request.data)
-          username = data.get('username')
-          password = data.get('password')
-          user = DB.get(username)
-          # TODO do password correctly
-          if user:# and user.get('password') == password: 
-              return json.dumps({'token': jwt.encode({'username': username})}), 200
-      abort(400)
+     if request.method == 'POST':
+        data = json.loads(request.data)
+        username = data.get('username')
+        password = data.get('password')
+        user = DB.get(username)
+        password_array = user.get('password').split('.')
+        if user and password_array[1] == KDF.PBKDF2(password, password_array[0], 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()): 
+           return json.dumps({'token': encode({'username': username})}), 200
+     abort(400)
 
+@app.route('/api/signup', methods=['POST'])
+def signup():
+     if request.method == 'POST':
+        data = json.loads(request.data)
+        username = data.get('username')
+        password = data.get('password')
+        user = DB.get(username)
+        if user:
+           abort(400)
+        salt = os.urandom(8)
+        DB[username] = {
+           'password': salt + '.' + KDF.PBKDF2(password, salt, 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
+           'websocket': None
+        }
+        return '', 200      
+     abort(400)
+   
 @sockets.route('/socket')
-def messaging(ws):
-    username = ''
-    while not ws.closed:
-        try:
-            data = ws.receive()
-            json_data = json.loads(data)
-            action = json_data.get('action')            
-            token_data = jwt.decode(json_data.get('token')) 
-            # TODO validate the token
-            # TODO validate the input
-            if token_data:
-                if action == 'register':
-                    username = token_data.get('username')
-                    user = DB.get(username)
-                    user['ws'] = ws
-                    ws.send(json.dumps({'action': action, 'contacts': DB.keys()}))
-                elif action == 'message':
-                    to = json_data.get('to')
-                    user = DB.get(to)
-                    to_ws = user.get('ws')
-                    print data
-                    to_ws.send(data) # todo filter what data gets sent
-            # else TODO send you are not logged in?
-            # TODO what happens when a recipient is not logged in
-        # TODO check which exception to catch, I think type error
-        except:
-            user = DB.get(username)
-            user['ws'] = None
-     
+def messaging(websocket):
+   username = ''
+   while not websocket.closed:
+      try:
+         data = websocket.receive()
+         json_data = json.loads(data)
+         action = json_data.get('action')         
+         token_data = decode(json_data.get('token')) 
+         # TODO validate the token
+         # TODO validate the input
+         if token_data:
+            if action == 'register':
+               username = token_data.get('username')
+               user = DB.get(username)
+               user['websocket'] = websocket
+               websocket.send(json.dumps({'action': action, 'contacts': DB.keys()}))
+            elif action == 'message':
+               to = json_data.get('to')
+               user = DB.get(to)
+               to_websocket = user.get('websocket')
+               to_websocket.send(data) # TODO filter what data gets sent
+         # else TODO send you are not logged in?
+         # TODO what happens when a recipient is not logged in
+      # TODO check which exception to catch, I think type error
+      except:
+         user = DB.get(username)
+         user['websocket'] = None
+    
 @werkzeug.serving.run_with_reloader
 def main():
-    app.debug = True
-    server = pywsgi.WSGIServer(('', 8000), app, handler_class=WebSocketHandler)
-    server.serve_forever()
+   app.debug = True
+   server = pywsgi.WSGIServer(('', 8000), app, handler_class=WebSocketHandler)
+   server.serve_forever()
 
 if __name__ == '__main__':
-    main()
+   main()

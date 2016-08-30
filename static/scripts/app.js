@@ -70,6 +70,8 @@ var login = function () {
             globals.username = username;
             globals.token = json.token;
             chat();
+        }).catch(function (message) {
+            document.querySelector('#info').innerText = message;
         });
     }, false);
 };
