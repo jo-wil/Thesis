@@ -20,17 +20,6 @@ app = Flask(__name__)
 sockets = Sockets(app)
 
 DB = {}
-#DB = {
-#   'Alice': {
-#      'password': 'salt.'+KDF.PBKDF2('1234', 'salt', 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
-#      'websocket': None
-#   },
-#   'Bob': {
-#      'password': 'salt.'+KDF.PBKDF2('abc', 'salt', 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
-#      'websocket': None
-#   }
-#}
-
 KEY = b'changeme'
 
 def encode(data):                                    
@@ -64,33 +53,32 @@ def index():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-     if request.method == 'POST':
-        data = json.loads(request.data)
-        username = data.get('username')
-        password = data.get('password')
-        user = DB.get(username)
-        password_array = user.get('password').split('.')
-        if user and password_array[1] == KDF.PBKDF2(password, password_array[0], 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()): 
-           return json.dumps({'token': encode({'username': username})}), 200
-     abort(400)
+  if request.method == 'POST':
+     data = json.loads(request.data)
+     username = data.get('username')
+     password = data.get('password')
+     user = DB.get(username)
+  if user and user.get('password').split('.')[1] == KDF.PBKDF2(password, user.get('password').split('.')[0], 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()): 
+     return json.dumps({'token': encode({'username': username})}), 200
+  abort(400)
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
-     if request.method == 'POST':
-        data = json.loads(request.data)
-        username = data.get('username')
-        password = data.get('password')
-        user = DB.get(username)
-        if user:
-           abort(400)
-        salt = os.urandom(8)
-        DB[username] = {
-           'password': salt + '.' + KDF.PBKDF2(password, salt, 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
-           'websocket': None
-        }
-        return '', 200      
-     abort(400)
-   
+  if request.method == 'POST':
+     data = json.loads(request.data)
+     username = data.get('username')
+     password = data.get('password')
+     user = DB.get(username)
+     if user:
+        abort(400)
+     salt = os.urandom(8)
+     DB[username] = {
+        'password': salt + '.' + KDF.PBKDF2(password, salt, 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
+        'websocket': None
+     }
+     return '', 200      
+  abort(400)
+
 @sockets.route('/socket')
 def messaging(websocket):
    username = ''
@@ -100,8 +88,6 @@ def messaging(websocket):
          json_data = json.loads(data)
          action = json_data.get('action')         
          token_data = decode(json_data.get('token')) 
-         # TODO validate the token
-         # TODO validate the input
          if token_data:
             if action == 'register':
                username = token_data.get('username')
@@ -112,14 +98,18 @@ def messaging(websocket):
                to = json_data.get('to')
                user = DB.get(to)
                to_websocket = user.get('websocket')
-               to_websocket.send(data) # TODO filter what data gets sent
-         # else TODO send you are not logged in?
-         # TODO what happens when a recipient is not logged in
-      # TODO check which exception to catch, I think type error
-      except:
+               if to_websocket:
+                  del json_data['token']
+                  #print json_data
+                  to_websocket.send(json.dumps(json_data))
+               else:
+                  websocket.send(json.dumps({'action': action, 'error': 'unavailable'}))
+         else:
+            websocket.send(json.dumps({'action': action, 'error': 'auth'}))
+      except TypeError:
          user = DB.get(username)
          user['websocket'] = None
-    
+ 
 @werkzeug.serving.run_with_reloader
 def main():
    app.debug = True

@@ -26,6 +26,10 @@ var chat = function () {
     }, false);
     ws.addEventListener('message', function (evt) {
         var message = JSON.parse(evt.data);
+        if (message.error) {
+            document.querySelector('#info').innerText = "Error: " + message.error;
+            return;
+        }
         switch (message.action) {
             case 'register':
                 message.contacts.splice(message.contacts.indexOf(globals.username), 1);

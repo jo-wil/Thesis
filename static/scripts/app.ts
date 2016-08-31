@@ -46,8 +46,12 @@ const chat = function () {
 
     ws.addEventListener('message', function (evt) {
        const message = JSON.parse(evt.data);
+       if (message.error) {
+          document.querySelector('#info').innerText = `Error: ${message.error}`;
+          return;
+       } 
        switch (message.action) {
-          case 'register': 
+          case 'register':
              message.contacts.splice(message.contacts.indexOf(globals.username), 1);
              document.querySelector('#contacts').innerText = `Contacts: ${message.contacts}`;
              break;
