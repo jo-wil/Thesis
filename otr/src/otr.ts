@@ -1,6 +1,34 @@
 'use strict';
 
 namespace otr {
+
+   // TODO give better types
+   class conversation {
+
+      private ourLongKey: any;
+      private ourKeys: any;
+      private ourKeyId: number;
+      private theirLongKey: any;
+      private theirKeys: any;
+      private theirKeyId: number;
+
+      public constructor (ourLongKey, theirLongKey) {
+         this.ourLongKey = ourLongKey;
+         this.ourKeys = {};
+         this.ourKeyId = 2;
+         this.theirLongKey = theirLongKey;
+         this.theirKeys = {};
+      }
+
+      public send () {
+
+      }
+
+      public recieve () {
+
+      }
+
+   }
   
    const h2 = async function (b, secbytes) {
       const result = new Uint8Array(1 + secbytes.length);
@@ -94,12 +122,12 @@ namespace otr {
       const mB = await hmac1.sign(JSON.stringify({
          gx: local.gx.publicKey, 
          gy: gy, 
-         pubB: local.B.publicKey, 
+         pubB: local.ourLongKey.publicKey, 
          keyIdB: keyId   
       }));
-      const ecdsa = new jwcl.ecc.ecdsa(local.B);
+      const ecdsa = new jwcl.ecc.ecdsa(local.ourLongKey);
       const xB = JSON.stringify({
-         pubB: local.B.publicKey,
+         pubB: local.ourLongKey.publicKey,
          keyIdB: keyId,
          sigMb: await ecdsa.sign(mB)
       }); 
@@ -136,10 +164,10 @@ namespace otr {
       const mB = await hmac1.sign(JSON.stringify({
          gx: gx, 
          gy: local.gy.publicKey, 
-         pubB: local.pubB, 
+         pubB: local.theirLongKey, 
          keyIdB: xB.keyIdB   
       }));
-      const key = {publicKey: local.pubB, privateKey: ''};
+      const key = {publicKey: local.theirLongKey, privateKey: ''};
       const ecdsab = new jwcl.ecc.ecdsa(key);
       const verifySigMb = await ecdsab.verify(xB.sigMb, mB);
       if (verifySigMb !== true) {
@@ -150,12 +178,12 @@ namespace otr {
       const mA = await hmac1p.sign(JSON.stringify({
          gy: local.gy.publicKey,
          gx: gx,
-         pubA: local.A.publicKey,
+         pubA: local.ourLongKey.publicKey,
          keyIdA: keyId
       }));
-      const ecdsaa = new jwcl.ecc.ecdsa(local.A);
+      const ecdsaa = new jwcl.ecc.ecdsa(local.ourLongKey);
       const xA = JSON.stringify({
-         pubA: local.A.publicKey,
+         pubA: local.ourLongKey.publicKey,
          keyIdA: keyId,
          sigMa: await ecdsaa.sign(mA)
       });
@@ -183,10 +211,10 @@ namespace otr {
       const mA = await hmac1p.sign(JSON.stringify({
          gy: local.gy,
          gx: local.gx.publicKey,
-         pubA: local.pubA,
+         pubA: local.theirLongKey,
          keyIdA: xA.keyIdA
       }));
-      const key = {publicKey: local.pubA, privateKey: ''};
+      const key = {publicKey: local.theirLongKey, privateKey: ''};
       const ecdsaa = new jwcl.ecc.ecdsa(key);
       const verifySigMa = await ecdsaa.verify(xA.sigMa, mA);
       if (verifySigMa !== true) {
@@ -287,10 +315,10 @@ namespace otr {
          let bob: any = {};
          let network: any = {};
           
-         alice.A = await jwcl.ecc.ecdsa.generate();
-         bob.B = await jwcl.ecc.ecdsa.generate();
-         alice.pubB = bob.B.publicKey;
-         bob.pubA = alice.A.publicKey;
+         alice.ourLongKey = await jwcl.ecc.ecdsa.generate();
+         bob.ourLongKey = await jwcl.ecc.ecdsa.generate();
+         alice.theirLongKey = bob.ourLongKey.publicKey;
+         bob.theirLongKey = alice.ourLongKey.publicKey;
  
          alice.ourKeys = {};
          alice.ourKeyId = 2; 
