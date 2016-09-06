@@ -10,19 +10,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var otr;
 (function (otr) {
     // TODO give better types
-    class conversation {
+    class Conversation {
         constructor(ourLongKey, theirLongKey) {
+            this.msgState = Conversation.MSGSTATE_PLAINTEXT;
+            this.authState = Conversation.AUTHSTATE_NONE;
             this.ourLongKey = ourLongKey;
             this.ourKeys = {};
             this.ourKeyId = 2;
             this.theirLongKey = theirLongKey;
             this.theirKeys = {};
         }
-        send() {
+        send(text, network) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
+                    yield otr.ake1(this, network);
+                }
+                else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
+                }
+            });
         }
-        recieve() {
+        recieve(network) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
+                    console.log('recieve start ake');
+                }
+                else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
+                }
+            });
         }
     }
+    Conversation.MSGSTATE_PLAINTEXT = 0;
+    Conversation.MSGSTATE_ENCRYPTED = 1;
+    Conversation.MSGSTATE_FINISHED = 2;
+    Conversation.AUTHSTATE_NONE = 0;
+    Conversation.AUTHSTATE_AWAITING_DHKEY = 1;
+    Conversation.AUTHSTATE_AWAITING_REVEALSIG = 2;
+    Conversation.AUTHSTATE_AWAITING_SIG = 3;
     const h2 = function (b, secbytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = new Uint8Array(1 + secbytes.length);
@@ -315,51 +338,65 @@ var otr;
                 bob.ourLongKey = yield jwcl.ecc.ecdsa.generate();
                 alice.theirLongKey = bob.ourLongKey.publicKey;
                 bob.theirLongKey = alice.ourLongKey.publicKey;
-                alice.ourKeys = {};
+                const aliceConvo = new Conversation(alice.ourLongKey, bob.ourLongKey);
+                const bobConvo = new Conversation(bob.ourLongKey, alice.ourLongKey);
+                yield aliceConvo.send('hello', network);
+                console.log(network);
+                yield bobConvo.recieve(network);
+                console.log(network);
+                /*alice.ourKeys = {};
                 alice.ourKeyId = 2;
                 alice.theirKeys = {};
                 bob.ourKeys = {};
                 bob.ourKeyId = 2;
                 bob.theirKeys = {};
-                yield otr.ake1(bob, network);
-                yield otr.ake2(alice, network);
-                yield otr.ake3(bob, network);
-                yield otr.ake4(alice, network);
-                yield otr.ake5(bob, network);
+       
+                await ake1(bob, network);
+                await ake2(alice, network);
+                await ake3(bob, network);
+                await ake4(alice, network);
+                await ake5(bob, network);
+       
                 alice.message = 'this is a message';
-                yield otr.ed1(alice, network);
-                yield otr.ed2(bob, network);
+                await ed1(alice, network);
+                await ed2(bob, network);
                 test('alice send', bob.message, alice.message);
+       
                 alice.message = 'this is two messages in a row';
-                yield otr.ed1(alice, network);
-                yield otr.ed2(bob, network);
+                await ed1(alice, network);
+                await ed2(bob, network);
                 test('alice send two', bob.message, alice.message);
+       
                 bob.message = 'this is a response';
-                yield otr.ed1(bob, network);
-                yield otr.ed2(alice, network);
+                await ed1(bob, network);
+                await ed2(alice, network);
                 test('bob response', bob.message, alice.message);
+       
                 for (let i = 0; i < 100; i++) {
-                    alice.message = 'this is a message ' + i;
-                    yield otr.ed1(alice, network);
-                    yield otr.ed2(bob, network);
-                    test('alice send normal ' + i, bob.message, alice.message);
-                    bob.message = 'this is a response ' + i;
-                    yield otr.ed1(bob, network);
-                    yield otr.ed2(alice, network);
-                    test('bob response normal ' + i, bob.message, alice.message);
+                   alice.message = 'this is a message ' + i;
+                   await ed1(alice, network);
+                   await ed2(bob, network);
+                   test('alice send normal ' + i, bob.message, alice.message);
+       
+                   bob.message = 'this is a response ' + i;
+                   await ed1(bob, network);
+                   await ed2(alice, network);
+                   test('bob response normal ' + i, bob.message, alice.message);
                 }
+       
                 for (let i = 0; i < 100; i++) {
-                    alice.message = 'this is a message ' + i;
-                    yield otr.ed1(alice, network);
-                    yield otr.ed2(bob, network);
-                    test('alice send in a row ' + i, bob.message, alice.message);
+                   alice.message = 'this is a message ' + i;
+                   await ed1(alice, network);
+                   await ed2(bob, network);
+                   test('alice send in a row ' + i, bob.message, alice.message);
                 }
+       
                 for (let i = 0; i < 100; i++) {
-                    bob.message = 'this is a response ' + i;
-                    yield otr.ed1(bob, network);
-                    yield otr.ed2(alice, network);
-                    test('bob response in a row ' + i, bob.message, alice.message);
-                }
+                   bob.message = 'this is a response ' + i;
+                   await ed1(bob, network);
+                   await ed2(alice, network);
+                   test('bob response in a row ' + i, bob.message, alice.message);
+                }*/
             });
         };
         test_1.run = function () {

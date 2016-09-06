@@ -3,16 +3,29 @@
 namespace otr {
 
    // TODO give better types
-   class conversation {
+   class Conversation {
 
-      private ourLongKey: any;
-      private ourKeys: any;
-      private ourKeyId: number;
-      private theirLongKey: any;
-      private theirKeys: any;
-      private theirKeyId: number;
+      private static MSGSTATE_PLAINTEXT = 0;
+      private static MSGSTATE_ENCRYPTED = 1;
+      private static MSGSTATE_FINISHED = 2;
+      private static AUTHSTATE_NONE = 0;
+      private static AUTHSTATE_AWAITING_DHKEY = 1;
+      private static AUTHSTATE_AWAITING_REVEALSIG = 2;
+      private static AUTHSTATE_AWAITING_SIG = 3;
+
+      private msgState: number;
+      private authState: number;
+
+      public ourLongKey: any;
+      public ourKeys: any;
+      public ourKeyId: number;
+      public theirLongKey: any;
+      public theirKeys: any;
+      public theirKeyId: number;
 
       public constructor (ourLongKey, theirLongKey) {
+         this.msgState = Conversation.MSGSTATE_PLAINTEXT;
+         this.authState = Conversation.AUTHSTATE_NONE;
          this.ourLongKey = ourLongKey;
          this.ourKeys = {};
          this.ourKeyId = 2;
@@ -20,12 +33,20 @@ namespace otr {
          this.theirKeys = {};
       }
 
-      public send () {
-
+      public async send (text, network) {
+         if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
+            await ake1(this, network);  
+         } else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
+            // encrypt and send the message
+         }
       }
 
-      public recieve () {
-
+      public async recieve (network) {
+         if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
+            console.log('recieve start ake');
+         } else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
+            // decrypt and display the message
+         }
       }
 
    }
@@ -320,7 +341,14 @@ namespace otr {
          alice.theirLongKey = bob.ourLongKey.publicKey;
          bob.theirLongKey = alice.ourLongKey.publicKey;
  
-         alice.ourKeys = {};
+         const aliceConvo = new Conversation(alice.ourLongKey, bob.ourLongKey);
+         const bobConvo = new Conversation(bob.ourLongKey, alice.ourLongKey);
+         await aliceConvo.send('hello', network);
+         console.log(network);
+         await bobConvo.recieve(network);
+         console.log(network);
+         
+         /*alice.ourKeys = {};
          alice.ourKeyId = 2; 
          alice.theirKeys = {}; 
          bob.ourKeys = {}; 
@@ -372,7 +400,7 @@ namespace otr {
             await ed1(bob, network);
             await ed2(alice, network);
             test('bob response in a row ' + i, bob.message, alice.message);
-         }
+         }*/
 
       };
 
