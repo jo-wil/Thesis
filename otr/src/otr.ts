@@ -33,22 +33,46 @@ namespace otr {
          this.theirKeys = {};
       }
 
-      public async send (text, network) {
+      public async send (network) {
          if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-            await ake1(this, network);  
-         } else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
-            // encrypt and send the message
+            await ake1(this, network);
+            console.log('ake1'); 
+            this.authState = Conversation.AUTHSTATE_AWAITING_DHKEY;
+         } else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
+            await ed1(this, network);
+            console.log('ed1'); 
          }
       }
 
       public async recieve (network) {
          if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-            console.log('recieve start ake');
-         } else if (this.msgState = Conversation.MSGSTATE_ENCRYPTED) {
-            // decrypt and display the message
+            if (this.authState === Conversation.AUTHSTATE_NONE) {
+               await ake2(this, network);
+               console.log('ake2'); 
+               this.authState = Conversation.AUTHSTATE_AWAITING_REVEALSIG;
+            } else if (this.authState === Conversation.AUTHSTATE_AWAITING_DHKEY) {
+               await ake3(this, network);
+               console.log('ake3'); 
+               this.authState = Conversation.AUTHSTATE_AWAITING_SIG;
+            } else if (this.authState === Conversation.AUTHSTATE_AWAITING_REVEALSIG) {
+               await ake4(this, network);
+               console.log('ake4'); 
+               this.authState = Conversation.AUTHSTATE_NONE;
+               this.msgState = Conversation.MSGSTATE_ENCRYPTED;
+            } else if (this.authState === Conversation.AUTHSTATE_AWAITING_SIG) {
+               await ake5(this, network);
+               console.log('ake5');
+               this.message = 'test';
+               await ed1(this, network); 
+               this.authState = Conversation.AUTHSTATE_NONE;
+               this.msgState = Conversation.MSGSTATE_ENCRYPTED;
+            }
+         } else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
+            await ed2(this, network);
+            console.log('ed2');
+            console.log(this.message);
          }
       }
-
    }
   
    const h2 = async function (b, secbytes) {
@@ -118,6 +142,7 @@ namespace otr {
       const hashGx = await jwcl.hash.sha256(gx.publicKey);
       local.r = r;
       local.gx = gx;
+      network.type = 'ake1';
       network.aesGx = aesGx;
       network.hashGx = hashGx;
    };
@@ -130,6 +155,7 @@ namespace otr {
       local.ourKey = gy;
       local.aesGx = network.aesGx;
       local.hashGx = network.hashGx;
+      network.type = 'ake2';
       network.gy = gy.publicKey;
    };
   
@@ -158,6 +184,7 @@ namespace otr {
       const macAesXb = await hmac2.sign(aesXb);
       local.keys = keys;
       local.gy = gy;
+      network.type = 'ake3';
       network.r = local.r;
       network.aesXb = aesXb;
       network.macAesXb = macAesXb;
@@ -216,6 +243,7 @@ namespace otr {
       local.gx = gx;
       local.theirKeyId = xB.keyIdB;
       local.theirKeys[local.theirKeyId] = local.gx;
+      network.type = 'ake4';
       network.aesXa = aesXa;
       network.macAesXa = macAesXa;
    };
@@ -246,28 +274,24 @@ namespace otr {
    }
 
    export const ed1 = async function (local, network) {
-
       const sendKey = local.ourKeys[local.ourKeyId - 1];
       const recvKey = local.theirKeys[local.theirKeyId];
       const sendKeyId = local.ourKeyId - 1; 
       const recvKeyId = local.theirKeyId; 
       const nextDh = local.ourKeys[local.ourKeyId].publicKey;
       const message = local.message;
-
       const keys = await edk(sendKey, recvKey)
       const aes = new jwcl.cipher.aes(keys.sendAesKey);         
       const ciphertext = await aes.encrypt(message);
-
       const ta = JSON.stringify({
          sendKeyId: sendKeyId,
          recvKeyId: recvKeyId,
          nextDh: nextDh,
          aesMessage: ciphertext
       });
-      
       const hmac = new jwcl.hash.hmac(keys.sendMacKey);
       const macTa = await hmac.sign(ta);
-
+      network.type = 'ed1';
       network.ta = ta;
       network.macTa = macTa;
    }
@@ -335,33 +359,47 @@ namespace otr {
          let alice: any = {};
          let bob: any = {};
          let network: any = {};
+         let networkTest: any = {};
           
          alice.ourLongKey = await jwcl.ecc.ecdsa.generate();
          bob.ourLongKey = await jwcl.ecc.ecdsa.generate();
          alice.theirLongKey = bob.ourLongKey.publicKey;
          bob.theirLongKey = alice.ourLongKey.publicKey;
- 
-         const aliceConvo = new Conversation(alice.ourLongKey, bob.ourLongKey);
-         const bobConvo = new Conversation(bob.ourLongKey, alice.ourLongKey);
-         await aliceConvo.send('hello', network);
-         console.log(network);
-         await bobConvo.recieve(network);
-         console.log(network);
-         
-         /*alice.ourKeys = {};
+
+         alice.ourKeys = {};
          alice.ourKeyId = 2; 
          alice.theirKeys = {}; 
          bob.ourKeys = {}; 
          bob.ourKeyId = 2;
          bob.theirKeys = {};
+ 
+         const aliceConvo = new Conversation(alice.ourLongKey, bob.ourLongKey.publicKey);
+         const bobConvo = new Conversation(bob.ourLongKey, alice.ourLongKey.publicKey);
+         await aliceConvo.send(network); // ake1
+         console.log(aliceConvo, network);
+         await bobConvo.recieve(network); // ake2
+         console.log(network);
+         await aliceConvo.recieve(network); // ake3        
+         console.log(network);
+         await bobConvo.recieve(network); // ake4
+         console.log(network);
+         await aliceConvo.recieve(network); // ake5        
+         console.log(network);
+         await bobConvo.recieve(network); // ed1
+         console.log(network);
 
-         await ake1(bob, network);
+         /*await ake1(bob, network);
          await ake2(alice, network);
          await ake3(bob, network);
          await ake4(alice, network); 
-         await ake5(bob, network);
+         await ake5(bob, network);*/
 
-         alice.message = 'this is a message';
+         /*await ake1(alice, network);
+         await ake2(bob, network);
+         await ake3(alice, network);
+         await ake4(bob, network); 
+         await ake5(alice, network);*/
+         /*alice.message = 'this is a message';
          await ed1(alice, network);
          await ed2(bob, network);
          test('alice send', bob.message, alice.message);
