@@ -9,7 +9,7 @@ const chat = function () {
    const html = `
       <div id="chat">
          <p>Hi ${globals.username}!</p> 
-         <div id="contacts"></div>
+         <ul id="contacts"></ul>
          <div id="log"></div>
          <form id="message-form" class="pure-form pure-form-stacked">
             <input id="to" type="text" placeholder="To" required/>
@@ -52,8 +52,20 @@ const chat = function () {
        } 
        switch (message.action) {
           case 'register':
-             message.contacts.splice(message.contacts.indexOf(globals.username), 1);
-             document.querySelector('#contacts').innerText = `Contacts: ${message.contacts}`;
+             document.querySelector('#contacts').innerText = ``;
+             for (let i = 0; i < message.contacts.length; i++) {
+                const contact = message.contacts[i];
+                const username = contact.username;
+                if (username !== globals.username) {
+                   let status = 'Offline';
+                   if (contact.publicKey) {
+                      status = 'Online';
+                   } 
+                   const li = document.createElement('li');
+                   li.innerText = `${username} (${status})`;
+                   document.querySelector('#contacts').appendChild(li);
+                }
+             }
              break;
           case 'message':
              if (message.text) {
@@ -63,10 +75,11 @@ const chat = function () {
        }
     });
 
-    ws.addEventListener('open', function () {
+    ws.addEventListener('open', function (evt) {
        ws.send(JSON.stringify({
           action: 'register',
-          token: globals.token
+          token: globals.token,
+          publicKey: globals.longKey.publicKey
        }));
     });
 
@@ -101,12 +114,13 @@ const login = function () {
        }).then(function (response) {
           if (response.status === 200) {
              return response.json();
-       } else {
+          } else {
              throw 'Invalid username or password.';
           }
-       }).then(function (json) {
+       }).then(async function (json) {
           globals.username = username;
           globals.token = json.token;
+          globals.longKey = await jwcl.ecc.ecdsa.generate();
           chat();
        }).catch(function (message) {
           document.querySelector('#info').innerText = message;

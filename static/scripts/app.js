@@ -1,19 +1,38 @@
 'use strict';
-var globals = {};
-var chat = function () {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+const globals = {};
+const chat = function () {
     location.hash = '/chat';
-    var html = "\n      <div id=\"chat\">\n         <p>Hi " + globals.username + "!</p> \n         <div id=\"contacts\"></div>\n         <div id=\"log\"></div>\n         <form id=\"message-form\" class=\"pure-form pure-form-stacked\">\n            <input id=\"to\" type=\"text\" placeholder=\"To\" required/>\n            <textarea id=\"text\" placeholder=\"Text\" required></textarea>\n            <input type=\"submit\" class=\"pure-button pure-button-primary\" value=\"Send\"/>\n         </form>\n         <p id=\"info\"></p>\n      </div>";
+    const html = `
+      <div id="chat">
+         <p>Hi ${globals.username}!</p> 
+         <ul id="contacts"></ul>
+         <div id="log"></div>
+         <form id="message-form" class="pure-form pure-form-stacked">
+            <input id="to" type="text" placeholder="To" required/>
+            <textarea id="text" placeholder="Text" required></textarea>
+            <input type="submit" class="pure-button pure-button-primary" value="Send"/>
+         </form>
+         <p id="info"></p>
+      </div>`;
     document.querySelector('#container').innerHTML = html;
-    var ws = new WebSocket('ws://localhost:8000/socket');
+    const ws = new WebSocket('ws://localhost:8000/socket');
     globals.ws = ws;
-    var update = function (message) {
-        var p = document.createElement('p');
-        p.innerText = "To: " + message.to + " From: " + message.from + " Text: " + message.text;
+    const update = function (message) {
+        const p = document.createElement('p');
+        p.innerText = `To: ${message.to} From: ${message.from} Text: ${message.text}`;
         document.querySelector('#log').appendChild(p);
     };
     document.querySelector('#message-form').addEventListener('submit', function (evt) {
         evt.preventDefault();
-        var message = {
+        const message = {
             action: 'message',
             token: globals.token,
             from: globals.username,
@@ -25,15 +44,27 @@ var chat = function () {
         document.querySelector('#text').value = '';
     }, false);
     ws.addEventListener('message', function (evt) {
-        var message = JSON.parse(evt.data);
+        const message = JSON.parse(evt.data);
         if (message.error) {
-            document.querySelector('#info').innerText = "Error: " + message.error;
+            document.querySelector('#info').innerText = `Error: ${message.error}`;
             return;
         }
         switch (message.action) {
             case 'register':
-                message.contacts.splice(message.contacts.indexOf(globals.username), 1);
-                document.querySelector('#contacts').innerText = "Contacts: " + message.contacts;
+                document.querySelector('#contacts').innerText = ``;
+                for (let i = 0; i < message.contacts.length; i++) {
+                    const contact = message.contacts[i];
+                    const username = contact.username;
+                    if (username !== globals.username) {
+                        let status = 'Offline';
+                        if (contact.publicKey) {
+                            status = 'Online';
+                        }
+                        const li = document.createElement('li');
+                        li.innerText = `${username} (${status})`;
+                        document.querySelector('#contacts').appendChild(li);
+                    }
+                }
                 break;
             case 'message':
                 if (message.text) {
@@ -42,21 +73,29 @@ var chat = function () {
                 break;
         }
     });
-    ws.addEventListener('open', function () {
+    ws.addEventListener('open', function (evt) {
         ws.send(JSON.stringify({
             action: 'register',
-            token: globals.token
+            token: globals.token,
+            publicKey: globals.longKey.publicKey
         }));
     });
 };
-var login = function () {
+const login = function () {
     location.hash = '/login';
-    var html = "<div id=\"login\" class=\"pure-form pure-form-stacked\">\n          <form id=\"login-form\">\n             <input id=\"username\" type=\"text\" placeholder=\"Username\" required/>\n             <input id=\"password\" type=\"password\" placeholder=\"Password\"/> \n             <input type=\"submit\" class=\"pure-button pure-button-primary\" value=\"Login\"/>\n          </form>\n          <p id=\"info\"></p>\n       </div>";
+    const html = `<div id="login" class="pure-form pure-form-stacked">
+          <form id="login-form">
+             <input id="username" type="text" placeholder="Username" required/>
+             <input id="password" type="password" placeholder="Password"/> 
+             <input type="submit" class="pure-button pure-button-primary" value="Login"/>
+          </form>
+          <p id="info"></p>
+       </div>`;
     document.querySelector('#container').innerHTML = html;
     document.querySelector('#login-form').addEventListener('submit', function (evt) {
         evt.preventDefault();
-        var username = document.querySelector('#username').value;
-        var password = document.querySelector('#password').value;
+        const username = document.querySelector('#username').value;
+        const password = document.querySelector('#password').value;
         fetch('/api/login', {
             method: 'POST',
             body: JSON.stringify({
@@ -71,15 +110,18 @@ var login = function () {
                 throw 'Invalid username or password.';
             }
         }).then(function (json) {
-            globals.username = username;
-            globals.token = json.token;
-            chat();
+            return __awaiter(this, void 0, void 0, function* () {
+                globals.username = username;
+                globals.token = json.token;
+                globals.longKey = yield jwcl.ecc.ecdsa.generate();
+                chat();
+            });
         }).catch(function (message) {
             document.querySelector('#info').innerText = message;
         });
     }, false);
 };
-var route = function () {
+const route = function () {
     if (location.hash === '#/chat' && globals.token) {
         chat();
     }
@@ -87,7 +129,7 @@ var route = function () {
         login();
     }
 };
-var main = function () {
+const main = function () {
     if (globals.token) {
         chat();
     }

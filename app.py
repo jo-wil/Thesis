@@ -74,7 +74,8 @@ def signup():
      salt = os.urandom(8)
      DB[username] = {
         'password': salt + '.' + KDF.PBKDF2(password, salt, 16, 10000, lambda password, salt: HMAC.new(password, salt, SHA256).hexdigest()),
-        'websocket': None
+        'websocket': None,
+        'publicKey': None
      }
      return '', 200      
   abort(400)
@@ -93,7 +94,19 @@ def messaging(websocket):
                username = token_data.get('username')
                user = DB.get(username)
                user['websocket'] = websocket
-               websocket.send(json.dumps({'action': action, 'contacts': DB.keys()}))
+               user['publicKey'] = json_data.get('publicKey')
+               contacts = []
+               for key in DB:
+                  contacts.append({
+                     'username': key,
+                     'publicKey': DB[key]['publicKey']   
+                  })
+               for key in DB:
+                  if key != username:
+                     other_websocket = DB[key]['websocket']
+                     if other_websocket:
+                        other_websocket.send(json.dumps({'action': action, 'contacts': contacts}))
+               websocket.send(json.dumps({'action': action, 'contacts': contacts}))
             elif action == 'message':
                to = json_data.get('to')
                user = DB.get(to)
@@ -109,7 +122,8 @@ def messaging(websocket):
       except TypeError:
          user = DB.get(username)
          user['websocket'] = None
- 
+         # TODO if time, inform users of offline status
+
 @werkzeug.serving.run_with_reloader
 def main():
    app.debug = True
