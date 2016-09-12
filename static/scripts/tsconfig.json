@@ -7,6 +7,7 @@
     },
     "files": [
        "./jwcl.ts",
+       "./otr.ts",
        "./app.ts"
     ]
 }

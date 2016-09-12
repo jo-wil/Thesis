@@ -31,47 +31,54 @@ const chat = function () {
         document.querySelector('#log').appendChild(p);
     };
     document.querySelector('#message-form').addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        const message = {
-            action: 'message',
-            token: globals.token,
-            from: globals.username,
-            to: document.querySelector('#to').value,
-            text: document.querySelector('#text').value
-        };
-        update(message);
-        ws.send(JSON.stringify(message));
-        document.querySelector('#text').value = '';
+        return __awaiter(this, void 0, void 0, function* () {
+            evt.preventDefault();
+            let message = {
+                action: 'message',
+                token: globals.token,
+                from: globals.username,
+                to: document.querySelector('#to').value,
+                text: document.querySelector('#text').value
+            };
+            update(message);
+            message = yield otr.send(globals.ws, globals.contacts, globals.username, globals.longKey, message);
+            ws.send(JSON.stringify(message));
+            document.querySelector('#text').value = '';
+        });
     }, false);
     ws.addEventListener('message', function (evt) {
-        const message = JSON.parse(evt.data);
-        if (message.error) {
-            document.querySelector('#info').innerText = `Error: ${message.error}`;
-            return;
-        }
-        switch (message.action) {
-            case 'register':
-                document.querySelector('#contacts').innerText = ``;
-                for (let i = 0; i < message.contacts.length; i++) {
-                    const contact = message.contacts[i];
-                    const username = contact.username;
-                    if (username !== globals.username) {
-                        let status = 'Offline';
-                        if (contact.publicKey) {
-                            status = 'Online';
+        return __awaiter(this, void 0, void 0, function* () {
+            let message = JSON.parse(evt.data);
+            if (message.error) {
+                document.querySelector('#info').innerText = `Error: ${message.error}`;
+                return;
+            }
+            switch (message.action) {
+                case 'register':
+                    document.querySelector('#contacts').innerText = ``;
+                    globals.contacts = message.contacts;
+                    for (let i = 0; i < message.contacts.length; i++) {
+                        const contact = message.contacts[i];
+                        const username = contact.username;
+                        if (username !== globals.username) {
+                            let status = 'Offline';
+                            if (contact.publicKey) {
+                                status = 'Online';
+                            }
+                            const li = document.createElement('li');
+                            li.innerText = `${username} (${status})`;
+                            document.querySelector('#contacts').appendChild(li);
                         }
-                        const li = document.createElement('li');
-                        li.innerText = `${username} (${status})`;
-                        document.querySelector('#contacts').appendChild(li);
                     }
-                }
-                break;
-            case 'message':
-                if (message.text) {
-                    update(message);
-                }
-                break;
-        }
+                    break;
+                case 'message':
+                    if (message.text) {
+                        message = yield otr.recieve(globals.ws, globals.contacts, globals.username, globals.longKey, message);
+                        update(message);
+                    }
+                    break;
+            }
+        });
     });
     ws.addEventListener('open', function (evt) {
         ws.send(JSON.stringify({

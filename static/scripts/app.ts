@@ -30,9 +30,9 @@ const chat = function () {
        document.querySelector('#log').appendChild(p);
     };
 
-    document.querySelector('#message-form').addEventListener('submit', function (evt) {
+    document.querySelector('#message-form').addEventListener('submit', async function (evt) {
        evt.preventDefault();
-       const message = {
+       let message = {
           action: 'message',
           token: globals.token,
           from: globals.username,
@@ -40,12 +40,13 @@ const chat = function () {
           text: document.querySelector('#text').value
        };
        update(message);
+       message = await otr.send(globals.ws, globals.contacts, globals.username, globals.longKey, message);
        ws.send(JSON.stringify(message));
        document.querySelector('#text').value = '';      
     }, false);
 
-    ws.addEventListener('message', function (evt) {
-       const message = JSON.parse(evt.data);
+    ws.addEventListener('message', async function (evt) {
+       let message = JSON.parse(evt.data);
        if (message.error) {
           document.querySelector('#info').innerText = `Error: ${message.error}`;
           return;
@@ -53,6 +54,7 @@ const chat = function () {
        switch (message.action) {
           case 'register':
              document.querySelector('#contacts').innerText = ``;
+             globals.contacts = message.contacts;
              for (let i = 0; i < message.contacts.length; i++) {
                 const contact = message.contacts[i];
                 const username = contact.username;
@@ -69,6 +71,7 @@ const chat = function () {
              break;
           case 'message':
              if (message.text) {
+                message = await otr.recieve(globals.ws, globals.contacts, globals.username, globals.longKey, message);
                 update(message);
              }
              break; 
