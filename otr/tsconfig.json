@@ -9,7 +9,6 @@
     },
     "files": [
        "./src/jwcl.ts",
-       "./src/otr.ts",
-       "./src/main.ts"
+       "./src/otr.ts"
     ]
 }

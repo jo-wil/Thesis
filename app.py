@@ -87,38 +87,41 @@ def messaging(websocket):
       try:
          data = websocket.receive()
          json_data = json.loads(data)
-         action = json_data.get('action')         
-         token_data = decode(json_data.get('token')) 
-         if token_data:
-            if action == 'register':
-               username = token_data.get('username')
-               user = DB.get(username)
-               user['websocket'] = websocket
-               user['publicKey'] = json_data.get('publicKey')
-               contacts = []
-               for key in DB:
-                  contacts.append({
-                     'username': key,
-                     'publicKey': DB[key]['publicKey']   
-                  })
-               for key in DB:
-                  if key != username:
-                     other_websocket = DB[key]['websocket']
-                     if other_websocket:
-                        other_websocket.send(json.dumps({'action': action, 'contacts': contacts}))
-               websocket.send(json.dumps({'action': action, 'contacts': contacts}))
-            elif action == 'message':
-               to = json_data.get('to')
-               user = DB.get(to)
-               to_websocket = user.get('websocket')
-               if to_websocket:
-                  del json_data['token']
-                  #print json_data
-                  to_websocket.send(json.dumps(json_data))
-               else:
-                  websocket.send(json.dumps({'action': action, 'error': 'unavailable'}))
+         action = json_data.get('action')     
+         if 'token' in json_data:    
+            token_data = decode(json_data.get('token')) 
+            if token_data:
+               if action == 'register':
+                  username = token_data.get('username')
+                  user = DB.get(username)
+                  user['websocket'] = websocket
+                  user['publicKey'] = json_data.get('publicKey')
+                  contacts = []
+                  for key in DB:
+                     contacts.append({
+                        'username': key,
+                        'publicKey': DB[key]['publicKey']   
+                     })
+                  for key in DB:
+                     if key != username:
+                        other_websocket = DB[key]['websocket']
+                        if other_websocket:
+                           other_websocket.send(json.dumps({'action': action, 'contacts': contacts}))
+                  websocket.send(json.dumps({'action': action, 'contacts': contacts}))
+               elif action == 'message':
+                  to = json_data.get('to')
+                  user = DB.get(to)
+                  to_websocket = user.get('websocket')
+                  if to_websocket:
+                     del json_data['token']
+                     #print json_data
+                     to_websocket.send(json.dumps(json_data))
+                  else:
+                     websocket.send(json.dumps({'action': action, 'error': 'unavailable'}))
+            else:
+               websocket.send(json.dumps({'action': action, 'error': 'auth invalid token'}))
          else:
-            websocket.send(json.dumps({'action': action, 'error': 'auth'}))
+            websocket.send(json.dumps({'action': action, 'error': 'auth no token'}))
       except TypeError:
          user = DB.get(username)
          user['websocket'] = None

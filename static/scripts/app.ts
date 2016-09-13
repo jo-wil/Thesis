@@ -40,7 +40,7 @@ const chat = function () {
           text: document.querySelector('#text').value
        };
        update(message);
-       message = await otr.send(globals.ws, globals.contacts, globals.username, globals.longKey, message);
+       message = await otr.send(globals.ws, globals.token, globals.contacts, globals.username, globals.longKey, message);
        ws.send(JSON.stringify(message));
        document.querySelector('#text').value = '';      
     }, false);
@@ -70,8 +70,8 @@ const chat = function () {
              }
              break;
           case 'message':
+             message = await otr.recieve(globals.ws, globals.token, globals.contacts, globals.username, globals.longKey, message);
              if (message.text) {
-                message = await otr.recieve(globals.ws, globals.contacts, globals.username, globals.longKey, message);
                 update(message);
              }
              break; 

@@ -9,73 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var otr;
 (function (otr) {
-    // TODO give better types
-    class Conversation {
-        constructor(ourLongKey, theirLongKey) {
-            this.msgState = Conversation.MSGSTATE_PLAINTEXT;
-            this.authState = Conversation.AUTHSTATE_NONE;
-            this.ourLongKey = ourLongKey;
-            this.ourKeys = {};
-            this.ourKeyId = 2;
-            this.theirLongKey = theirLongKey;
-            this.theirKeys = {};
-        }
-        send(network) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-                    yield otr.ake1(this, network);
-                    console.log('ake1');
-                    this.authState = Conversation.AUTHSTATE_AWAITING_DHKEY;
-                }
-                else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
-                    yield otr.ed1(this, network);
-                    console.log('ed1');
-                }
-            });
-        }
-        recieve(network) {
-            return __awaiter(this, void 0, void 0, function* () {
-                if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-                    if (this.authState === Conversation.AUTHSTATE_NONE) {
-                        yield otr.ake2(this, network);
-                        console.log('ake2');
-                        this.authState = Conversation.AUTHSTATE_AWAITING_REVEALSIG;
-                    }
-                    else if (this.authState === Conversation.AUTHSTATE_AWAITING_DHKEY) {
-                        yield otr.ake3(this, network);
-                        console.log('ake3');
-                        this.authState = Conversation.AUTHSTATE_AWAITING_SIG;
-                    }
-                    else if (this.authState === Conversation.AUTHSTATE_AWAITING_REVEALSIG) {
-                        yield otr.ake4(this, network);
-                        console.log('ake4');
-                        this.authState = Conversation.AUTHSTATE_NONE;
-                        this.msgState = Conversation.MSGSTATE_ENCRYPTED;
-                    }
-                    else if (this.authState === Conversation.AUTHSTATE_AWAITING_SIG) {
-                        yield otr.ake5(this, network);
-                        console.log('ake5');
-                        this.message = 'test';
-                        yield otr.ed1(this, network);
-                        this.authState = Conversation.AUTHSTATE_NONE;
-                        this.msgState = Conversation.MSGSTATE_ENCRYPTED;
-                    }
-                }
-                else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
-                    yield otr.ed2(this, network);
-                    console.log('ed2');
-                    console.log(this.message);
-                }
-            });
-        }
-    }
-    Conversation.MSGSTATE_PLAINTEXT = 0;
-    Conversation.MSGSTATE_ENCRYPTED = 1;
-    Conversation.MSGSTATE_FINISHED = 2;
-    Conversation.AUTHSTATE_NONE = 0;
-    Conversation.AUTHSTATE_AWAITING_DHKEY = 1;
-    Conversation.AUTHSTATE_AWAITING_REVEALSIG = 2;
-    Conversation.AUTHSTATE_AWAITING_SIG = 3;
+    const MSGSTATE_PLAINTEXT = 0;
+    const MSGSTATE_ENCRYPTED = 1;
+    const MSGSTATE_FINISHED = 2;
+    const AUTHSTATE_NONE = 0;
+    const AUTHSTATE_AWAITING_DHKEY = 1;
+    const AUTHSTATE_AWAITING_REVEALSIG = 2;
+    const AUTHSTATE_AWAITING_SIG = 3;
     const h2 = function (b, secbytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = new Uint8Array(1 + secbytes.length);
@@ -333,124 +273,44 @@ var otr;
             }
             const aes = new jwcl.cipher.aes(keys.recvAesKey);
             const plaintext = yield aes.decrypt(ta.aesMessage);
-            local.message = plaintext;
+            return plaintext;
         });
     };
-    var test;
-    (function (test_1) {
-        const test = function (name, result, expected) {
-            const p = document.createElement('p');
-            if (expected !== result) {
-                p.innerText =
-                    name + ' ... fail\n' +
-                        '   result: ' + result + '\n' +
-                        '   expected: ' + expected;
-            }
-            else {
-                p.innerText = name + ' ... pass';
-            }
-            document.body.appendChild(p);
-        };
-        const testno = function (name, result, notexpected) {
-            const p = document.createElement('p');
-            if (notexpected === result) {
-                p.innerText =
-                    name + '... fail\n' +
-                        '   result: ' + result + '\n' +
-                        '   notexpected: ' + notexpected;
-            }
-            else {
-                p.innerText = name + '... pass';
-            }
-            document.body.appendChild(p);
-        };
-        const testAll = function () {
+    class Otr {
+        constructor() {
+            this._convos = {};
+        }
+        send(ws, token, contacts, username, longKey, message) {
             return __awaiter(this, void 0, void 0, function* () {
-                let alice = {};
-                let bob = {};
-                let network = {};
-                let networkTest = {};
-                alice.ourLongKey = yield jwcl.ecc.ecdsa.generate();
-                bob.ourLongKey = yield jwcl.ecc.ecdsa.generate();
-                alice.theirLongKey = bob.ourLongKey.publicKey;
-                bob.theirLongKey = alice.ourLongKey.publicKey;
-                alice.ourKeys = {};
-                alice.ourKeyId = 2;
-                alice.theirKeys = {};
-                bob.ourKeys = {};
-                bob.ourKeyId = 2;
-                bob.theirKeys = {};
-                const aliceConvo = new Conversation(alice.ourLongKey, bob.ourLongKey.publicKey);
-                const bobConvo = new Conversation(bob.ourLongKey, alice.ourLongKey.publicKey);
-                yield aliceConvo.send(network); // ake1
-                console.log(aliceConvo, network);
-                yield bobConvo.recieve(network); // ake2
-                console.log(network);
-                yield aliceConvo.recieve(network); // ake3        
-                console.log(network);
-                yield bobConvo.recieve(network); // ake4
-                console.log(network);
-                yield aliceConvo.recieve(network); // ake5        
-                console.log(network);
-                yield bobConvo.recieve(network); // ed1
-                console.log(network);
-                /*await ake1(bob, network);
-                await ake2(alice, network);
-                await ake3(bob, network);
-                await ake4(alice, network);
-                await ake5(bob, network);*/
-                /*await ake1(alice, network);
-                await ake2(bob, network);
-                await ake3(alice, network);
-                await ake4(bob, network);
-                await ake5(alice, network);*/
-                /*alice.message = 'this is a message';
-                await ed1(alice, network);
-                await ed2(bob, network);
-                test('alice send', bob.message, alice.message);
-       
-                alice.message = 'this is two messages in a row';
-                await ed1(alice, network);
-                await ed2(bob, network);
-                test('alice send two', bob.message, alice.message);
-       
-                bob.message = 'this is a response';
-                await ed1(bob, network);
-                await ed2(alice, network);
-                test('bob response', bob.message, alice.message);
-       
-                for (let i = 0; i < 100; i++) {
-                   alice.message = 'this is a message ' + i;
-                   await ed1(alice, network);
-                   await ed2(bob, network);
-                   test('alice send normal ' + i, bob.message, alice.message);
-       
-                   bob.message = 'this is a response ' + i;
-                   await ed1(bob, network);
-                   await ed2(alice, network);
-                   test('bob response normal ' + i, bob.message, alice.message);
+                console.log('SENDING', contacts, username, longKey, message);
+                let to;
+                for (let i = 0; i < contacts.length; i++) {
+                    const contact = contacts[i];
+                    if (contact.username === message.to) {
+                        to = contact;
+                        break;
+                    }
                 }
-       
-                for (let i = 0; i < 100; i++) {
-                   alice.message = 'this is a message ' + i;
-                   await ed1(alice, network);
-                   await ed2(bob, network);
-                   test('alice send in a row ' + i, bob.message, alice.message);
-                }
-       
-                for (let i = 0; i < 100; i++) {
-                   bob.message = 'this is a response ' + i;
-                   await ed1(bob, network);
-                   await ed2(alice, network);
-                   test('bob response in a row ' + i, bob.message, alice.message);
-                }*/
+                delete message.text;
+                return message;
             });
-        };
-        test_1.run = function () {
+        }
+        recieve(ws, token, contacts, username, longKey, message) {
             return __awaiter(this, void 0, void 0, function* () {
-                yield testAll();
+                console.log('RECIEVING', contacts, username, longKey, message);
+                let from;
+                for (let i = 0; i < contacts.length; i++) {
+                    const contact = contacts[i];
+                    if (contact.username === message.from) {
+                        from = contact;
+                        break;
+                    }
+                }
+                message.text = 'TODO';
+                return message;
             });
-        };
-    })(test = otr.test || (otr.test = {}));
+        }
+    }
+    otr.Otr = Otr;
 })(otr || (otr = {}));
 //# sourceMappingURL=otr.js.map
