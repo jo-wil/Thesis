@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var otr;
-(function (otr_1) {
+(function (otr) {
     const MSGSTATE_PLAINTEXT = 0;
     const MSGSTATE_ENCRYPTED = 1;
     const MSGSTATE_FINISHED = 2;
@@ -16,71 +16,6 @@ var otr;
     const AUTHSTATE_AWAITING_DHKEY = 1;
     const AUTHSTATE_AWAITING_REVEALSIG = 2;
     const AUTHSTATE_AWAITING_SIG = 3;
-    const convos = {};
-    // TODO give better types
-    /*class Conversation {
- 
-       private msgState: number;
-       private authState: number;
- 
-       public ourLongKey: any;
-       public ourKeys: any;
-       public ourKeyId: number;
-       public theirLongKey: any;
-       public theirKeys: any;
-       public theirKeyId: number;
- 
-       public constructor (ourLongKey, theirLongKey) {
-          this.msgState = Conversation.MSGSTATE_PLAINTEXT;
-          this.authState = Conversation.AUTHSTATE_NONE;
-          this.ourLongKey = ourLongKey;
-          this.ourKeys = {};
-          this.ourKeyId = 2;
-          this.theirLongKey = theirLongKey;
-          this.theirKeys = {};
-       }
- 
-       public async send (network) {
-          if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-             await ake1(this, network);
-             console.log('ake1');
-             this.authState = Conversation.AUTHSTATE_AWAITING_DHKEY;
-          } else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
-             await ed1(this, network);
-             console.log('ed1');
-          }
-       }
- 
-       public async recieve (network) {
-          if (this.msgState === Conversation.MSGSTATE_PLAINTEXT) {
-             if (this.authState === Conversation.AUTHSTATE_NONE) {
-                await ake2(this, network);
-                console.log('ake2');
-                this.authState = Conversation.AUTHSTATE_AWAITING_REVEALSIG;
-             } else if (this.authState === Conversation.AUTHSTATE_AWAITING_DHKEY) {
-                await ake3(this, network);
-                console.log('ake3');
-                this.authState = Conversation.AUTHSTATE_AWAITING_SIG;
-             } else if (this.authState === Conversation.AUTHSTATE_AWAITING_REVEALSIG) {
-                await ake4(this, network);
-                console.log('ake4');
-                this.authState = Conversation.AUTHSTATE_NONE;
-                this.msgState = Conversation.MSGSTATE_ENCRYPTED;
-             } else if (this.authState === Conversation.AUTHSTATE_AWAITING_SIG) {
-                await ake5(this, network);
-                console.log('ake5');
-                this.message = 'test';
-                await ed1(this, network);
-                this.authState = Conversation.AUTHSTATE_NONE;
-                this.msgState = Conversation.MSGSTATE_ENCRYPTED;
-             }
-          } else if (this.msgState === Conversation.MSGSTATE_ENCRYPTED) {
-             await ed2(this, network);
-             console.log('ed2');
-             console.log(this.message);
-          }
-       }
-    }*/
     const h2 = function (b, secbytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = new Uint8Array(1 + secbytes.length);
@@ -143,7 +78,7 @@ var otr;
             return keys;
         });
     };
-    otr_1.ake1 = function (local, network) {
+    otr.ake1 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
             const r = jwcl.random(16);
             const gx = yield jwcl.ecc.ecdh.generate();
@@ -154,27 +89,27 @@ var otr;
             const hashGx = yield jwcl.hash.sha256(gx.publicKey);
             local.r = r;
             local.gx = gx;
-            network.type = 'ake1';
-            network.aesGx = aesGx;
-            network.hashGx = hashGx;
+            networkOut.type = 'ake1';
+            networkOut.aesGx = aesGx;
+            networkOut.hashGx = hashGx;
         });
     };
-    otr_1.ake2 = function (local, network) {
+    otr.ake2 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
             const gy = yield jwcl.ecc.ecdh.generate();
             local.ourKeys[local.ourKeyId - 1] = gy;
             local.ourKeys[local.ourKeyId] = yield jwcl.ecc.ecdh.generate();
             local.gy = gy;
             local.ourKey = gy;
-            local.aesGx = network.aesGx;
-            local.hashGx = network.hashGx;
-            network.type = 'ake2';
-            network.gy = gy.publicKey;
+            local.aesGx = networkIn.aesGx;
+            local.hashGx = networkIn.hashGx;
+            networkOut.type = 'ake2';
+            networkOut.gy = gy.publicKey;
         });
     };
-    otr_1.ake3 = function (local, network) {
+    otr.ake3 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
-            const gy = network.gy;
+            const gy = networkIn.gy;
             const ecdh = new jwcl.ecc.ecdh(local.gx);
             const s = yield ecdh.derive(gy);
             const keys = yield akek(s);
@@ -198,15 +133,15 @@ var otr;
             const macAesXb = yield hmac2.sign(aesXb);
             local.keys = keys;
             local.gy = gy;
-            network.type = 'ake3';
-            network.r = local.r;
-            network.aesXb = aesXb;
-            network.macAesXb = macAesXb;
+            networkOut.type = 'ake3';
+            networkOut.r = local.r;
+            networkOut.aesXb = aesXb;
+            networkOut.macAesXb = macAesXb;
         });
     };
-    otr_1.ake4 = function (local, network) {
+    otr.ake4 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
-            const r = network.r;
+            const r = networkIn.r;
             const aesr = new jwcl.cipher.aes(r);
             const gx = yield aesr.decrypt(local.aesGx);
             const hashGx = yield jwcl.hash.sha256(gx);
@@ -217,12 +152,12 @@ var otr;
             const s = yield ecdh.derive(gx);
             const keys = yield akek(s);
             const hmac2 = new jwcl.hash.hmac(keys.m2);
-            const verifyMacM2 = yield hmac2.verify(network.macAesXb, network.aesXb);
+            const verifyMacM2 = yield hmac2.verify(networkIn.macAesXb, networkIn.aesXb);
             if (verifyMacM2 !== true) {
                 throw 'Error ake4: mac does not verify';
             }
             const aesc = new jwcl.cipher.aes(keys.c);
-            const xB = JSON.parse(yield aesc.decrypt(network.aesXb));
+            const xB = JSON.parse(yield aesc.decrypt(networkIn.aesXb));
             const hmac1 = new jwcl.hash.hmac(keys.m1);
             const mB = yield hmac1.sign(JSON.stringify({
                 gx: gx,
@@ -258,20 +193,20 @@ var otr;
             local.gx = gx;
             local.theirKeyId = xB.keyIdB;
             local.theirKeys[local.theirKeyId] = local.gx;
-            network.type = 'ake4';
-            network.aesXa = aesXa;
-            network.macAesXa = macAesXa;
+            networkOut.type = 'ake4';
+            networkOut.aesXa = aesXa;
+            networkOut.macAesXa = macAesXa;
         });
     };
-    otr_1.ake5 = function (local, network) {
+    otr.ake5 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
             const hmac2p = new jwcl.hash.hmac(local.keys.m2prime);
-            const verifyMacM2p = yield hmac2p.verify(network.macAesXa, network.aesXa);
+            const verifyMacM2p = yield hmac2p.verify(networkIn.macAesXa, networkIn.aesXa);
             if (verifyMacM2p !== true) {
                 throw 'Error ake5: mac does not verify';
             }
             const aescp = new jwcl.cipher.aes(local.keys.cprime);
-            const xA = JSON.parse(yield aescp.decrypt(network.aesXa));
+            const xA = JSON.parse(yield aescp.decrypt(networkIn.aesXa));
             const hmac1p = new jwcl.hash.hmac(local.keys.m1prime);
             const mA = yield hmac1p.sign(JSON.stringify({
                 gy: local.gy,
@@ -289,17 +224,17 @@ var otr;
             local.theirKeys[local.theirKeyId] = local.gy;
         });
     };
-    otr_1.ed1 = function (local, network) {
+    otr.ed1 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
             const sendKey = local.ourKeys[local.ourKeyId - 1];
             const recvKey = local.theirKeys[local.theirKeyId];
             const sendKeyId = local.ourKeyId - 1;
             const recvKeyId = local.theirKeyId;
             const nextDh = local.ourKeys[local.ourKeyId].publicKey;
-            const message = local.message;
+            const plaintext = local.text;
             const keys = yield edk(sendKey, recvKey);
             const aes = new jwcl.cipher.aes(keys.sendAesKey);
-            const ciphertext = yield aes.encrypt(message);
+            const ciphertext = yield aes.encrypt(plaintext);
             const ta = JSON.stringify({
                 sendKeyId: sendKeyId,
                 recvKeyId: recvKeyId,
@@ -308,15 +243,15 @@ var otr;
             });
             const hmac = new jwcl.hash.hmac(keys.sendMacKey);
             const macTa = yield hmac.sign(ta);
-            network.type = 'ed1';
-            network.ta = ta;
-            network.macTa = macTa;
+            networkOut.type = 'ed1';
+            networkOut.ta = ta;
+            networkOut.macTa = macTa;
         });
     };
-    otr_1.ed2 = function (local, network) {
+    otr.ed2 = function (local, networkIn, networkOut) {
         return __awaiter(this, void 0, void 0, function* () {
-            const ta = JSON.parse(network.ta);
-            const macTa = network.macTa;
+            const ta = JSON.parse(networkIn.ta);
+            const macTa = networkIn.macTa;
             const sendKeyId = ta.sendKeyId;
             const recvKeyId = ta.recvKeyId;
             const sendKey = local.ourKeys[recvKeyId]; // TODO write about this as it is kinda weird
@@ -332,91 +267,129 @@ var otr;
             }
             const keys = yield edk(sendKey, recvKey);
             const hmac = new jwcl.hash.hmac(keys.recvMacKey);
-            const verify = yield hmac.verify(macTa, network.ta);
+            const verify = yield hmac.verify(macTa, networkIn.ta);
             if (verify === false) {
                 throw "ERROR ed2: mac does not verify";
             }
             const aes = new jwcl.cipher.aes(keys.recvAesKey);
             const plaintext = yield aes.decrypt(ta.aesMessage);
-            local.message = plaintext;
+            local.text = plaintext;
         });
     };
-    otr_1.send = function (ws, token, contacts, username, longKey, message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('SENDING', contacts, username, longKey, message);
-            let to;
-            for (let i = 0; i < contacts.length; i++) {
-                const contact = contacts[i];
-                if (contact.username === message.to) {
-                    to = contact;
-                    break;
+    class Otr {
+        constructor() {
+            this._convos = {};
+        }
+        send(ws, token, contacts, username, longKey, message) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let to;
+                for (let i = 0; i < contacts.length; i++) {
+                    const contact = contacts[i];
+                    if (contact.username === message.to) {
+                        to = contact;
+                        break;
+                    }
                 }
-            }
-            if (to in convos) {
-            }
-            else {
-                const convo = {
-                    authState: MSGSTATE_PLAINTEXT,
-                    msgState: AUTHSTATE_NONE,
-                    cache: message.text,
-                    ourLongKey: longKey,
-                    ourKeys: {},
-                    ourKeyId: 2,
-                    theirLongKey: to.publicKey,
-                    theirKeys: {},
-                    theirKeyId: -1,
-                };
-                const otr = {
-                    type: 'start'
-                };
-                convos[to] = convo;
-                message.otr = otr;
-            }
-            delete message.text;
-            return message;
-        });
-    };
-    otr_1.recieve = function (ws, token, contacts, username, longKey, message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log('RECIEVING', contacts, username, longKey, message);
-            let from;
-            for (let i = 0; i < contacts.length; i++) {
-                const contact = contacts[i];
-                if (contact.username === message.from) {
-                    from = contact;
-                    break;
+                if (to in this._convos) {
+                    if (message.text) {
+                        this._convos[to].text = message.text;
+                    }
+                    message.otr = {};
+                    yield otr.ed1(this._convos[to], {}, message.otr);
                 }
-            }
-            if (from in convos) {
-                if (message.otr.type === 'ake1') {
-                    const convo = convos[from];
-                    console.log('ake1', convo);
-                }
-            }
-            else {
-                if (message.otr.type === 'start') {
-                    const convo = {
+                else {
+                    this._convos[to] = {
                         authState: MSGSTATE_PLAINTEXT,
                         msgState: AUTHSTATE_NONE,
+                        text: message.text,
                         ourLongKey: longKey,
                         ourKeys: {},
                         ourKeyId: 2,
-                        theirLongKey: from.publicKey,
+                        theirLongKey: to.publicKey,
                         theirKeys: {},
-                        theirKeyId: -1
+                        theirKeyId: -1,
                     };
-                    const otr = {};
-                    yield otr_1.ake1(convo, otr);
-                    convos[from] = convo;
-                    message.token = token;
-                    const tmp = message.to;
-                    message.to = message.from;
-                    message.from = tmp;
-                    message.otr = otr;
-                    ws.send(JSON.stringify(message));
+                    message.otr = {
+                        type: 'query'
+                    };
                 }
-            }
-            return message;
-        });
-    };
+                delete message.text;
+                console.log('SENDING', contacts, username, longKey, message);
+                return message;
+            });
+        }
+        receive(ws, token, contacts, username, longKey, message) {
+            return __awaiter(this, void 0, void 0, function* () {
+                console.log('RECIEVING', contacts, username, longKey, message);
+                let from;
+                for (let i = 0; i < contacts.length; i++) {
+                    const contact = contacts[i];
+                    if (contact.username === message.from) {
+                        from = contact;
+                        break;
+                    }
+                }
+                const network = message.otr;
+                message.token = token;
+                const tmp = message.to;
+                message.to = message.from;
+                message.from = tmp;
+                if (from in this._convos) {
+                    if (message.otr.type === 'ake1') {
+                        message.otr = {};
+                        yield otr.ake2(this._convos[from], network, message.otr);
+                        ws.send(JSON.stringify(message));
+                    }
+                    else if (message.otr.type === 'ake2') {
+                        message.otr = {};
+                        yield otr.ake3(this._convos[from], network, message.otr);
+                        ws.send(JSON.stringify(message));
+                    }
+                    else if (message.otr.type === 'ake3') {
+                        message.otr = {};
+                        yield otr.ake4(this._convos[from], network, message.otr);
+                        ws.send(JSON.stringify(message));
+                        if (this._convos[from].text) {
+                            message.otr = {};
+                            yield otr.ed1(this._convos[from], network, message.otr);
+                            ws.send(JSON.stringify(message));
+                        }
+                    }
+                    else if (message.otr.type === 'ake4') {
+                        message.otr = {};
+                        yield otr.ake5(this._convos[from], network, message.otr);
+                        if (this._convos[from].text) {
+                            message.otr = {};
+                            yield otr.ed1(this._convos[from], network, message.otr);
+                            ws.send(JSON.stringify(message));
+                        }
+                    }
+                    else if (message.otr.type === 'ed1') {
+                        message.otr = {};
+                        yield otr.ed2(this._convos[from], network, message.otr);
+                        message.text = this._convos[from].text;
+                    }
+                }
+                else {
+                    if (message.otr.type === 'query') {
+                        this._convos[from] = {
+                            authState: MSGSTATE_PLAINTEXT,
+                            msgState: AUTHSTATE_NONE,
+                            ourLongKey: longKey,
+                            ourKeys: {},
+                            ourKeyId: 2,
+                            theirLongKey: from.publicKey,
+                            theirKeys: {},
+                            theirKeyId: -1
+                        };
+                        message.otr = {};
+                        yield otr.ake1(this._convos[from], network, message.otr);
+                        ws.send(JSON.stringify(message));
+                    }
+                }
+                return message;
+            });
+        }
+    }
+    otr.Otr = Otr;
 })(otr || (otr = {}));

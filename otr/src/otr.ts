@@ -67,7 +67,7 @@ namespace otr {
       return keys;
    };
 
-   export const ake1 = async function(local, network) {
+   export const ake1 = async function (local, networkIn, networkOut) {
       const r = jwcl.random(16);
       const gx   = await jwcl.ecc.ecdh.generate();
       local.ourKeys[local.ourKeyId - 1] = gx;
@@ -77,25 +77,25 @@ namespace otr {
       const hashGx = await jwcl.hash.sha256(gx.publicKey);
       local.r = r;
       local.gx = gx;
-      network.type = 'ake1';
-      network.aesGx = aesGx;
-      network.hashGx = hashGx;
+      networkOut.type = 'ake1';
+      networkOut.aesGx = aesGx;
+      networkOut.hashGx = hashGx;
    };
  
-   export const ake2 = async function (local, network) {
+   export const ake2 = async function (local, networkIn, networkOut) {
       const gy = await jwcl.ecc.ecdh.generate();
       local.ourKeys[local.ourKeyId - 1] = gy;
       local.ourKeys[local.ourKeyId] = await jwcl.ecc.ecdh.generate();
       local.gy = gy;
       local.ourKey = gy;
-      local.aesGx = network.aesGx;
-      local.hashGx = network.hashGx;
-      network.type = 'ake2';
-      network.gy = gy.publicKey;
+      local.aesGx = networkIn.aesGx;
+      local.hashGx = networkIn.hashGx;
+      networkOut.type = 'ake2';
+      networkOut.gy = gy.publicKey;
    };
   
-   export const ake3 = async function (local, network) {
-      const gy = network.gy;
+   export const ake3 = async function (local, networkIn, networkOut) {
+      const gy = networkIn.gy;
       const ecdh = new jwcl.ecc.ecdh(local.gx);
       const s = await ecdh.derive(gy);
       const keys = await akek(s);
@@ -119,14 +119,14 @@ namespace otr {
       const macAesXb = await hmac2.sign(aesXb);
       local.keys = keys;
       local.gy = gy;
-      network.type = 'ake3';
-      network.r = local.r;
-      network.aesXb = aesXb;
-      network.macAesXb = macAesXb;
+      networkOut.type = 'ake3';
+      networkOut.r = local.r;
+      networkOut.aesXb = aesXb;
+      networkOut.macAesXb = macAesXb;
    };
  
-   export const ake4 = async function (local, network) {
-      const r = network.r;
+   export const ake4 = async function (local, networkIn, networkOut) {
+      const r = networkIn.r;
       const aesr = new jwcl.cipher.aes(r);
       const gx = await aesr.decrypt(local.aesGx);
       const hashGx = await jwcl.hash.sha256(gx);
@@ -137,12 +137,12 @@ namespace otr {
       const s = await ecdh.derive(gx);
       const keys = await akek(s);
       const hmac2 = new jwcl.hash.hmac(keys.m2);
-      const verifyMacM2 = await hmac2.verify(network.macAesXb, network.aesXb);
+      const verifyMacM2 = await hmac2.verify(networkIn.macAesXb, networkIn.aesXb);
       if (verifyMacM2 !== true) {
          throw 'Error ake4: mac does not verify';
       }
       const aesc = new jwcl.cipher.aes(keys.c);
-      const xB = JSON.parse(await aesc.decrypt(network.aesXb));
+      const xB = JSON.parse(await aesc.decrypt(networkIn.aesXb));
       const hmac1 = new jwcl.hash.hmac(keys.m1);
       const mB = await hmac1.sign(JSON.stringify({
          gx: gx, 
@@ -178,19 +178,19 @@ namespace otr {
       local.gx = gx;
       local.theirKeyId = xB.keyIdB;
       local.theirKeys[local.theirKeyId] = local.gx;
-      network.type = 'ake4';
-      network.aesXa = aesXa;
-      network.macAesXa = macAesXa;
+      networkOut.type = 'ake4';
+      networkOut.aesXa = aesXa;
+      networkOut.macAesXa = macAesXa;
    };
    
-   export const ake5 = async function (local, network) {
+   export const ake5 = async function (local, networkIn, networkOut) {
       const hmac2p = new jwcl.hash.hmac(local.keys.m2prime);
-      const verifyMacM2p = await hmac2p.verify(network.macAesXa, network.aesXa); 
+      const verifyMacM2p = await hmac2p.verify(networkIn.macAesXa, networkIn.aesXa); 
       if (verifyMacM2p !== true) {
          throw 'Error ake5: mac does not verify';
       }
       const aescp = new jwcl.cipher.aes(local.keys.cprime);
-      const xA = JSON.parse(await aescp.decrypt(network.aesXa));
+      const xA = JSON.parse(await aescp.decrypt(networkIn.aesXa));
       const hmac1p = new jwcl.hash.hmac(local.keys.m1prime);
       const mA = await hmac1p.sign(JSON.stringify({
          gy: local.gy,
@@ -208,16 +208,16 @@ namespace otr {
       local.theirKeys[local.theirKeyId] = local.gy;
    }
 
-   export const ed1 = async function (local, network) {
+   export const ed1 = async function (local, networkIn, networkOut) {
       const sendKey = local.ourKeys[local.ourKeyId - 1];
       const recvKey = local.theirKeys[local.theirKeyId];
       const sendKeyId = local.ourKeyId - 1; 
       const recvKeyId = local.theirKeyId; 
       const nextDh = local.ourKeys[local.ourKeyId].publicKey;
-      const message = local.message;
+      const plaintext = local.text;
       const keys = await edk(sendKey, recvKey)
       const aes = new jwcl.cipher.aes(keys.sendAesKey);         
-      const ciphertext = await aes.encrypt(message);
+      const ciphertext = await aes.encrypt(plaintext);
       const ta = JSON.stringify({
          sendKeyId: sendKeyId,
          recvKeyId: recvKeyId,
@@ -226,15 +226,15 @@ namespace otr {
       });
       const hmac = new jwcl.hash.hmac(keys.sendMacKey);
       const macTa = await hmac.sign(ta);
-      network.type = 'ed1';
-      network.ta = ta;
-      network.macTa = macTa;
+      networkOut.type = 'ed1';
+      networkOut.ta = ta;
+      networkOut.macTa = macTa;
    }
 
-   export const ed2 = async function (local, network) {
+   export const ed2 = async function (local, networkIn, networkOut) {
       
-      const ta = JSON.parse(network.ta);
-      const macTa = network.macTa;
+      const ta = JSON.parse(networkIn.ta);
+      const macTa = networkIn.macTa;
       const sendKeyId = ta.sendKeyId; 
       const recvKeyId = ta.recvKeyId; 
       const sendKey = local.ourKeys[recvKeyId]; // TODO write about this as it is kinda weird
@@ -252,13 +252,13 @@ namespace otr {
 
       const keys = await edk(sendKey, recvKey);
       const hmac = new jwcl.hash.hmac(keys.recvMacKey);
-      const verify = await hmac.verify(macTa, network.ta); 
+      const verify = await hmac.verify(macTa, networkIn.ta); 
       if (verify === false) {
          throw "ERROR ed2: mac does not verify";
       }
       const aes = new jwcl.cipher.aes(keys.recvAesKey);
       const plaintext = await aes.decrypt(ta.aesMessage);
-      return plaintext;
+      local.text = plaintext;
    }
 
    export class Otr {
@@ -270,7 +270,6 @@ namespace otr {
       }
 
       public async send (ws, token, contacts, username, longKey, message) {
-         console.log('SENDING', contacts, username, longKey, message);
          let to;
          for (let i = 0; i < contacts.length; i++) {
             const contact = contacts[i];
@@ -279,11 +278,34 @@ namespace otr {
                break;
             }       
          }
+         if (to in this._convos) {
+            if (message.text) {
+               this._convos[to].text = message.text;
+            }
+            message.otr = {};
+            await ed1(this._convos[to], {}, message.otr); 
+         } else {
+            this._convos[to] = {
+               authState: MSGSTATE_PLAINTEXT,
+               msgState: AUTHSTATE_NONE,
+               text: message.text,
+               ourLongKey: longKey,
+               ourKeys: {},
+               ourKeyId: 2,
+               theirLongKey: to.publicKey,
+               theirKeys: {},
+               theirKeyId: -1,
+            };
+            message.otr = {
+               type: 'query'
+            }; 
+         }
          delete message.text;
+         console.log('SENDING', contacts, username, longKey, message);
          return message;
       }
       
-      public async recieve (ws, token, contacts, username, longKey, message) {
+      public async receive (ws, token, contacts, username, longKey, message) {
          console.log('RECIEVING', contacts, username, longKey, message);
          let from;
          for (let i = 0; i < contacts.length; i++) {
@@ -293,9 +315,62 @@ namespace otr {
                break;
             }       
          }
-         message.text = 'TODO';
+         
+         const network = message.otr;
+         message.token = token;
+         const tmp = message.to;
+         message.to = message.from;
+         message.from = tmp;
+         
+         if (from in this._convos) {
+            if (message.otr.type === 'ake1') {
+               message.otr = {};
+               await ake2(this._convos[from], network, message.otr);
+               ws.send(JSON.stringify(message));
+            } else if (message.otr.type === 'ake2') {
+               message.otr = {};
+               await ake3(this._convos[from], network, message.otr);
+               ws.send(JSON.stringify(message));
+            } else if (message.otr.type === 'ake3') {
+               message.otr = {};
+               await ake4(this._convos[from], network, message.otr);
+               ws.send(JSON.stringify(message));
+               if (this._convos[from].text) {
+                  message.otr = {};
+                  await ed1(this._convos[from], network, message.otr);
+                  ws.send(JSON.stringify(message));
+               }
+            } else if (message.otr.type === 'ake4') {
+               message.otr = {};
+               await ake5(this._convos[from], network, message.otr);
+               if (this._convos[from].text) {
+                  message.otr = {};
+                  await ed1(this._convos[from], network, message.otr);
+                  ws.send(JSON.stringify(message));
+               }
+            } else if (message.otr.type === 'ed1') {
+               message.otr = {};
+               await ed2(this._convos[from], network, message.otr);
+               message.text = this._convos[from].text;
+            }
+         } else {
+            if (message.otr.type === 'query') {
+               this._convos[from] = {
+                  authState: MSGSTATE_PLAINTEXT,
+                  msgState: AUTHSTATE_NONE,
+                  ourLongKey: longKey,
+                  ourKeys: {},
+                  ourKeyId: 2,
+                  theirLongKey: from.publicKey,
+                  theirKeys: {},
+                  theirKeyId: -1
+               };
+               message.otr = {};
+               await ake1(this._convos[from], network, message.otr);
+               ws.send(JSON.stringify(message));               
+            }
+         }
          return message;
       }
-
    }
 }

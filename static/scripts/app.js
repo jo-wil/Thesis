@@ -23,6 +23,7 @@ const chat = function () {
          <p id="info"></p>
       </div>`;
     document.querySelector('#container').innerHTML = html;
+    const otr = globals.otr;
     const ws = new WebSocket('ws://localhost:8000/socket');
     globals.ws = ws;
     const update = function (message) {
@@ -72,7 +73,7 @@ const chat = function () {
                     }
                     break;
                 case 'message':
-                    message = yield otr.recieve(globals.ws, globals.token, globals.contacts, globals.username, globals.longKey, message);
+                    message = yield otr.receive(globals.ws, globals.token, globals.contacts, globals.username, globals.longKey, message);
                     if (message.text) {
                         update(message);
                     }
@@ -137,6 +138,7 @@ const route = function () {
     }
 };
 const main = function () {
+    globals.otr = new otr.Otr();
     if (globals.token) {
         chat();
     }
