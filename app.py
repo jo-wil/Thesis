@@ -72,6 +72,13 @@ def index():
    f.close()
    return html, 200
 
+@app.route('/test')
+def test():
+   f = open('./static/test.html')
+   html = f.read()
+   f.close()
+   return html, 200
+
 @app.route('/api/login', methods=['POST'])
 def login():
   if request.method == 'POST':
