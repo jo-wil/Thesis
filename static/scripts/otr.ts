@@ -270,104 +270,137 @@ namespace otr {
       }
 
       public async send (ws, token, contacts, username, longKey, message) {
-         let to;
+         
+         let contact;
+         let otr = {};
+         
          for (let i = 0; i < contacts.length; i++) {
-            const contact = contacts[i];
-            if (contact.username === message.to) {
-               to = contact;
+            if (contacts[i].username === message.to) {
+               contact = contacts[i];
                break;
             }       
          }
-         if (to in this._convos) {
+
+         if (message.to in this._convos) {
             if (message.text) {
-               this._convos[to].text = message.text;
+               this._convos[message.to].text = message.text;
             }
-            message.otr = {};
-            await ed1(this._convos[to], {}, message.otr); 
+            await ed1(this._convos[message.to], {}, otr); 
          } else {
-            this._convos[to] = {
+            this._convos[message.to] = {
                authState: MSGSTATE_PLAINTEXT,
                msgState: AUTHSTATE_NONE,
                text: message.text,
                ourLongKey: longKey,
                ourKeys: {},
                ourKeyId: 2,
-               theirLongKey: to.publicKey,
+               theirLongKey: contact.publicKey,
                theirKeys: {},
                theirKeyId: -1,
             };
-            message.otr = {
+            otr = {
                type: 'query'
             }; 
          }
-         delete message.text;
-         console.log('SENDING', contacts, username, longKey, message);
+         message = {
+            action: message.action,
+            token: token,
+            from: username,
+            to: message.to,
+            otr: otr
+         };
+         console.log('SENDING', message);
          return message;
       }
       
       public async receive (ws, token, contacts, username, longKey, message) {
-         console.log('RECIEVING', contacts, username, longKey, message);
-         let from;
+         
+         console.log('RECEIVING', message);
+         let contact;
+         let otr = {};
+         
          for (let i = 0; i < contacts.length; i++) {
-            const contact = contacts[i];
-            if (contact.username === message.from) {
-               from = contact;
+            if (contacts[i].username === message.from) {
+               contact = contacts[i];
                break;
             }       
          }
-         
-         const network = message.otr;
-         message.token = token;
-         const tmp = message.to;
-         message.to = message.from;
-         message.from = tmp;
-         
-         if (from in this._convos) {
+ 
+         if (message.from in this._convos) {
             if (message.otr.type === 'ake1') {
-               message.otr = {};
-               await ake2(this._convos[from], network, message.otr);
-               ws.send(JSON.stringify(message));
+               await ake2(this._convos[message.from], message.otr, otr);
+               ws.send(JSON.stringify({
+                  action: message.action,
+                  token: token,
+                  from: username,
+                  to: message.from,
+                  otr: otr
+               }));
             } else if (message.otr.type === 'ake2') {
-               message.otr = {};
-               await ake3(this._convos[from], network, message.otr);
-               ws.send(JSON.stringify(message));
+               await ake3(this._convos[message.from], message.otr, otr);
+               ws.send(JSON.stringify({
+                  action: message.action,
+                  token: token,
+                  from: username,
+                  to: message.from,
+                  otr: otr
+               }));
             } else if (message.otr.type === 'ake3') {
-               message.otr = {};
-               await ake4(this._convos[from], network, message.otr);
-               ws.send(JSON.stringify(message));
-               if (this._convos[from].text) {
-                  message.otr = {};
-                  await ed1(this._convos[from], network, message.otr);
-                  ws.send(JSON.stringify(message));
+               await ake4(this._convos[message.from], message.otr, otr);
+               ws.send(JSON.stringify({
+                  action: message.action,
+                  token: token,
+                  from: username,
+                  to: message.from,
+                  otr: otr
+               }));
+               if (this._convos[message.from].text) {
+                  otr = {};
+                  await ed1(this._convos[message.from], message.otr, otr);
+                  ws.send(JSON.stringify({
+                     action: message.action,
+                     token: token,
+                     from: username,
+                     to: message.from,
+                     otr: otr
+                  }));
                }
             } else if (message.otr.type === 'ake4') {
-               message.otr = {};
-               await ake5(this._convos[from], network, message.otr);
-               if (this._convos[from].text) {
-                  message.otr = {};
-                  await ed1(this._convos[from], network, message.otr);
-                  ws.send(JSON.stringify(message));
+               await ake5(this._convos[message.from], message.otr, {});
+               if (this._convos[message.from].text) {
+                  await ed1(this._convos[message.from], message.otr, otr);
+                  ws.send(JSON.stringify({
+                     action: message.action,
+                     token: token,
+                     from: username,
+                     to: message.from,
+                     otr: otr
+                  }));
                }
             } else if (message.otr.type === 'ed1') {
-               message.otr = {};
-               await ed2(this._convos[from], network, message.otr);
-               message.text = this._convos[from].text;
+               await ed2(this._convos[message.from], message.otr, otr);
+               message.text = this._convos[message.from].text;
             }
          } else {
             if (message.otr.type === 'query') {
-               this._convos[from] = {
+               this._convos[message.from] = {
                   authState: MSGSTATE_PLAINTEXT,
                   msgState: AUTHSTATE_NONE,
                   ourLongKey: longKey,
                   ourKeys: {},
                   ourKeyId: 2,
-                  theirLongKey: from.publicKey,
+                  theirLongKey: contact.publicKey,
                   theirKeys: {},
                   theirKeyId: -1
                };
-               message.otr = {};
-               await ake1(this._convos[from], network, message.otr);
-               ws.send(JSON.stringify(message));               
+               await ake1(this._convos[message.from], message.otr, otr);
+               ws.send(JSON.stringify({
+                  action: message.action,
+                  token: token,
+                  from: username,
+                  to: message.from,
+                  otr: otr
+               }));               
             }
          }
          return message;

@@ -55,16 +55,14 @@ const chat = function () {
        } 
        switch (message.action) {
           case 'register':
+          case 'update':
              document.querySelector('#contacts').innerText = ``;
              globals.contacts = message.contacts;
              for (let i = 0; i < message.contacts.length; i++) {
                 const contact = message.contacts[i];
                 const username = contact.username;
+                const status = contact.status;
                 if (username !== globals.username) {
-                   let status = 'Offline';
-                   if (contact.publicKey) {
-                      status = 'Online';
-                   } 
                    const li = document.createElement('li');
                    li.innerText = `${username} (${status})`;
                    document.querySelector('#contacts').appendChild(li);

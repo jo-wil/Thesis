@@ -44,6 +44,27 @@ def decode(token):
     payload = json.loads(base64.urlsafe_b64decode(payload))                                 
     return payload  
 
+def contact_list():
+   contacts = []
+   for key in DB:
+      status = 'offline'
+      if DB[key]['websocket']:
+         status = 'online'
+      contacts.append({
+         'username': key,
+         'status': status,
+         'publicKey': DB[key]['publicKey']   
+      })
+   return contacts
+
+def update_contacts(username):
+   contacts = contact_list()
+   for key in DB:
+      if key != username:
+         other_websocket = DB[key]['websocket']
+         if other_websocket:
+            other_websocket.send(json.dumps({'action': 'update', 'contacts': contacts}))
+
 @app.route('/')
 def index():
    f = open('./static/index.html')
@@ -96,25 +117,14 @@ def messaging(websocket):
                   user = DB.get(username)
                   user['websocket'] = websocket
                   user['publicKey'] = json_data.get('publicKey')
-                  contacts = []
-                  for key in DB:
-                     contacts.append({
-                        'username': key,
-                        'publicKey': DB[key]['publicKey']   
-                     })
-                  for key in DB:
-                     if key != username:
-                        other_websocket = DB[key]['websocket']
-                        if other_websocket:
-                           other_websocket.send(json.dumps({'action': action, 'contacts': contacts}))
-                  websocket.send(json.dumps({'action': action, 'contacts': contacts}))
+                  update_contacts(username)
+                  websocket.send(json.dumps({'action': action, 'contacts': contact_list()}))
                elif action == 'message':
                   to = json_data.get('to')
                   user = DB.get(to)
                   to_websocket = user.get('websocket')
                   if to_websocket:
                      del json_data['token']
-                     #print json_data
                      to_websocket.send(json.dumps(json_data))
                   else:
                      websocket.send(json.dumps({'action': action, 'error': 'unavailable'}))
@@ -125,7 +135,7 @@ def messaging(websocket):
       except TypeError:
          user = DB.get(username)
          user['websocket'] = None
-         # TODO if time, inform users of offline status
+         update_contacts(username)
 
 @werkzeug.serving.run_with_reloader
 def main():

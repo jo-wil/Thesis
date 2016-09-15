@@ -271,26 +271,7 @@ namespace jwcl {
          document.body.appendChild(p);
       };
 
-      const random = function() {
-         const key = jwcl.random(16);
-         test('jwcl.random 1', Math.ceil(16/ 3) * 4, key.length); 
-         test('jwcl.random 2', 'string', typeof key); 
-      };
-
-      const hash = async function() {
-         const sha1 = await jwcl.hash.sha1('abc');
-         test('jwcl.hash.sha1 1', sha1, 'qZk+NkcGgWq6PiVxeFDCbJzQ2J0=')
-         const sha256 = await jwcl.hash.sha256('abc');
-         test('jwcl.hash.sha256 1', sha256, 'ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=')
-         const key = jwcl.random(16);
-         const hmac = new jwcl.hash.hmac(key);
-         const signature = await hmac.sign('important message');
-         const verifyTrue = await hmac.verify(signature, 'important message');
-         const verifyFalse = await hmac.verify(signature, 'important message changed');
-         test('jwcl.hash.hmac 1', verifyTrue, true);
-         test('jwcl.hash.hmac 2', verifyFalse, false);
-      };
-
+      // TODO port to tests
       const cipher = async function() {
          const key = jwcl.random(16);
          const aes = new jwcl.cipher.aes(key);
@@ -301,6 +282,7 @@ namespace jwcl {
          testno('jwcl.cipher.aes 2', ciphertext, ciphertext2);
       };
 
+      // TODO port to tests
       const ecc = async function() {
          const key1 = await jwcl.ecc.ecdh.generate();
          const key2 = await jwcl.ecc.ecdh.generate();
@@ -322,8 +304,6 @@ namespace jwcl {
       };
 
       export const run = async function() {
-         random();
-         hash(); 
          cipher();
          ecc();
       };

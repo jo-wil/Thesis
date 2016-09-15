@@ -261,26 +261,7 @@ var jwcl;
             }
             document.body.appendChild(p);
         };
-        const random = function () {
-            const key = jwcl.random(16);
-            test('jwcl.random 1', Math.ceil(16 / 3) * 4, key.length);
-            test('jwcl.random 2', 'string', typeof key);
-        };
-        const hash = function () {
-            return __awaiter(this, void 0, void 0, function* () {
-                const sha1 = yield jwcl.hash.sha1('abc');
-                test('jwcl.hash.sha1 1', sha1, 'qZk+NkcGgWq6PiVxeFDCbJzQ2J0=');
-                const sha256 = yield jwcl.hash.sha256('abc');
-                test('jwcl.hash.sha256 1', sha256, 'ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0=');
-                const key = jwcl.random(16);
-                const hmac = new jwcl.hash.hmac(key);
-                const signature = yield hmac.sign('important message');
-                const verifyTrue = yield hmac.verify(signature, 'important message');
-                const verifyFalse = yield hmac.verify(signature, 'important message changed');
-                test('jwcl.hash.hmac 1', verifyTrue, true);
-                test('jwcl.hash.hmac 2', verifyFalse, false);
-            });
-        };
+        // TODO port to tests
         const cipher = function () {
             return __awaiter(this, void 0, void 0, function* () {
                 const key = jwcl.random(16);
@@ -292,6 +273,7 @@ var jwcl;
                 testno('jwcl.cipher.aes 2', ciphertext, ciphertext2);
             });
         };
+        // TODO port to tests
         const ecc = function () {
             return __awaiter(this, void 0, void 0, function* () {
                 const key1 = yield jwcl.ecc.ecdh.generate();
@@ -312,8 +294,6 @@ var jwcl;
         };
         test_1.run = function () {
             return __awaiter(this, void 0, void 0, function* () {
-                random();
-                hash();
                 cipher();
                 ecc();
             });
