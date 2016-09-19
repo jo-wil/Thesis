@@ -272,11 +272,19 @@ QUnit.test('app api', function (assert) {
             username: 'Bob',
             password: 'abc'
          })
+      }),
+      fetch('/api/signup', {
+         method: 'POST',
+         body: JSON.stringify({
+            username: 'Charlie',
+            password: '0000'
+         })
       })
    ])
    .then(function (results) {
       assert.notEqual(results[0].status, 500, '/api/signup Alice');
       assert.notEqual(results[1].status, 500, '/api/signup Bob');
+      assert.notEqual(results[2].status, 500, '/api/signup Charlie');
       return Promise.all([
          fetch('/api/login', {
             method: 'POST',
