@@ -1,0 +1,4 @@
+\hbox to \linewidth {\hfill Page}
+\contentsline {chapter}{LIST OF TABLES}{vii}{chapter*.2}
+\contentsline {chapter}{LIST OF FIGURES}{viii}{chapter*.3}
+\noindent CHAPTER 
