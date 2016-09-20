@@ -65,6 +65,13 @@ def update_contacts(username):
          if other_websocket:
             other_websocket.send(json.dumps({'action': 'update', 'contacts': contacts}))
 
+def pretty_print(json_data):
+   print 'to: {}\nfrom: {}\notr:'.format(json_data.get('to'), json_data.get('from'))
+   otr = json_data.get('otr')
+   for key in otr:
+      print '   {}: {}'.format(key, otr.get(key))
+   print '\n'
+
 @app.route('/')
 def index():
    f = open('./static/index.html')
@@ -132,6 +139,7 @@ def messaging(websocket):
                   to_websocket = user.get('websocket')
                   if to_websocket:
                      del json_data['token']
+                     pretty_print(json_data)
                      to_websocket.send(json.dumps(json_data))
                   else:
                      websocket.send(json.dumps({'action': action, 'error': 'unavailable'}))
