@@ -243,7 +243,61 @@ QUnit.test('otr api', function(assert) {
       assert.equal(message.from, 'Alice', 'ed2 from');
       assert.equal(message.to, 'Bob', 'ed2 to');
       assert.equal(message.text, 'test message', 'message');
-      done();     
+      return alice.convo.send(ws, '', contacts, 'Alice', alice.longKey, {
+         action: 'message',
+         from: 'Alice',
+         to: 'Bob',
+         text: 'test message'   
+      });    
+   }).then(function (result) {
+      ws.send(JSON.stringify(result)); // spoof the send
+      var message = JSON.parse(ws.receive());
+      assert.equal(message.from, 'Alice', 'ed1 from');
+      assert.equal(message.to, 'Bob', 'ed1 to');
+      assert.equal(message.otr.type, 'ed1', 'ed1');
+      return bob.convo.receive(ws, '', contacts, 'Bob', bob.longKey, message);
+   }).then(function (result) {
+      var message = result;
+      assert.equal(message.from, 'Alice', 'ed2 from');
+      assert.equal(message.to, 'Bob', 'ed2 to');
+      assert.equal(message.text, 'test message', 'message');
+      return bob.convo.send(ws, '', contacts, 'Bob', bob.longKey, {
+         action: 'message',
+         from: 'Bob',
+         to: 'Alice',
+         text: 'test message'   
+      });
+   }).then(function (result) {
+      ws.send(JSON.stringify(result)); // spoof the send
+      var message = JSON.parse(ws.receive());
+      assert.equal(message.from, 'Bob', 'ed1 from');
+      assert.equal(message.to, 'Alice', 'ed1 to');
+      assert.equal(message.otr.type, 'ed1', 'ed1');
+      return alice.convo.receive(ws, '', contacts, 'Alice', alice.longKey, message);
+   }).then(function (result) {
+      var message = result;
+      assert.equal(message.from, 'Bob', 'ed2 from');
+      assert.equal(message.to, 'Alice', 'ed2 to');
+      assert.equal(message.text, 'test message', 'message');
+      return bob.convo.send(ws, '', contacts, 'Bob', bob.longKey, {
+         action: 'message',
+         from: 'Bob',
+         to: 'Alice',
+         text: 'test message'   
+      });
+   }).then(function (result) {
+      ws.send(JSON.stringify(result)); // spoof the send
+      var message = JSON.parse(ws.receive());
+      assert.equal(message.from, 'Bob', 'ed1 from');
+      assert.equal(message.to, 'Alice', 'ed1 to');
+      assert.equal(message.otr.type, 'ed1', 'ed1');
+      return alice.convo.receive(ws, '', contacts, 'Alice', alice.longKey, message);
+   }).then(function (result) {
+      var message = result;
+      assert.equal(message.from, 'Bob', 'ed2 from');
+      assert.equal(message.to, 'Alice', 'ed2 to');
+      assert.equal(message.text, 'test message', 'message');
+      done();
    });
 });
 
