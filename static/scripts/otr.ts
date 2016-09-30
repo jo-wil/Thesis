@@ -216,7 +216,10 @@ namespace otr {
       const nextDh = local.ourKeys[local.ourKeyId].publicKey;
       const plaintext = local.text;
       const keys = await edk(sendKey, recvKey)
-      const aes = new jwcl.cipher.aes(keys.sendAesKey);         
+      if (!local.sendAes) {
+         local.sendAes = new jwcl.cipher.aes(keys.sendAesKey);
+      }
+      const aes = local.sendAes;
       const ciphertext = await aes.encrypt(plaintext);
       const ta = JSON.stringify({
          sendKeyId: sendKeyId,
@@ -239,26 +242,32 @@ namespace otr {
       const recvKeyId = ta.recvKeyId; 
       const sendKey = local.ourKeys[recvKeyId]; // TODO write about this as it is kinda weird
       const recvKey = local.theirKeys[sendKeyId];
-
-      if (recvKeyId === local.ourKeyId) {
-         delete local.ourKeys[local.ourKeyId - 1];
-         local.ourKeyId++;
-         local.ourKeys[local.ourKeyId] = await jwcl.ecc.ecdh.generate();
-      }
-      if (sendKeyId === local.theirKeyId) {
-         local.theirKeyId++;
-         local.theirKeys[local.theirKeyId] = ta.nextDh;
-      }
-
       const keys = await edk(sendKey, recvKey);
       const hmac = new jwcl.hash.hmac(keys.recvMacKey);
       const verify = await hmac.verify(macTa, networkIn.ta); 
       if (verify === false) {
          throw "ERROR ed2: mac does not verify";
       }
-      const aes = new jwcl.cipher.aes(keys.recvAesKey);
+      if (!local.recvAes) {
+         local.recvAes = new jwcl.cipher.aes(keys.recvAesKey);
+      }
+      const aes = local.recvAes;
       const plaintext = await aes.decrypt(ta.aesMessage);
       local.text = plaintext;
+
+      if (recvKeyId === local.ourKeyId) {
+         delete local.sendAes;
+         delete local.recvAes;
+         delete local.ourKeys[local.ourKeyId - 1];
+         local.ourKeyId++;
+         local.ourKeys[local.ourKeyId] = await jwcl.ecc.ecdh.generate();
+      }
+      if (sendKeyId === local.theirKeyId) {
+         delete local.sendAes;
+         delete local.recvAes;
+         local.theirKeyId++;
+         local.theirKeys[local.theirKeyId] = ta.nextDh;
+      }
    }
 
    export class Otr {
