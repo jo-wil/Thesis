@@ -151,7 +151,7 @@ namespace jwcl {
                counter: counter,
                length: 128,
             }, key, rawCiphertextArray));
-            this._counter = utils.btoi(counter) + Math.ceil(plaintextArray.length/aes._BLOCK_SIZE_BYTES);
+            this._counter = Math.max(this._counter, utils.btoi(counter) + Math.ceil(plaintextArray.length/aes._BLOCK_SIZE_BYTES));
             return utils.btos(plaintextArray);
          }
       }  
