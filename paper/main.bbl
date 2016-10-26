@@ -1,7 +1,165 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
-\bibitem{maven}
-Apahe maven project.
-\newblock \url{https://maven.apache.org/}, June 2016.
+\bibitem{sjcl-library}
+Stanford javascript crypto library, 2009.
+\newblock [Online; accessed October-2016].
+
+\bibitem{js-asyncawait}
+N.~Bevacqua.
+\newblock Understanding javascript’s async await, 2016.
+\newblock [Online; accessed March-2016].
+
+\bibitem{otr-paper}
+N.~Borisov.
+\newblock Off-the-record communication, or, why not to use pgp.
+\newblock Technical report, University of California Berkeley, 2004.
+
+\bibitem{aes-example}
+djafygi.
+\newblock Webcrypto examples, 2015.
+\newblock [Online; accessed March-2016].
+
+\bibitem{websocket-rfc}
+I.~Fette.
+\newblock The websocket protocol.
+\newblock 2011.
+
+\bibitem{google-allo}
+Google.
+\newblock Google allo, 2016.
+\newblock [Online; accessed October-2016].
+
+\bibitem{dsa-rfc}
+P.~Hoffman and W.~Wijngaards.
+\newblock Elliptic curve digital signature algorithm (dsa) for dnssec.
+\newblock Technical report, 2012.
+
+\bibitem{jwt-rfc}
+M.~Jones, J.~Bradley, and N.~Sakimura.
+\newblock Json web token (jwt).
+\newblock Technical report, 2015.
+
+\bibitem{qunit}
+T.~jQuery Foundation.
+\newblock Qunit: A javascript unit testing framework., 2016.
+\newblock [Online; accessed September-2016].
+
+\bibitem{pkcs-rfc}
+B.~Kaliski.
+\newblock Pkcs\# 5: Password-based cryptography specification version 2.0.
+\newblock 2000.
+
+\bibitem{pycrypto}
+D.~C. Litzenberger.
+\newblock Pycrypto-the python cryptography toolkit.
+\newblock {\em URL: https://www. dlitz. net/software/pycrypto}, 2015.
+
+\bibitem{mdn-base}
+MDN.
+\newblock Base64 encoding and decoding, 2016.
+\newblock [Online; accessed June-2016].
+
+\bibitem{mdn-charat}
+MDN.
+\newblock String.prototype.charcodeat(), 2016.
+\newblock [Online; accessed June-2016].
+
+\bibitem{mdn-charfrom}
+MDN.
+\newblock String.prototype.fromcharcode(), 2016.
+\newblock [Online; accessed June-2016].
+
+\bibitem{typescript}
+Microsoft.
+\newblock Typescript - javascript that scales, 2012.
+\newblock [Online; accessed June-2016].
+
+\bibitem{mdn-typedarrays}
+M.~D. Network.
+\newblock Javascript typed arrays, 2015.
+\newblock [Online; accessed March-2016].
+
+\bibitem{nginx}
+NGINX.
+\newblock Nginx webserver, 2016.
+\newblock [Online; accessed October-2016].
+
+\bibitem{nist-curves}
+NIST.
+\newblock Recommended elliptic curves for federal government use, 1999.
+\newblock [Online; accessed September-2016].
+
+\bibitem{test-vectors}
+NIST.
+\newblock Secure hash algorithm, 2016.
+\newblock [Online; accessed September-2016].
+
+\bibitem{owasp-pbkdf}
+OWASP.
+\newblock Using rfc2898derivebytes for pbkdf2, 2015.
+\newblock [Online; accessed September-2016].
+
+\bibitem{owasp-auth}
+OWASP.
+\newblock Authentication cheat sheet, 2016.
+\newblock [Online; accessed May-2016].
+
+\bibitem{webcrypto-chromium}
+T.~C. Projects.
+\newblock Webcrypto, 2016.
+\newblock [Online; accessed March-2016].
+
+\bibitem{otr-protocol}
+C.~Punks.
+\newblock Off-the-record messaging protocol version 3, 2004.
+\newblock [Online; accessed September-2016].
+
+\bibitem{flask-sockets}
+K.~Reitz.
+\newblock Elegant websockets for your flask apps., 2010.
+\newblock [Online; accessed March-2016].
+
+\bibitem{flask}
+A.~Ronacher.
+\newblock Flask web development one drop at a time, 2010.
+\newblock [Online; accessed January-2016].
+
+\bibitem{sjcl-paper}
+E.~Stark, M.~Hamburg, and D.~Boneh.
+\newblock Symmetric cryptography in javascript.
+\newblock In {\em Computer Security Applications Conference, 2009. ACSAC'09.
+  Annual}, pages 373--381. IEEE, 2009.
+
+\bibitem{whisper-overview}
+O.~W. Systems.
+\newblock Advanced cryptographic ratcheting, 2013.
+\newblock [Online; accessed March-2016].
+
+\bibitem{whisper-allo}
+O.~W. Systems.
+\newblock Open whisper systems partners with google on end-to-end encryption
+  for allo, 2016.
+\newblock [Online; accessed October-2016].
+
+\bibitem{whisper-protocol}
+trevp.
+\newblock Double ratchet algorithm, 2016.
+\newblock [Online; accessed March-2016].
+
+\bibitem{webcrypto-overview}
+w3ci.
+\newblock Web cryptography api, 2016.
+\newblock [Online; accessed June-2016].
+
+\bibitem{wiki:xxx}
+Wikipedia.
+\newblock Latex --- wikipedia{,} the free encyclopedia, 2011.
+\newblock [Online; accessed 13-February-2011].
+
+\bibitem{ts-pull}
+J.~Wilson.
+\newblock changed eckeygenparams from typedcurve to namedcurve to fix issue
+  135, 2016.
+\newblock [Online; accessed July-2016].
 
 \end{thebibliography}

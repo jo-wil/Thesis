@@ -1,13 +1,90 @@
 \hbox to \linewidth {\hfill Page}
-\contentsline {chapter}{LIST OF TABLES}{vii}{chapter*.2}
-\contentsline {chapter}{LIST OF FIGURES}{viii}{chapter*.3}
+\contentsline {chapter}{LIST OF TABLES}{ix}{chapter*.2}
+\contentsline {chapter}{LIST OF FIGURES}{x}{chapter*.3}
 \noindent CHAPTER 
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
 \contentsline {chapter}{\numberline {2}Background}{2}{chapter.2}
-\contentsline {chapter}{\numberline {3}Related Work}{3}{chapter.3}
-\contentsline {chapter}{\numberline {4}Implementation}{4}{chapter.4}
-\contentsline {chapter}{\numberline {5}Validation}{5}{chapter.5}
-\contentsline {chapter}{\numberline {6}Future Work}{6}{chapter.6}
-\contentsline {chapter}{BIBLIOGRAPHY}{7}{chapter*.4}
+\contentsline {section}{\numberline {2.1}Asynchronous Javascript}{2}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Promise API}{2}{subsection.2.1.1}
+\contentsline {subsection}{\numberline {2.1.2}Aysnc Await}{4}{subsection.2.1.2}
+\contentsline {section}{\numberline {2.2}Binary Data in Javascript}{5}{section.2.2}
+\contentsline {section}{\numberline {2.3}WebCrypto API}{6}{section.2.3}
+\contentsline {section}{\numberline {2.4}Typescript}{8}{section.2.4}
+\contentsline {section}{\numberline {2.5}Websockets}{8}{section.2.5}
+\contentsline {section}{\numberline {2.6}Flask}{9}{section.2.6}
+\contentsline {section}{\numberline {2.7}Json Web Tokens}{10}{section.2.7}
+\contentsline {section}{\numberline {2.8}Off the Record Messaging}{10}{section.2.8}
+\contentsline {subsection}{\numberline {2.8.1}Encrypted Messaging Properties}{11}{subsection.2.8.1}
+\contentsline {subsection}{\numberline {2.8.2}Protocol}{11}{subsection.2.8.2}
+\contentsline {section}{\numberline {2.9}Trust Model}{12}{section.2.9}
+\contentsline {section}{\numberline {2.10}Related Work}{13}{section.2.10}
+\contentsline {subsection}{\numberline {2.10.1}Signal Protocol}{13}{subsection.2.10.1}
+\contentsline {subsection}{\numberline {2.10.2}Allo Google Chat}{14}{subsection.2.10.2}
+\contentsline {subsection}{\numberline {2.10.3}SJCL}{15}{subsection.2.10.3}
+\contentsline {chapter}{\numberline {3}Implementation}{16}{chapter.3}
+\contentsline {section}{\numberline {3.1}Application Server}{16}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}/api/login}{16}{subsection.3.1.1}
+\contentsline {subsubsection}{Success Flow}{17}{subsubsection*.4}
+\contentsline {subsubsection}{Error conditions}{17}{subsubsection*.5}
+\contentsline {subsection}{\numberline {3.1.2}/api/signup}{17}{subsection.3.1.2}
+\contentsline {subsubsection}{Success Flow}{17}{subsubsection*.6}
+\contentsline {subsubsection}{Error conditions}{18}{subsubsection*.7}
+\contentsline {subsection}{\numberline {3.1.3}/socket}{18}{subsection.3.1.3}
+\contentsline {subsubsection}{Success Flows}{18}{subsubsection*.8}
+\contentsline {subsection}{\numberline {3.1.4}Error conditions}{19}{subsection.3.1.4}
+\contentsline {subsection}{\numberline {3.1.5}Database}{19}{subsection.3.1.5}
+\contentsline {subsection}{\numberline {3.1.6}Hash Function}{20}{subsection.3.1.6}
+\contentsline {subsection}{\numberline {3.1.7}JWT Implementation}{20}{subsection.3.1.7}
+\contentsline {subsubsection}{Encode}{20}{subsubsection*.9}
+\contentsline {subsubsection}{Decode}{21}{subsubsection*.10}
+\contentsline {section}{\numberline {3.2}Application Client}{21}{section.3.2}
+\contentsline {section}{\numberline {3.3}OTR}{24}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}Authenticated Key Exchange State 1}{25}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Authenticated Key Exchange State 2}{25}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}Authenticated Key Exchange State 3}{25}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}Authenticated Key Exchange State 4}{26}{subsection.3.3.4}
+\contentsline {subsection}{\numberline {3.3.5}Authenticated Key Exchange State 5}{27}{subsection.3.3.5}
+\contentsline {subsection}{\numberline {3.3.6}Exchange Data State 1}{27}{subsection.3.3.6}
+\contentsline {subsection}{\numberline {3.3.7}Exchange Data State 2}{28}{subsection.3.3.7}
+\contentsline {subsection}{\numberline {3.3.8}OTR Class}{28}{subsection.3.3.8}
+\contentsline {subsubsection}{send}{29}{subsubsection*.11}
+\contentsline {subsubsection}{receive}{30}{subsubsection*.12}
+\contentsline {subsection}{\numberline {3.3.9}Key Management}{31}{subsection.3.3.9}
+\contentsline {section}{\numberline {3.4}JWCL}{31}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}jwcl.utils}{32}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}jwcl.random()}{34}{subsection.3.4.2}
+\contentsline {subsection}{\numberline {3.4.3}jwcl.hash}{34}{subsection.3.4.3}
+\contentsline {subsection}{\numberline {3.4.4}jwcl.cipher}{36}{subsection.3.4.4}
+\contentsline {subsection}{\numberline {3.4.5}jwcl.ecc}{37}{subsection.3.4.5}
+\contentsline {chapter}{\numberline {4}Validation}{41}{chapter.4}
+\contentsline {section}{\numberline {4.1}Automated Tests}{41}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Server Tests}{41}{subsection.4.1.1}
+\contentsline {subsubsection}{/api/signup}{41}{subsubsection*.13}
+\contentsline {subsubsection}{/api/login}{42}{subsubsection*.14}
+\contentsline {subsection}{\numberline {4.1.2}Application Tests}{42}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}OTR Tests}{42}{subsection.4.1.3}
+\contentsline {subsubsection}{Implementation Tests}{42}{subsubsection*.15}
+\contentsline {subsubsection}{API Tests}{43}{subsubsection*.16}
+\contentsline {subsection}{\numberline {4.1.4}JWCL Tests}{44}{subsection.4.1.4}
+\contentsline {section}{\numberline {4.2}Manual Tests}{45}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Scenario 1}{45}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Scenario 2}{46}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}Scenario 3}{46}{subsection.4.2.3}
+\contentsline {chapter}{\numberline {5}Future Work}{47}{chapter.5}
+\contentsline {section}{\numberline {5.1}Server}{47}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Persistent Data Store}{47}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}HTTPS Support}{47}{subsection.5.1.2}
+\contentsline {subsection}{\numberline {5.1.3}Service Oriented Architecture}{48}{subsection.5.1.3}
+\contentsline {section}{\numberline {5.2}Application}{48}{section.5.2}
+\contentsline {section}{\numberline {5.3}OTR}{50}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}Differences from OTR Protocol}{50}{subsection.5.3.1}
+\contentsline {subsection}{\numberline {5.3.2}Socialist Millionaires Protocol}{51}{subsection.5.3.2}
+\contentsline {section}{\numberline {5.4}JWCL}{51}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}Binary Data}{52}{subsection.5.4.1}
+\contentsline {subsection}{\numberline {5.4.2}Secure Defaults}{52}{subsection.5.4.2}
+\contentsline {subsection}{\numberline {5.4.3}Class Based Interface}{53}{subsection.5.4.3}
+\contentsline {subsection}{\numberline {5.4.4}Typescript Issues}{53}{subsection.5.4.4}
+\contentsline {chapter}{\numberline {6}Conclusion}{55}{chapter.6}
+\contentsline {chapter}{BIBLIOGRAPHY}{56}{chapter*.17}
 \let \l@chapter \l@section 
 \noindent APPENDICES 
