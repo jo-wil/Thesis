@@ -10,51 +10,50 @@ A level-1 auxiliary file: chapters/validation.aux
 A level-1 auxiliary file: chapters/future-work.aux
 A level-1 auxiliary file: chapters/conclusion.aux
 Database file #1: bibliography.bib
-Warning--I didn't find a database entry for "jwt-frc"
 Warning--to sort, need author or key in sjcl-library
 Warning--empty journal in websocket-rfc
 Warning--empty institution in dsa-rfc
 Warning--empty institution in jwt-rfc
 Warning--empty journal in pkcs-rfc
-You've used 32 entries,
+You've used 31 entries,
             2118 wiz_defined-function locations,
-            618 strings with 6198 characters,
-and the built_in function-call counts, 6928 in all, are:
-= -- 652
-> -- 246
+            613 strings with 6095 characters,
+and the built_in function-call counts, 6722 in all, are:
+= -- 633
+> -- 239
 < -- 1
-+ -- 105
-- -- 72
-* -- 244
-:= -- 1165
-add.period$ -- 96
-call.type$ -- 32
-change.case$ -- 135
++ -- 102
+- -- 70
+* -- 238
+:= -- 1131
+add.period$ -- 93
+call.type$ -- 31
+change.case$ -- 131
 chr.to.int$ -- 0
-cite$ -- 37
-duplicate$ -- 252
-empty$ -- 689
-format.name$ -- 72
-if$ -- 1492
+cite$ -- 36
+duplicate$ -- 245
+empty$ -- 667
+format.name$ -- 70
+if$ -- 1447
 int.to.chr$ -- 0
-int.to.str$ -- 32
+int.to.str$ -- 31
 missing$ -- 4
-newline$ -- 162
-num.names$ -- 62
-pop$ -- 264
+newline$ -- 157
+num.names$ -- 60
+pop$ -- 255
 preamble$ -- 1
-purify$ -- 100
+purify$ -- 97
 quote$ -- 0
-skip$ -- 229
+skip$ -- 222
 stack$ -- 0
-substring$ -- 193
-swap$ -- 37
+substring$ -- 188
+swap$ -- 36
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 128
+type$ -- 124
 warning$ -- 5
-while$ -- 65
-width$ -- 34
-write$ -- 321
-(There were 6 warnings)
+while$ -- 63
+width$ -- 33
+write$ -- 311
+(There were 5 warnings)

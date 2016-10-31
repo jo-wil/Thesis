@@ -10,7 +10,7 @@ This chapter discusses some of the concepts, tools, and API’s used in developm
 \subsection{Promise API}
 
 
-Javascript executes on a single thread. To keep the user interface responsive during computation most long running computations in javascript are performed asynchronously. The Promise API has come along to assist developers in writing readable code while taking full advantage of asynchronous operations. Let’s look a a basic promise example.
+Javascript executes on a single thread. To keep the user interface responsive during computation long running computations in javascript are performed asynchronously. Promises are a type that functions in Javascript can now return as a promise that they will complete the asynchronous operation in the future. The Promise API has come along to assist developers in writing readable code while taking full advantage of asynchronous operations. Let’s look a a basic promise example.
 
 
 \begin{lstlisting}
@@ -19,9 +19,10 @@ Javascript executes on a single thread. To keep the user interface responsive du
 var asyncAddOne = funciton (num) {
    return new Promise(function (resolve, reject) {
       if (num < 10) {
+         doSomethingThatTakesALongTime(num);
          resolve(num + 1);
       } else {
-         reject(“num > 10”);
+         reject("num > 10");
       }  
    }); 
 }; 
@@ -39,26 +40,27 @@ asyncAddOne(1)
 \end{lstlisting}
 
 
-This example shows the basic pattern of creating an asynchronous function and how to call it. The function asyncAddOne takes a number as a parameter. This number is checked to be less than 10. If that is the case the function returns the number plus 1 by calling the resolve function. If the number is greater than 10 reject is called with the error message “num > 10”. The anonymous function passed to then will be called if resolve is called with result being the value passed to resolve. The anonymous function passed to catch will be called if reject is called with the value passed to reject as the error value. Now adding one is not a computationally expensive operation so it would be silly to call the asynchronously but the add one code could easily be replaced with intensive mathematical operations or network calls and this structure would function the same.
+This example shows the basic pattern of creating an asynchronous function and how to call it. The function asyncAddOne takes a number as a parameter. This number is checked to be less than 10. If that is the case the function doSomethingThatTakesALongTime is called then returns the number plus 1 by calling the resolve function. If the number is greater than 10 reject is called with the error message "$num > 10$". The anonymous function passed to then will be called if resolve is called in the promise with result being the value passed to resolve. The anonymous function passed to catch will be called if reject is called with the value passed to reject as the error value. The function call doSomethingThatTakesALongTime could be replaced with a network request or computationally expensive mathematical operations.
 
 
-Now Promises are nice and definitely an improvement over the callback centric patterns of the past but even Promises have their issues as chains can get quite long if there are a lot of asynchronous computations that need to be performed one after another. The next specification for the Javascript language has support for syntax called async await that makes asynchronous operations even easier to work with and reason about.
+Now Promises are nice and definitely an improvement over the callback centric patterns of the past but even Promises have their issues as the chain of calls to then can get quite long if there are a lot of asynchronous computations that need to be performed in order. The next specification for the Javascript language has support for syntax called async await that makes asynchronous operations even easier to work with and reason about than the Promise API currently available.
 
 
 \subsection{Aysnc Await}
 
 
-Async await is the latest syntax for writing and calling asynchronous functions in javascript. Let's take a look at the same example used above written with the async await syntax. \cite{js-asyncawait}
+Async await is the latest syntax for writing and calling asynchronous functions in javascript. Let's take a look at the same example used above written with the async await syntax.\cite{js-asyncawait}
 
 
 \begin{lstlisting}
 
 
-var asyncAddOne = async function (num) { // Notice the async keyword in front of function
+var asyncAddOne = async function (num) { // Notice async keyword
     if (num < 10) {
+         doSomethingThatTakesALongTime(num);
          return num + 1;
       } else {
-         throw new Error(“num > 10”);
+         throw new Error("num > 10");
       }   
 }   
 
@@ -73,33 +75,31 @@ try {
 \end{lstlisting}
 
 
-This example shows how with this new syntax it has become trivial to turn synchronous code into asynchronous code. The only issue with this is right now browsers do not support this syntax. How this issues is fixed is talked about in the Typescript section of this chapter. This syntax was really important to this project though because all of the WebCrypto API function calls are asynchronous, so using this syntax allowed the focus of development to be on getting the cryptography correct and not handling asynchronous function calls correctly.
+This example shows how with this new syntax it has become trivial to turn synchronous code into asynchronous code. Other than adding the async keyword to the function definition and adding the await keyword before the function call the syntax reads exactly the same as if this code was synchronous. The only issue with this is right now browsers do not support this syntax. How this syntax was used is talked about in the Typescript section of this chapter. This syntax was really important to this project though because all of the Web Crypto API function calls are asynchronous, so using this syntax allowed the focus of development to be on getting the cryptography correct and not handling asynchronous function calls correctly.
 
 
 \section{Binary Data in Javascript}
 
 
-Binary data in Javascript is handled by Typed Arrays. This is important because all of the cryptographic operations in the WebCrypto API take Typed Arrays as input parameters and return Typed Arrays as output. Typed Arrays data is represented by Array Buffers. Array Buffers do not provide an interface for reading or writing data. This is left up to views. The different types of views are similar to the C types there is int and uint values from 8 to 64 bits. These allows for array like access into the Array Buffer. \cite{mdn-typedarrays}
+Binary data in Javascript is handled by Typed Arrays. This is important because all of the cryptographic operations in the Web Crypto API take Typed Arrays as input parameters and return Typed Arrays as output. Typed Arrays data is represented by Array Buffers. Array Buffers do not provide an interface for reading or writing data. This is left up to views. The different types of views are similar to the C types, there are int and uint values from 8 to 64 bits. These allows for array like access into the Array Buffer.\cite{mdn-typedarrays}
 
 
-
-
-Some of the issues that arise when working with Typed Arrays are portability and mathematical operations. By default a uint view of the data cannot be sent over a network and retrieved on the other side. Since JSON serialization does not provide type information there is no way for the receiving party to know if the array is meant to be a TypedArray or a regular Array. There seems to be lots of different approaches to solve this problem floating across the internet. The solution this project used is in the JWCL section of the Implementation chapter. There is no direct interface into Typed Arrays to do math. For example there is not .add() function. This makes representing a counter with a Typed Array a little bit difficult. The solution this project uses for this is discussed in the OTR section of the Implementation chapter.
+Some of the issues that arise when working with Typed Arrays are portability and mathematical operations. By default a uint view of the data cannot be sent over a network and retrieved on the other side. Since JSON serialization does not provide type information there is no way for the receiving party to know if the array is meant to be a TypedArray or a regular Array. There seems to be lots of different approaches to solve this problem floating across the internet. The solution this project used is discussed in the JWCL section of the Implementation chapter. There is no direct interface into Typed Arrays to do math. For example there is not addOne function. This makes representing a counter with a Typed Array a bit difficult. The solution this project uses for this is discussed in the OTR section of the Implementation chapter.
 
 
 Support for binary data is necessary for cryptographic operations to exists in the browser but there are some challenges that developers still face before working with binary data is a seamless process.
 
 
-\section{WebCrypto API}
+\section{Web Crypto API}
 
 
-The WebCrypto API is still in the editor's draft stage, but browsers have implemented the specification. As of Chrome 53 the support is strong. This project was developed and tested in Chromium 53 and the API functioned as expected. \cite{webcrypto-overview} \cite{webcrypto-chromium}
+The Web Crypto API is still in the editor's draft stage, but browsers have implemented the specification. As of Chrome 53 the specification is fully implemented. This project was developed and tested in Chromium 53 and the API functioned as specified.\cite{webcrypto-overview}\cite{webcrypto-chromium}
 
 
-The WebCrypto API provides a low level interface to cryptographic operations and key management operations. The API is accessible through the window.crypto.subtle global variable in the browser. The API has twelve static functions that provide access to all of the cryptographic operations. These functions are encrypt, decrypt, sign, verify, digest, generateKey, deriveKey, deriveBits, importKey, exportKey, wrapKey, unwrapKey.
+The Web Crypto API provides a low level interface to cryptographic operations and key management operations. The API is accessible through the window.crypto.subtle global variable in the browser. The API has twelve static functions that provide access to all of the cryptographic operations. These functions are encrypt, decrypt, sign, verify, digest, generateKey, deriveKey, deriveBits, importKey, exportKey, wrapKey, unwrapKey.
 
 
-The design of the API is to overload these functions. These functions all work on Array Buffers as their input and output types. These functions are also all asynchronous and return Promises. To see how this API functions let's look at and example the crypto.subtle.encrypt function.
+The design of the API is to overload these functions. These functions all work on Array Buffers as their input and output types. These functions are also all asynchronous and return Promises. To see how this API functions let's look at an example, the crypto.subtle.encrypt function.
 
 
 \begin{lstlisting}
@@ -126,57 +126,57 @@ window.crypto.subtle.encrypt({
 \end{lstlisting}
 
 
-This example was gotten from \cite{aes-example}
+This example was gotten from \cite{aes-example}.
 
 
-This example shows the overloaded nature of the function. This first parameter is a Javascript object containing the options for encrypt. In this case the name was “AES-CBC”, since CBC mode takes an IV, this is also passed in. If the mode was CTR then a counter would be passed in. A side effect of this is the user of this API needs to have knowledge of the different encryption methods and what parameters they require. This function is also used for public private key encryption as well. In the case of RSA the same function is called with different options. These functions are very overloaded. In the example it is show how the input data and output encrypted data are Array Buffers. Also notice the .then function that is called because the encrypt function returns a promise. All of the other WebCrypto API functions provide a similar overloaded API and their respective call signatures can be seen in the specification.
+This example shows the overloaded nature of the function. This first parameter is a Javascript object containing the options for encrypt. In this case the name was "AES-CBC", since CBC mode takes an IV, this is also passed in. If the mode was CTR then a counter would be passed in. A side effect of this is the user of this API needs to have knowledge of the different encryption methods and what parameters they require. This function is also used for public private key encryption as well. In the case of RSA the same function is called with different options. These functions are very overloaded. In the example it is shown how the input data and output encrypted data are Array Buffers. Also notice the then function that is called, this is because the encrypt function returns a promise. All of the other Web Crypto API functions provide a similar overloaded interface and their respective call signatures can be seen in the specification.\cite{webcrypto-overview}
 
 
-The WebCrypto is a great start to bringing cryptographic operations natively to the browser.
+The Web Crypto API is a great start to bringing cryptographic operations natively to the browser.
 
 
 \section{Typescript}
 
 
-Typescript is a tool developed by Microsoft to build “Javascript that scales” \cite{typescript}
-Typescript is a strict superset of Javascript that allows for optional type checking and compilation to plain javascript. The strict superset feature means that any valid Javascript is valid Typescript, a great feature for legacy code bases. If used, the optional types allow the Typescript compiler to statically check your code before running it in the browser. This allows errors to be caught at compile time instead of runtime. The compilation allows use of newer Javascript language features that can then be compiled down to older syntax. 
+Typescript is a tool developed by Microsoft to build "Javascript that scales".\cite{typescript}
+Typescript is a strict superset of Javascript that allows for optional type checking and compilation to plain javascript. The strict superset feature means that any valid Javascript is valid Typescript, a great feature for legacy code bases. If used, the optional types allow the Typescript compiler to statically type check your code before running it in the browser. This allows errors to be caught at compile time instead of runtime. The compilation allows use of newer Javascript language features that can then be compiled down to older syntax. This is how async await syntax was used in this project. Typescript supports the async await syntax and compiles it into Javascript that takes advantage of the Promise API. 
 
 
-This project uses both static typing and compilation support heavily. The type checking helped prevent errors before the code even ran. The compilation allowed the use of the async await syntax in this project which was awesome. 
+This project uses both static type checking and compilation support heavily. The type checking helped prevent errors before the code even ran. The compilation allowed for the use of current Javascript syntax without the worry of browser support. 
 
 
 \section{Websockets}
 
 
-Websockets are a communication protocol specified in RFC 66455. \cite{websocket-rfc} Websockets provide two way communication between a client and a host. This is different from traditional HTTP in which the client sends requests and the host sends responses, each time through a different TCP connection. Websockets allow for data to be pushed to the client which is beneficial from both a client and host point of view.
+Websockets are a communication protocol specified in RFC 66455.\cite{websocket-rfc} Websockets provide two way communication between a client and a host. This is different from traditional HTTP in which the client sends requests and the host sends responses, each time through a different TCP connection. Websockets allow for data to be pushed to the client which is beneficial from both a client and host point of view.
 
 
-For the client the data is always up to data. Prior to the development of websockets, web applications employed different strategies to keep the client viewing the most recent data. The simplest was to have the client manually refresh the page periodically. This is bad as it takes client interaction. A slightly better technique and one that is commonly still used today is long polling. AJAX requests will be sent from the client periodically. These requests will say, hash anything changed, if so send me the newest data. The works okay in practice but has issues with the fact the data is never truly live. The max wait time for up to date data is the polling interval. To combat this the polling interval could be set really short but then the network use of the client is high. On desktops this wouldn’t be the end of the world but on mobile devices this poses a huge problem. So there is a balance between poll time and how up to date the clients need to be. Websockets solve this problem by setting up the two way connection. So the client just has to set up a listener on the open connection and react accordingly to up to date data.
+For the client the data is always up to date. Prior to the development of websockets, web applications employed different strategies to keep the client viewing the most recent data. The simplest was to have the user manually refresh the page periodically. This is bad as it takes user interaction. A slightly better technique and one that is commonly still used today is long polling. AJAX requests will be sent from the client periodically. These requests will say, has anything changed, if so send me the newest data. This works okay in practice but has issues with the fact the data is never truly live. The max wait time for up to date data is equal to the polling interval. To combat this the polling interval could be set really short but then the network use of the client is high, since it is always asking for changes. On desktops this wouldn’t be a major issue but on mobile devices this poses a huge problem. So there is a balance between poll time and how up to date the clients need to be. Websockets solve this problem by setting up the two way connection. The client just has to set up a listener on the open connection and react accordingly to up to date data.
 
 
-For the hosts this can allow for a bufferless server in some cases. Before websockets the server had to store the data for at least until a client asked for it. This could be a really short amount of time depending on the polling rate but the infrastructure and code to buffer data still has to exist. Websockets solve this problem because servers can send out changes as soon as they happen without any buffered storage. This makes servers simpler to develop and deploy.
+For the hosts this can allow for a bufferless server in some cases. Before websockets the server had to store the data for at least until a client asked for it. This could be a really short amount of time depending on the polling rate but the infrastructure and code to buffer data still has to exist. Websockets solve this problem because servers can push out changes as soon as they happen without any buffered storage. This makes servers simpler to develop and deploy.
 
 
-Websockets have improved the experience for users on the internet while making technical problems easier to solve.
+Websockets have improved the experience for users on the internet while making application architecture easier to implement and maintain.
 
 
 \section{Flask}
 
 
-Flask is a micro web framework in Python for building web applications. \cite{flask}
-Flask was used in this project to develop the server side. Flask comes with routing support as well as an extension to handle websocket connections. Flask is great for it’s simplicity and community. It only takes one file to have a basic web server up and running, and there are ton’s of developer writing extensions to give Flask more features.
+Flask is a micro web framework in Python for building web applications.\cite{flask}
+Flask was used in this project to develop the server side. Flask comes with routing support as well as an extension to handle websocket connections. Flask is great for it’s simplicity and community. It only takes one file to have a basic web server up and running, and there are ton’s of developer writing extensions to give Flask more features. Flask allowed for simple server side development to support the client side application.
 
 
 \section{Json Web Tokens}
 
 
-Json Web Tokens, commonly abbreviated as JWT’s, are defined in RFC 7519. \cite{jwt-frc} JWT’s can be used as token’s to authenticated users. This project uses JWT’s as the authentication token from the server.
+Json Web Tokens, commonly abbreviated as JWT’s, are defined in RFC 7519.\cite{jwt-rfc} JWT’s can be used as token’s to authenticated users. This project uses JWT’s as the authentication token for the server.
 
 
-JWT’s are comprised of three parts, a header, payload, and signature. The header is metadata about the token. The header usually has the name of the algorithm used to generate the signature. The payload is the data that the token holds. So in the case of an authentication token this might hold the username and expiration time of the token. The signature is created on the server. The tokens can be signed by either a symmetric or private key. Once the signature has been created all of the information is base64 encoded and separated by the “.” character. The website http://jwt.io has a live tool that can be used to examine JWT’s. 
+JWT’s are comprised of three parts, a header, payload, and signature. The header is metadata about the token. The header usually has the name of the algorithm used to generate the signature. The payload is the data that the token holds. So in the case of an authentication token this might hold the username and expiration time of the token. The signature is created on the server. The tokens can be signed by either a symmetric or asymmetric key. Once the signature has been created all of the information is base64 encoded and separated by the "." character. The website http://jwt.io has a live tool that can be used to examine JWT’s. 
 
 
-The use of symmetric vs private keys depends on the architecture of the application that the tokens are used in. In a single server system the server can just sign with a symmetric key and then verify using the same key as there is only one place verification needs to take place. In a distributed system where one authentication server is in place for many different application a public private key approach makes more sense. In this system the private key is kept on the authentication server where the JWT’s are created. Then the public keys are shared with all of the application servers which can now verify the signature with the public key.
+The use of symmetric vs asymmetric keys depend on the architecture of the application that the tokens are used in. In a single server system, the server can just sign the token with a symmetric key and then verify using the same key as there is only one place verification needs to take place. In a distributed system where one authentication server is in place for many different applications, a public private key approach makes more sense. In this system the private key is kept on the authentication server where the JWT’s are created. Then the public keys are shared with all of the application servers which can now verify the signature of the authentication server with the public key.
 
 
 \section{Off the Record Messaging}
@@ -188,36 +188,30 @@ Off the record messaging, commonly abbreviated as OTR, is an encrypted messaging
 \subsection{Encrypted Messaging Properties}
 
 
-There are four properties that are important when looking at encrypted messaging systems. They are perfect forward secrecy, repudiability, and forgeability.
+The OTR protocol considers three important properties of encrypted messaging on top of confidentiality and integrity. They are perfect forward secrecy, repudiability, and forgeability.\cite{otr-paper}
 
 
 Perfect forward secrecy is an extension of the confidentially property of encrypted messaging. Perfect forward secrecy is the property that once a short lived key is discarded there is no information that can be gained about past messages. OTR accomplishes this by using short term keys and forgetting them after use. 
 
 
-Repudiability is the property that no one should be able to prove Alice sent a particular message, whether she did or not. OTR accomplishes this by publishing old mac keys so that anyone could have signed the message.
+Repudiability is the property that no one should be able to prove Alice sent a particular message, whether she did or not. OTR accomplishes this by publishing old authentication keys so that anyone could have signed the message.
 
 
-Forgeability is an extension on repudiability. This is the property that not only do we want Bob and Eve to be unable to prove that Alice sent any given message, we want it to be very obvious that anyone at all could have modified, or even sent it. OTR accomplishes this by publishing old mac keys and using a malleable cipher so that anyone could have signed and created the message.
-
-
-\cite{otr-paper}
+Forgeability is an extension on repudiability. This is the property that not only do we want Bob and Eve to be unable to prove that Alice sent any given message, we want it to be very obvious that anyone at all could have modified, or even sent it. OTR accomplishes this by publishing old authentication keys and using a malleable encryption cipher so that anyone could have signed and created the message.
 
 
 \subsection{Protocol}
 
 
 OTR has two main components to the protocol, key exchange, and data exchange. The key exchange consists of five states in which Alice and Bob exchange information to securely agree upon encryption keys. The data exchange is where the messaging and key rotation takes place.
-Since this project was an implementation of the protocol the implementation section goes into full detail about each step of the OTR protocol. 
-
-
-\cite{otr-protocol}
+Since this project was an implementation of the protocol the implementation section goes into full detail about each step of the OTR protocol.\cite{otr-protocol}
 
 
 \section{Trust Model}
 
 
-In this thesis an implementation of a an OTR messaging client is developed. The server side to pass messages between clients is also developed. In this section the trust model betweens clients and between the client and server is discussed. 
+Since the implementation of the protocol was a full working system there were some trust assumptions that were made. In this section the trust model betweens clients and between the client and server is discussed. 
 
 
-In cryptographic terms the server is an “honest but curious” adversary. \cite{sjcl-paper}. This means that the server can be trusted to pass messages correctly but will read the messages if it is possible. In this implementation the server is assumed to be honest in performing two actions. The first is correctly and honestly sharing the long term public keys of the users with each other. In this implementation the server acts as the trusted third party to share public keys. The second is the server is trusted to route messages to the specified recipient honestly. The server however is not trusted to not log or read the messages and because of this OTR works well because of it’s end to end encryption properties.
+In cryptographic terms the server is an "honest but curious" adversary.\cite{sjcl-paper}. This means that the server can be trusted to pass messages correctly but will read the messages if it is able to. In this implementation the server is assumed to be honest in performing two actions. The first is correctly and honestly sharing the long term public keys of the users with each other. In this implementation the server acts as the trusted third party to share public keys. The second is the server is trusted to route messages to the specified recipient honestly. The server however is not trusted to not log or read the messages. OTR works well for this situation because of it’s end to end encryption properties.
 

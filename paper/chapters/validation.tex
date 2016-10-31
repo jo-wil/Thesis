@@ -1,7 +1,7 @@
 \chapter{Validation}
 
 
-The application was tested both manually and with automated tests. Both types of testing were used to get as much test coverage as possible.
+The messaging application was tested with both manual and automated tests. Both types of testing was used to get as much test coverage as possible.
 
 
 \section{Automated Tests}
@@ -20,22 +20,22 @@ The server tests, test the /api/signup and /api/login api endpoints.
 
 
 The first set of tests done against the server are to signup three users, Alice, Bob, and Charlie.
-This is done by sending three asynchronous requests to the server. The URL for all of these are “/api/signup”, the method is “POST”, and the body is a JSON string containing the username and password combination of the user to be created. After these requests come back the status codes as checked to be not equal to 500. The reason the status code is not checked to be equal to 200 is so that these tests can be ran multiple times without restarting the server. After the first signup of a user the server responds with status code 400, so if the status code was checked to be equal to 200 the tests would fail every time after one run.
+This is done by sending three asynchronous requests to the server. The URL for all of these are “/api/signup”, the method is “POST”, and the body is a JSON string containing the username and password combination of the user to be created. After these requests come back the status codes as checked to be not equal to 500. The reason the status code is not checked to be equal to 200 is so that these tests can be ran multiple times without restarting the server. After the first signup of a user the server responds with status code 400, so if the status code was checked to be equal to 200 the tests would fail after one run even though the server is behaving correctly.
 
 
 \subsubsection{/api/login}
 
 
-Once the users have been signed up there are tests to check if they can now log in. This is done by sending asynchronous requests to the server again. The URL for these is “/api/signup”, the method is “POST”, and the body is the same as sign up, with the JSON string containing the username and password. After these requests come back the status codes are checked to be equal to 200. There is no issue with users logging in multiple times so the multiple run issues in sign up do not arise in the login tests.
+Once the users have been signed up, there are tests to check if they can now log in. This is done by sending asynchronous requests to the server again. The URL for these is “/api/login”, the method is “POST”, and the body is the same as sign up, with the JSON string containing the username and password. After these requests come back the status codes are checked to be equal to 200. There is no issue with users logging in multiple times so the subsequent run issues in sign up do not arise in the login tests.
 
 
-Because of the asynchronous nature of AJAX requests promises are used here to ensure ordering of signup before login every time.
+Because of the asynchronous nature of AJAX requests Promises are used here to ensure ordering of signup before login every time.
 
 
 \subsection{Application Tests}
 
 
-The application tests are very short. They check for the existence of the global data store, the chat page implementation, and the login page implementation. The rest of the application is tested manually and will be discussed in that section.
+The application tests are very short. They check for the existence of the global data store, the chat page implementation, and the login page implementation. The rest of the user part of the application is tested manually and will be discussed in that section.
 
 
 \subsection{OTR Tests}
@@ -47,10 +47,10 @@ The OTR tests work at two different levels. The first set of tests validates the
 \subsubsection{Implementation Tests}
 
 
-The implementation tests by setting up all of the state information. This test code actually heavily influenced the development of the send and receive functions as these tests were written prior to those functions being implemented. To set up state information Alice and Bob have object setup for them respectively. A network in and network out object are created to spoof network communication. Key management objects are created for both Alice and Bob. Finally two ECDSA keys are created as the long term public keys for Alice and Bob.
+The implementation tests being by setting up all of the state information manually. This test code actually heavily influenced the development of the send and receive functions as these tests were written prior to those functions being implemented. To set up state information Alice and Bob have state object setup for each of them respectively. A network in and network out object are then created to spoof network communication. Key management objects are created for both Alice and Bob. Finally two ECDSA keys are created as the long term public keys for Alice and Bob.
 
 
-After the setup is complete the tests go through the authenticated key exchange, by separately calling ake1-5 alternating between Alice and Bob respectively. Once the key exchange a message is sent from Alice to Bob. This message is “this is a message”. After Bob receives the message by calling ed2 it is compared to the original message for equality. Bob the sends a response message “this is a response” and that is checked by Alice.
+After the setup is complete the tests go through the authenticated key exchange, by separately calling ake1-5 alternating between Alice and Bob respectively. Once the key exchange is complete a message is sent from Alice to Bob. This message is “this is a message”. After Bob receives the message by calling ed2 it is compared to the original message for equality. Bob then sends a response message “this is a response” and that is checked by Alice.
 
 
 \subsubsection{API Tests} 
@@ -59,7 +59,7 @@ After the setup is complete the tests go through the authenticated key exchange,
 The API tests work very similarly to the implementation tests with the exception of only send a receive being called. The setup for the API tests was to create a fake contacts list that had Alice and Bob in it as well as their public keys. For these tests a spoofed websocket implementation was created. This implementation has the same send and receive api. The difference is that it doesn’t go over the wire, it just buffers the message and returns it on the next call of receive. This was an easy way to spoof the websocket so the implementation code didn’t have to be modified for testing.
 
 
-The API tests run through the same scenario as the implementation tests where the authenticated key exchange is performed and then Alice sends Bob a message and Bob sends Alice a response. At every step the type and to from parameters are checked. Once the messages are passed those are also checked to make sure the correct message is received.
+The API tests run through the same scenario as the implementation tests where the authenticated key exchange is performed and then Alice sends Bob a message and Bob sends Alice a response. At every step the type and to from parameters are checked for the correct step in the protocol. Once the messages are passed those are also checked to make sure the correct message is received.
 
 
 \subsection{JWCL Tests}
@@ -68,19 +68,19 @@ The API tests run through the same scenario as the implementation tests where th
 JWCL has tests for all of the modules. The interesting part of testing JWCL is the tests were not meant to test the underlying cryptographic primitives. This job is left up to the WebCrypto API implementers, and in this project's case that is the Chromium team. JWCL was instead tested for functionality.
 
 
-The random function was tested by generating a random 16 byte value. The result is then checked to make sure it is of type string and length equal to ceil(16/3)*4. This is the equation for the length of a base64 encoding. Since the random function returns a base64 encoded random string that is the expected length.
+The random function was tested by generating a random 16 byte value. The result is then checked to make sure it is of type string and length equal to $ceil(16/3)*4$. This is the equation for the length of a base64 encoding. This was checked because the random function returns a base64 encoded random string that is the expected length.
 
 
-The hash functions sha1 and sha256 were tested by hashing the string “abc”. This value was compared to the base64 encoded string from online hash function tests vectors. \cite{test-vectors}
+The hash functions sha1 and sha256 were tested by hashing the string “abc”. This value was compared to the base64 encoded string from NIST online hash function tests vectors.\cite{test-vectors}
 
 
 The HMAC class was tested by attempting to sign and verify the text “important message”. First a random 16 byte value was generated as the key. An HMAC instance was constructed with the key. The instance of HMAC is used to sign the key. Once the signature is returned the verify function is called twice. First with the string “important message” to make sure that the signature verifies as true. Next with the string “important message changed” to make sure the signature fails to verify in that case.
 
 
-The AES class was tested by attempting to encrypt and decrypt the test “secret message”. A 16 byte key was generated and then used to construct and AES class instance. The plaintext was then encrypted. The ciphertext was then decrypted and check for equality against the original string “secret message”. This is what was meant in the introduction to the JWCL tests by performing functional tests. There is no test vector used in the test to ensure that the key and plaintext pair resulted in the correct ciphertext. As mentioned earlier that testing is left up to the WebCrypto implementation tests. JWCL only cares that the AES class is able to encrypt and decrypt that's it.
+The AES class was tested by attempting to encrypt and decrypt the test “secret message”. A 16 byte key was generated and then used to construct and AES class instance. The plaintext was then encrypted. The ciphertext was then decrypted and check for equality against the original string “secret message”. This is what was meant in the introduction to the JWCL tests by performing functional tests. There is no test vector used in the test to ensure that the key and plaintext pair resulted in the correct ciphertext. As mentioned earlier that testing is left up to the WebCrypto implementation tests. JWCL only cares that the AES class is able to encrypt and decrypt properly, that's it.
 
 
-The ECDH class was tested by generating random bits. Two ECDH keys were generated. The first key was used to created an instance of ECDH. The derive function was then called with the public part of the second key. The resulting generated bits then had the same tests as random applied to them. The length and type were checked.
+The ECDH class was tested by attempting to generate random bits. Two ECDH keys were generated. The first key was used to created an instance of ECDH. The derive function was then called with the public part of the second key. The resulting generated bits then had the same tests as random applied to them, the length and type were checked.
 
 
 The ECDSA class was tested in the same fashion as the HMAC class with the exception of two keys being used. One to sign and the other to verify. Again the string “important message” was used. Verifying both “important message” for correctness and “important message changed” for expected failure was also performed. 
@@ -89,7 +89,7 @@ The ECDSA class was tested in the same fashion as the HMAC class with the except
 \section{Manual Tests}
 
 
-The manual tests were used to test the end to end functionality of the application. They were also used to stress test the app more than the automated tests. The manual tests started by opening up a browser navigating to the app and logging in as Alice. After this an incognito window was opened. This sets the application in a different context so that Bob can log in on that window. There are three scenarios that were commonly run.
+The manual tests were used to test the end to end functionality of the application. They were also used to stress test the app more than the automated tests. The manual tests started by opening up a browser navigating to the app and logging in as Alice. After this an incognito window was opened. This sets the application in a different context so that Bob can log in on that window. There are three scenarios that were run.
 
 
 \subsection{Scenario 1}
@@ -101,7 +101,7 @@ The first scenario was the most basic. In this scenario the app was used as a ch
 \subsection{Scenario 2}
 
 
-In this test the main focus was the key cycling. In this test all messages are send as the same plaintext “test message”. Alice starts by sending two of these messages in a row to Bob. Bob responds with two in a row. Then Alice sends one more back to Bob. The logs are then pulled up and examined on the server implementation. What is looked at is the ciphertext being sent back and forth. First none of the ciphertext for the five messages should be the same even though the plaintext was the same. Second the counter should have incremented for the second message for both Alice and Bob. Third when Alice responds the counter should have reset to zero but the ciphertext should still be different than her first message under the counter zero because now the encryption key should have been cycled. If all of these pass it’s good.
+In this test the main focus was the key cycling. All messages sent in this test were the same plaintext, “test message”. Alice starts by sending two of these messages in a row to Bob. Bob responds with two in a row. Then Alice sends one more back to Bob. The logs are then pulled up and examined on the server implementation. What is looked at is the ciphertext being sent back and forth. First none of the ciphertext for the five messages should be the same even though the plaintext was the same. Second the counter should have incremented for the second message for both Alice and Bob. Third when Alice responds the counter should have reset to zero but the ciphertext should still be different than her first message under the counter zero because now the encryption key should have been cycled. If all of these pass it’s good to go.
 
 
 \subsection{Scenario 3}

@@ -1,50 +1,42 @@
-\section{Related Work}
+\chapter{Related Work}
 
 
-This chapter discusses a related protocol, implementation, and Javascript Crypto library.
+This chapter discusses a protocol related to OTR, an implementation of a production end to end encrypted messaging system, and client side Javascript Crypto library.
 
 
-\subsection{Signal Protocol} 
+\section{Signal Protocol} 
 
 
-The signal protocol is based on the OTR protocol that is implemented in this thesis. The signal protocol provides improvements over OTR. The improvements over OTR are focused on simplifying deniability, adapting the key exchange for asynchronous transports, and improving the forward secrecy “ratchet”.
+The signal protocol is based on the OTR protocol that is implemented in this thesis. The signal protocol provides improvements over OTR. The improvements over OTR are focused on simplifying deniability, adapting the key exchange for asynchronous transports, and improving the forward secrecy “ratchet”.\cite{whisper-overview}
 
 
-OTR make the assumption or inorder recipient of messages. This is a perfectly fine assumption for some cases and can cause a lot of problems in others. In the asynchronous world of instant messaging in order recipient is not guaranteed. The signal protocol aims to make their protocol function in an asynchronous system by adapting how the key exchange functions. This is done by improving upon OTR’s three step DH rachet and making it a two step DH rachet. This allows Alice to use the next ephemeral key without advertising it.
+OTR makes the assumption of in order receipt of messages. This is a perfectly fine assumption for some cases and can cause a lot of problems in others. In the asynchronous world of instant messaging in order of messages is not guaranteed. The signal protocol aims to make their protocol function in an asynchronous system by adapting how the key exchange functions. This is done by improving upon OTR’s three step DH rachet and making it a two step DH rachet. This allows Alice to use the next ephemeral key without advertising it.
 
 
-The signal protocol ratched is a combination of the three step rachet used by OTR and a hash based ratchet used by the silent circle messaging protocol. The OTR rachet works by advertising the next DH key in the message and then deleting old DH keys after the new one has been acknowledged. The silent circle ratchet works by continually hashing the encryption key every message and deleting the previous one. The OTR rachet has less than perfect forward secrecy properties but has good future secrecy properties. The silent circle rachet hash perfect forward secrecy properties but terrible future secrecy properties. The signal protocol aims to take the pros of both of these approaches while mitigating the cons. Signal derives a root key, like silent circle, but then continues to use the use of ephemeral keys but they are now generated from the root key rather than advertise. In the signal protocol description this is not detailed very well but they claim this allows for a two step ratchet will still having good future secrecy properties.
+The signal protocol ratchet is a combination of the three step rachet used by OTR and a hash based ratchet used by the silent circle messaging protocol. The OTR rachet works by advertising the next DH key in the message and then deleting old DH keys after the new one has been acknowledged. The silent circle ratchet works by continually hashing the encryption key every message and deleting the previous one. The OTR rachet has less than perfect forward secrecy properties but has good future secrecy properties. The silent circle rachet has perfect forward secrecy properties but terrible future secrecy properties. The signal protocol aims to take the pros of both of these approaches while mitigating the cons. Signal derives a root key, like silent circle, but then continues to use the ephemeral key exchange like OTR with the difference is they are now generated from the root key rather than advertised. The signal protocol description about this process is not detailed very well but they claim this allows for a two step ratchet while still maintaining adequate future secrecy properties.
  
-The reason that OTR was chosen to be implemented instead of signal was because of this disclaimer on the Github documentation pages for signal. “Better documentation of this algorithm is forthcoming. The below description is lacking details needed for a complete implementation.”
+The reason that OTR was chosen to be implemented instead of signal was because of this disclaimer on the documentation pages for the signal protocol. “Better documentation of this algorithm is forthcoming. The below description is lacking details needed for a complete implementation.”\cite{whisper-protocol}
 
 
-\cite{whisper-overview}
-\cite{whisper-protocol}
+\section{Allo Google Chat}
 
 
-\subsection{Allo Google Chat}
+Allo is a messaging application that has recently been released by Google. Allo works like a lot of other messaging application with feature like group chats and allowing users to attach images and videos. 
 
 
-Allo is a messaging application that has recently been released by Google. Allo works like a lot of other messaging application with feature like emojis and group chats as well as allowing users to attach images and videos. 
+Allo’s security settings and model is different from other messaging applications though. By default Google stores all chat history. This allows Google to provide an intelligent assistant to help you chat. The intelligent assistant provides common features such as autocomplete, but also some really cool ones like suggesting movie times or restaurants if you are talking about them in the conversation. You just have to add @google and the assistant handles the rest. This feature has definite positives for user experience but also has negatives in terms of security and privacy. For the assistant to work Google must be able to read your messages. If Google can read your messages then so can anyone who has the proper legal request at any time since Google is storing all of your messages.
 
 
-Allo’s security settings and model is different from other messaging applications though. By default Google stores all chat history. This allows Google to provide an intelligent assistant to help you chat. The intelligent assistant provides common features such as autocomplete but also some really cool ones like suggesting movie times or restaurants if you are talking about them in the conversation. You just have to add @google and the assistant handles the rest. This feature has define positives for user experience but also has negatives in terms of security. For the assistant to work Google must be able to read your messages. If Google can read your messages then so can anyone who has the proper legal request.
+Google attempts to combat this in Allo by providing an “incognito mode”. Incognito mode turns on  the Signal Messaging Protocol to provide end to end encrypted messaging.\cite{whisper-allo} With incognito mode the Google assistant no longer works since Google can’t read your messages. The incognito mode allows for a timer to be set for how long messages will be stored on your device, and this is configurable independently for each conversation which is nice. They do warn you though that the recipient can always take a screenshot of the conversation.
 
 
-Google attempts to combat this in Allo by providing an “incognito mode”. Incognito mode turns on  the Signal Messaging Protocol to provide end to end encrypted messaging. With incognito mode the Google assistant no longer works since Google can’t read your messages. The incognito mode allows for a timer to be set for how long messages will be stored on your device, and this is configurable independently for each conversation which is nice. They do warn you though that the recipient can always take a screenshot of the conversation.
+Google Allo is a concrete implementation of an encrypted messaging app similar to the application built in this thesis. While Google has many more messaging features available the idea of encrypted chat is similar and it is nice to see big companies investing in developing this technology further.\cite{google-allo}
 
 
-Google Allo is a concrete implementation of an encrypted messaging app similar to the application built in this thesis. While Google has many more messaging features available the idea of encrypted chat is similar and nice to see big companies investing in developing this technology further.
+\section{SJCL}
 
 
-\cite{google-allo}
-\cite{whisper-allo}
-
-
-\subsection{SJCL}
-
-
-The Stanford Javascript Crypto Library, commonly abbreviated as SJCL, is a crypto library written in Javascript that runs in the browser. This library was developed at Stanford University and was published in the 2009 Annual Computer Security Applications Conference. \cite{sjcl-paper} SJCL was an option for client side encryption prior to the publication of the WebCrypto API. SJCL supports older browsers since it was written over 7 years ago. SJCL is still under active development with the most recent commit to the master branch being a month ago at the time of this writing. \cite{sjcl-library} Due to these factors it’s use will probably continue into the future, for applications that target a wide audience and can’t rely on WebCrypto API support. SJCL also provides a higher level interface than the WebCrypto API. The SJCL interface was the inspiration for the JWCL interface implemented in this project.
+The Stanford Javascript Crypto Library, commonly abbreviated as SJCL, is a crypto library written in Javascript that runs in the browser. This library was developed at Stanford University and was published in the 2009 Annual Computer Security Applications Conference.\cite{sjcl-paper} SJCL was an option for client side encryption prior to the publication of the WebCrypto API. SJCL supports older browsers since it was written over 7 years ago. SJCL is still under active development with the most recent commit to the master branch being a month ago at the time of this writing.\cite{sjcl-library} Due to these factors it’s use will probably continue into the future, for applications that target a wide audience and can’t rely on WebCrypto API support. SJCL also provides a higher level interface than the WebCrypto API. The SJCL interface was the inspiration for the JWCL interface implemented in this project.
 
 
 

@@ -151,11 +151,6 @@ w3ci.
 \newblock Web cryptography api, 2016.
 \newblock [Online; accessed June-2016].
 
-\bibitem{wiki:xxx}
-Wikipedia.
-\newblock Latex --- wikipedia{,} the free encyclopedia, 2011.
-\newblock [Online; accessed 13-February-2011].
-
 \bibitem{ts-pull}
 J.~Wilson.
 \newblock changed eckeygenparams from typedcurve to namedcurve to fix issue
