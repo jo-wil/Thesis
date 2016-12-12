@@ -25,48 +25,48 @@
 \contentsline {section}{\numberline {3.3}SJCL}{16}{section.3.3}
 \contentsline {chapter}{\numberline {4}Implementation}{17}{chapter.4}
 \contentsline {section}{\numberline {4.1}Application Server}{17}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}/api/login}{17}{subsection.4.1.1}
-\contentsline {subsubsection}{Success Flow}{18}{subsubsection*.4}
-\contentsline {subsubsection}{Error conditions}{18}{subsubsection*.5}
-\contentsline {subsection}{\numberline {4.1.2}/api/signup}{18}{subsection.4.1.2}
-\contentsline {subsubsection}{Success Flow}{18}{subsubsection*.6}
-\contentsline {subsubsection}{Error conditions}{19}{subsubsection*.7}
+\contentsline {subsection}{\numberline {4.1.1}/api/login}{18}{subsection.4.1.1}
+\contentsline {subsubsection}{Success Flow}{18}{subsubsection*.5}
+\contentsline {subsubsection}{Error conditions}{18}{subsubsection*.6}
+\contentsline {subsection}{\numberline {4.1.2}/api/signup}{19}{subsection.4.1.2}
+\contentsline {subsubsection}{Success Flow}{19}{subsubsection*.7}
+\contentsline {subsubsection}{Error conditions}{19}{subsubsection*.8}
 \contentsline {subsection}{\numberline {4.1.3}/socket}{19}{subsection.4.1.3}
-\contentsline {subsubsection}{Success Flows}{19}{subsubsection*.8}
+\contentsline {subsubsection}{Success Flows}{19}{subsubsection*.9}
 \contentsline {subsection}{\numberline {4.1.4}Error conditions}{20}{subsection.4.1.4}
-\contentsline {subsection}{\numberline {4.1.5}Database}{20}{subsection.4.1.5}
+\contentsline {subsection}{\numberline {4.1.5}Database}{21}{subsection.4.1.5}
 \contentsline {subsection}{\numberline {4.1.6}Hash Function}{21}{subsection.4.1.6}
 \contentsline {subsection}{\numberline {4.1.7}JWT Implementation}{21}{subsection.4.1.7}
-\contentsline {subsubsection}{Encode}{21}{subsubsection*.9}
-\contentsline {subsubsection}{Decode}{22}{subsubsection*.10}
+\contentsline {subsubsection}{Encode}{22}{subsubsection*.10}
+\contentsline {subsubsection}{Decode}{22}{subsubsection*.11}
 \contentsline {section}{\numberline {4.2}Application Client}{22}{section.4.2}
 \contentsline {section}{\numberline {4.3}OTR}{25}{section.4.3}
 \contentsline {subsection}{\numberline {4.3.1}Authenticated Key Exchange State 1}{26}{subsection.4.3.1}
 \contentsline {subsection}{\numberline {4.3.2}Authenticated Key Exchange State 2}{26}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}Authenticated Key Exchange State 3}{26}{subsection.4.3.3}
+\contentsline {subsection}{\numberline {4.3.3}Authenticated Key Exchange State 3}{27}{subsection.4.3.3}
 \contentsline {subsection}{\numberline {4.3.4}Authenticated Key Exchange State 4}{27}{subsection.4.3.4}
 \contentsline {subsection}{\numberline {4.3.5}Authenticated Key Exchange State 5}{28}{subsection.4.3.5}
-\contentsline {subsection}{\numberline {4.3.6}Exchange Data State 1}{28}{subsection.4.3.6}
+\contentsline {subsection}{\numberline {4.3.6}Exchange Data State 1}{29}{subsection.4.3.6}
 \contentsline {subsection}{\numberline {4.3.7}Exchange Data State 2}{29}{subsection.4.3.7}
-\contentsline {subsection}{\numberline {4.3.8}OTR Class}{29}{subsection.4.3.8}
-\contentsline {subsubsection}{send}{30}{subsubsection*.11}
-\contentsline {subsubsection}{receive}{31}{subsubsection*.12}
+\contentsline {subsection}{\numberline {4.3.8}OTR Class}{30}{subsection.4.3.8}
+\contentsline {subsubsection}{send}{30}{subsubsection*.12}
+\contentsline {subsubsection}{receive}{31}{subsubsection*.13}
 \contentsline {subsection}{\numberline {4.3.9}Key Management}{32}{subsection.4.3.9}
-\contentsline {section}{\numberline {4.4}JWCL}{32}{section.4.4}
+\contentsline {section}{\numberline {4.4}JWCL}{33}{section.4.4}
 \contentsline {subsection}{\numberline {4.4.1}jwcl.utils}{33}{subsection.4.4.1}
 \contentsline {subsection}{\numberline {4.4.2}jwcl.random()}{35}{subsection.4.4.2}
 \contentsline {subsection}{\numberline {4.4.3}jwcl.hash}{35}{subsection.4.4.3}
 \contentsline {subsection}{\numberline {4.4.4}jwcl.cipher}{37}{subsection.4.4.4}
-\contentsline {subsection}{\numberline {4.4.5}jwcl.ecc}{38}{subsection.4.4.5}
+\contentsline {subsection}{\numberline {4.4.5}jwcl.ecc}{39}{subsection.4.4.5}
 \contentsline {chapter}{\numberline {5}Validation}{42}{chapter.5}
 \contentsline {section}{\numberline {5.1}Automated Tests}{42}{section.5.1}
 \contentsline {subsection}{\numberline {5.1.1}Server Tests}{42}{subsection.5.1.1}
-\contentsline {subsubsection}{/api/signup}{42}{subsubsection*.13}
-\contentsline {subsubsection}{/api/login}{43}{subsubsection*.14}
+\contentsline {subsubsection}{/api/signup}{42}{subsubsection*.14}
+\contentsline {subsubsection}{/api/login}{43}{subsubsection*.15}
 \contentsline {subsection}{\numberline {5.1.2}Application Tests}{43}{subsection.5.1.2}
 \contentsline {subsection}{\numberline {5.1.3}OTR Tests}{43}{subsection.5.1.3}
-\contentsline {subsubsection}{Implementation Tests}{44}{subsubsection*.15}
-\contentsline {subsubsection}{API Tests}{44}{subsubsection*.16}
+\contentsline {subsubsection}{Implementation Tests}{44}{subsubsection*.16}
+\contentsline {subsubsection}{API Tests}{44}{subsubsection*.17}
 \contentsline {subsection}{\numberline {5.1.4}JWCL Tests}{45}{subsection.5.1.4}
 \contentsline {section}{\numberline {5.2}Manual Tests}{46}{section.5.2}
 \contentsline {subsection}{\numberline {5.2.1}Scenario 1}{47}{subsection.5.2.1}
@@ -89,6 +89,6 @@
 \contentsline {chapter}{\numberline {7}Conclusion}{56}{chapter.7}
 \contentsline {section}{\numberline {7.1}Evaluation}{56}{section.7.1}
 \contentsline {section}{\numberline {7.2}Discussion}{56}{section.7.2}
-\contentsline {chapter}{BIBLIOGRAPHY}{58}{chapter*.17}
+\contentsline {chapter}{BIBLIOGRAPHY}{58}{chapter*.18}
 \let \l@chapter \l@section 
 \noindent APPENDICES 

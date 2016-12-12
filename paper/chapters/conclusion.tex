@@ -4,17 +4,17 @@
 \section{Evaluation}
 
 
-In the introduction paragraph it was stated that it was important to explore the Web Crypto API for capabilities and interfaces. This project did just that. The capabilities were tested by developing a functional OTR messaging application. The interfaces were tested during this development as well and JWCL was developed to add additional usability features that were not available in the API. This thesis accomplished the goal of evaluating the Web Cryptography API.
+In the introduction paragraph it was stated that it was important to explore the Web Crypto API for capabilities and interfaces. This project did just that. The capabilities were tested by developing a functional OTR messaging application. The interfaces were tested during this development as well and JWCL was developed to add additional usability features that were not available in the API. This thesis accomplished the goal of evaluating the Web Crypto API.
 
 
 \section{Discussion}
 
 
-The Web Crypto API is a large step forward in making the web more secure development environment, but it is not a silver bullet. As the API is specified right now it is very low level and allows a lot of configuration to the cryptographic operations. While this freedom is nice, it can be daunting or even outright dangerous to developers without understanding of cryptography. The API also does not remove the need for using TLS, it actually makes it even stronger. The Chromium browser won’t even allow the Web Crypto API to run on non secure origins. This is because a false sense of security can happen when developers think that all of the security can be done on the client. Yet without TLS, the correct crypto code is not even guaranteed to reach the client intact. 
+The Web Crypto API is a large step forward in making the web more secure development environment, but it is not a silver bullet. As the API is specified right now it is very low level and allows a lot of configuration to the cryptographic operations. While this freedom is nice, it can be daunting or even outright dangerous to developers without understanding of cryptography. The API also does not remove the need for using TLS, it actually makes it even stronger. The Chromium browser won't even allow the Web Crypto API to run on non secure origins. This is because a false sense of security can happen when developers think that all of the security can be done on the client. Yet without TLS, the correct crypto code is not even guaranteed to reach the client intact. 
 
 
 With these warning in mind the Web Crypto API is also a very powerful tool. Not only does this API provide support for end to end encrypted messaging, it also has many other use cases. Some examples are protected document exchange, secure cloud storage, document signing, and local storage integrity. All of these use cases can now be accomplished by using a uniform cryptographic API and not relying on 3rd party libraries. This will allow for more reusable secure conscious code to be created and shared. 
 
 
-In conclusion the Web Cryptography API should be adopted by modern web applications looking to add client side cryptographic operations to their application but it should be done so carefully and delicately.
+In conclusion the Web Crypto API should be adopted by modern web applications looking to add client side cryptographic operations to their application but it should be done so carefully and delicately.
 

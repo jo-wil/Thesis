@@ -21,7 +21,7 @@ The server uses a python dictionary object as a database right now. The result o
 \subsection{HTTPS Support}
 
 
-HTTPS support is a critical part of the security of this application. The OTR protocol relies on the authenticated transfer of the long term public keys. Since the server handles this action, HTTPS between the server and the clients is important to ensure the public keys are correct and OTR can complete the authenticated key exchange correctly. HTTPS support could be added by placing the Python application behind a reverse proxy such as Nginx. \cite{nginx} Nginx has HTTPS support out of the box and is easily configurable to use. This is how HTTPS would be added.
+HTTPS support is a critical part of the security of this application. The OTR protocol relies on the authenticated transfer of the long term public keys. Since the server handles this action, HTTPS between the server and the clients is important to ensure the public keys are correct and OTR can complete the authenticated key exchange correctly. HTTPS support could be added by placing the Python application behind a reverse proxy such as Nginx \cite{nginx}. Nginx has HTTPS support out of the box and is easily configurable to use. This is how HTTPS would be added.
 
 
 \subsection{Service Oriented Architecture}
@@ -42,7 +42,7 @@ The application part of the this implementation is very barebones and was built 
 The first improvement would be to add an interface for users to interact with signup API on the entry page. Right now test users are signed up through the tests scripts making calls to the API. This would not be a complicated undertaking but is an improvement to make the application usable to real users.
 
 
-On the chat page, the app has a list of the available users and their status at the top, this information is fine but the way it is displayed could be better. An issue can arise when the user tries to send a message. Right now the user must correctly type in the desired recipient's username. If there is a typo by the user, their message would not reach the desired recipient and they could become frustrated with the application. A feature where the user can click on the desired recipient or was provided with a searchable dropdown in the “to” form field would help alleviate this issue.
+On the chat page, the app has a list of the available users and their status at the top, this information is fine but the way it is displayed could be better. An issue can arise when the user tries to send a message. Right now the user must correctly type in the desired recipient's username. If there is a typo by the user, their message would not reach the desired recipient and they could become frustrated with the application. A feature where the user can click on the desired recipient or was provided with a searchable dropdown in the "to" form field would help alleviate this issue.
 
 
 Another improvement in the chat UI would be the concept of conversations. The chat box now just appends the most recent message with the To and From users next to the plaintext. It would make it much more pleasant to view conversations if they only consisted of one person. Think back to your old flip phone and how annoying texting was before conversations were added to phones.
@@ -60,13 +60,13 @@ There are message storage features that the application could provide but these 
 \subsection{Differences from OTR Protocol}
 
 
-This implementation diverges slightly from the protocol description.\cite{otr-protocol} There are two area’s where the implementation differs. The first is the use of elliptic curve cryptography for the diffie hellman and dsa primitives. The second is the state machine handling the conversation.
+This implementation diverges slightly from the protocol description \cite{otr-protocol}. There are two area's where the implementation differs. The first is the use of elliptic curve cryptography for the diffie hellman and dsa primitives. The second is the state machine handling the conversation.
 
 
-In the protocol the authors use diffie hellman and dsa over the set of integers. This implementation used the elliptic curve set, simply because chromium has not and will not support either of these algorithms over the set of integers in the future. According to the developer documentation is “No longer part of the spec”. \cite{webcrypto-chromium} A side effect of this is that public private key pair generation in ake1 and ake2 is done by calling a generate function rather than doing the modular multiplication of g to the x and y respectively ourselves. The results are logically the same though as the public private key pair are still available to the implementation.  
+In the protocol the authors use diffie hellman and dsa over the set of integers. This implementation used the elliptic curve set, simply because chromium has not and will not support either of these algorithms over the set of integers in the future. According to the developer documentation is "No longer part of the spec" \cite{webcrypto-chromium}. A side effect of this is that public private key pair generation in ake1 and ake2 is done by calling a generate function rather than doing the modular multiplication of g to the x and y respectively ourselves. The results are logically the same though as the public private key pair are still available to the implementation.  
 
 
-The state machine was implemented in a simpler manner to the OTR specification but because of the limitations of this implementation there were some states omitted. In the protocol specification, the state machine is more fault tolerant and more generic. This implementation is more constrained in what input it can handle. An example can be used to illustrate this. In this implementation if “ake2” is received but “ake3” was expected the implementation would crash. The protocol would handle this situation based upon its internal state variables. An interesting thing about the protocol is that there are situations in which ignoring the message is the specified action. The reason behind this implementation not currently handling this is the fact there is not a direct API to the OTR functions. Since users interact with the send and receive functions only there is no way for a honest client to send an out of order message. In the case of a malicious client sending an out of order message availability would be affected as the application could crash but confidentiality and integrity of past messages would not change. 
+The state machine was implemented in a simpler manner to the OTR specification but because of the limitations of this implementation there were some states omitted. In the protocol specification, the state machine is more fault tolerant and more generic. This implementation is more constrained in what input it can handle. An example can be used to illustrate this. In this implementation if "ake2" is received but "ake3" was expected the implementation would crash. The protocol would handle this situation based upon its internal state variables. An interesting thing about the protocol is that there are situations in which ignoring the message is the specified action. The reason behind this implementation not currently handling this is the fact there is not a direct API to the OTR functions. Since users interact with the send and receive functions only there is no way for a honest client to send an out of order message. In the case of a malicious client sending an out of order message availability would be affected as the application could crash but confidentiality and integrity of past messages would not change. 
 
 
 The state machine needs to be improved to function to the specification of the protocol if the OTR implementation is to be completely decoupled from the application implementation. This work would make the implementation more robust and specification compliant as well as more portable for others to use in their applications.
@@ -75,13 +75,13 @@ The state machine needs to be improved to function to the specification of the p
 \subsection{Socialist Millionaires Protocol}
 
 
-The OTR specification also has another protocol in it called the Socialist Millionaires Protocol. This protocol is used to test if x equals y, without revealing any other information than the value of x equals y. So if x and y are secret and if x is not equal to y, Alice and Bob gain no information about the other’s secret. This can be used during OTR if Alice or Bob suspect impersonation or man in the middle attacks. They can use the Socialist Millionaires Protocol to check secret information for equality. There was no work done on this protocol in this thesis but it could be a nice future project to implement.
+The OTR specification also has another protocol in it called the Socialist Millionaires Protocol. This protocol is used to test if x equals y, without revealing any other information than the value of x equals y. So if x and y are secret and if x is not equal to y, Alice and Bob gain no information about the other's secret. This can be used during OTR if Alice or Bob suspect impersonation or man in the middle attacks. They can use the Socialist Millionaires Protocol to check secret information for equality. There was no work done on this protocol in this thesis but it could be a nice future project to implement.
 
 
 \section{JWCL}
 
 
-JWCL was developed to make the native WebCrypto API easier to work with. The main issues that JWCL tries to solve from working with the WebCrypto API directly are transparent handling of binary data, secure defaults for all optional parameters, and to provide a class based interface.
+JWCL was developed to make the native Web Crypto API easier to work with. The main issues that JWCL tries to solve from working with the Web Crypto API directly are transparent handling of binary data, secure defaults for all optional parameters, and to provide a class based interface.
 
 
 \subsection{Binary Data}
@@ -96,16 +96,16 @@ The JWCL implementation handling of keys, especially public and private keys fac
 \subsection{Secure Defaults}
 
 
-The JWCL implementation has a lot of default parameters. An example is in the HMAC class sha256 is used as the hash. This is non configurable. While this is a sensible default, what if someone wanted to use sha1 for compatibility with other systems? The WebCrypto API is highly configurable offering parameters for a lot of different options. In the future JWCL will continue to have secure and sensible defaults but allow for user customization of all the parameters to the WebCrypto API. This strategy will attempt to protect the novice cryptographer from himself while allowing the expert cryptographer full access to the underlying API.
+The JWCL implementation has a lot of default parameters. An example is in the HMAC class sha256 is used as the hash. This is non configurable. While this is a sensible default, what if someone wanted to use sha1 for compatibility with other systems? The Web Crypto API is highly configurable offering parameters for a lot of different options. In the future JWCL will continue to have secure and sensible defaults but allow for user customization of all the parameters to the Web Crypto API. This strategy will attempt to protect the novice cryptographer from himself while allowing the expert cryptographer full access to the underlying API.
 
 
 \subsection{Class Based Interface}
 
 
-The JWCL implementation aims to use classes whenever there is stored keys. This allows the user to put the key in the constructor and then forget about it. The WebCrypto API is completely stateless so the user would have to remember to use the proper key for every call. This is pretty stable for all the chosen classes that were implemented.
+The JWCL implementation aims to use classes whenever there is stored keys. This allows the user to put the key in the constructor and then forget about it. The Web Crypto API is completely stateless so the user would have to remember to use the proper key for every call. This is pretty stable for all the chosen classes that were implemented.
 
 
-JWCL also needs more functions and classes. Right now there is support for sha1, sha256, HMAC with sha256, AES-CTR, ECDH with curve p-256, and ECDSA-with curve-p256. Adding classes or at least configurable parameters to allow access to the full WebCrypto API is needed. The largest change would take place in the AES class. Because the CTR implementation uses a stateful counter, the counter must be managed. In the future an extended implementation to, for example AES-CBC would now use an IV and would be completely stateless. To keep the user friendly interface intact, the difference between these two cases should be transparent to the user of JWCL. This will be an interesting challenge to work on. 
+JWCL also needs more functions and classes. Right now there is support for sha1, sha256, HMAC with sha256, AES-CTR, ECDH with curve p-256, and ECDSA-with curve-p256. Adding classes or at least configurable parameters to allow access to the full Web Crypto API is needed. The largest change would take place in the AES class. Because the CTR implementation uses a stateful counter, the counter must be managed. In the future an extended implementation to, for example AES-CBC would now use an IV and would be completely stateless. To keep the user friendly interface intact, the difference between these two cases should be transparent to the user of JWCL. This will be an interesting challenge to work on. 
 
 
 JWCL is a project I intended to separate from this implementation and continue working on. I plan to make the changes discussed in this section as well as improve upon the test suite in the validation section and then open souce JWCL for others to use.
@@ -114,7 +114,7 @@ JWCL is a project I intended to separate from this implementation and continue w
 \subsection{Typescript Issues}
 
 
-Typescript had a issue with the typing for the Webcrypto API. The issue was the types for EcKeyGenParams in the ecc generate function calls. The Typescript typings file had the name of the parameter as typedCurve when the correct name was supposed to be namedCurve. This lead to the issue of either clean compilation and broken code, or compilation errors and clean code.This project needed functional code so that compiler error is ignored for now. I fixed this with this pull request to the Typescript typings github but it has yet to make it down to the production compiler. \cite{ts-pull} 
+Typescript had a issue with the typing for the Web Crypto API. The issue was the types for EcKeyGenParams in the ecc generate function calls. The Typescript typings file had the name of the parameter as typedCurve when the correct name was supposed to be namedCurve. This lead to the issue of either clean compilation and broken code, or compilation errors and clean code.This project needed functional code so that compiler error is ignored for now. I fixed this with this pull request to the Typescript typings github but it has yet to make it down to the production compiler \cite{ts-pull}. 
 
 
 
