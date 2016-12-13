@@ -1,9 +1,15 @@
 \hbox to \linewidth {\hspace {1.5em}Figure\hfill Page}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Promise Example\relax }}{4}{figure.caption.4}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Async Await Example\relax }}{5}{figure.caption.5}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Web Crypto API Example\relax }}{8}{figure.caption.6}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Implementation Architecture\relax }}{17}{figure.caption.4}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Implementation Architecture\relax }}{17}{figure.caption.7}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces JWCL hash Implementation\relax }}{38}{figure.caption.18}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await\relax }}{44}{figure.caption.19}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await Continued\relax }}{45}{figure.caption.20}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

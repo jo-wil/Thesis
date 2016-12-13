@@ -47,31 +47,32 @@
 \BOOKMARK [2][-]{subsection.4.4.3}{jwcl.hash}{section.4.4}% 47
 \BOOKMARK [2][-]{subsection.4.4.4}{jwcl.cipher}{section.4.4}% 48
 \BOOKMARK [2][-]{subsection.4.4.5}{jwcl.ecc}{section.4.4}% 49
-\BOOKMARK [0][-]{chapter.5}{Validation}{}% 50
-\BOOKMARK [1][-]{section.5.1}{Automated Tests}{chapter.5}% 51
-\BOOKMARK [2][-]{subsection.5.1.1}{Server Tests}{section.5.1}% 52
-\BOOKMARK [2][-]{subsection.5.1.2}{Application Tests}{section.5.1}% 53
-\BOOKMARK [2][-]{subsection.5.1.3}{OTR Tests}{section.5.1}% 54
-\BOOKMARK [2][-]{subsection.5.1.4}{JWCL Tests}{section.5.1}% 55
-\BOOKMARK [1][-]{section.5.2}{Manual Tests}{chapter.5}% 56
-\BOOKMARK [2][-]{subsection.5.2.1}{Scenario 1}{section.5.2}% 57
-\BOOKMARK [2][-]{subsection.5.2.2}{Scenario 2}{section.5.2}% 58
-\BOOKMARK [2][-]{subsection.5.2.3}{Scenario 3}{section.5.2}% 59
-\BOOKMARK [0][-]{chapter.6}{Future Work}{}% 60
-\BOOKMARK [1][-]{section.6.1}{Server}{chapter.6}% 61
-\BOOKMARK [2][-]{subsection.6.1.1}{Persistent Data Store}{section.6.1}% 62
-\BOOKMARK [2][-]{subsection.6.1.2}{HTTPS Support}{section.6.1}% 63
-\BOOKMARK [2][-]{subsection.6.1.3}{Service Oriented Architecture}{section.6.1}% 64
-\BOOKMARK [1][-]{section.6.2}{Application}{chapter.6}% 65
-\BOOKMARK [1][-]{section.6.3}{OTR}{chapter.6}% 66
-\BOOKMARK [2][-]{subsection.6.3.1}{Differences from OTR Protocol}{section.6.3}% 67
-\BOOKMARK [2][-]{subsection.6.3.2}{Socialist Millionaires Protocol}{section.6.3}% 68
-\BOOKMARK [1][-]{section.6.4}{JWCL}{chapter.6}% 69
-\BOOKMARK [2][-]{subsection.6.4.1}{Binary Data}{section.6.4}% 70
-\BOOKMARK [2][-]{subsection.6.4.2}{Secure Defaults}{section.6.4}% 71
-\BOOKMARK [2][-]{subsection.6.4.3}{Class Based Interface}{section.6.4}% 72
-\BOOKMARK [2][-]{subsection.6.4.4}{Typescript Issues}{section.6.4}% 73
-\BOOKMARK [0][-]{chapter.7}{Conclusion}{}% 74
-\BOOKMARK [1][-]{section.7.1}{Evaluation}{chapter.7}% 75
-\BOOKMARK [1][-]{section.7.2}{Discussion}{chapter.7}% 76
-\BOOKMARK [0][-]{chapter*.18}{BIBLIOGRAPHY}{}% 77
+\BOOKMARK [2][-]{subsection.4.4.6}{Impact}{section.4.4}% 50
+\BOOKMARK [0][-]{chapter.5}{Validation}{}% 51
+\BOOKMARK [1][-]{section.5.1}{Automated Tests}{chapter.5}% 52
+\BOOKMARK [2][-]{subsection.5.1.1}{Server Tests}{section.5.1}% 53
+\BOOKMARK [2][-]{subsection.5.1.2}{Application Tests}{section.5.1}% 54
+\BOOKMARK [2][-]{subsection.5.1.3}{OTR Tests}{section.5.1}% 55
+\BOOKMARK [2][-]{subsection.5.1.4}{JWCL Tests}{section.5.1}% 56
+\BOOKMARK [1][-]{section.5.2}{Manual Tests}{chapter.5}% 57
+\BOOKMARK [2][-]{subsection.5.2.1}{Scenario 1}{section.5.2}% 58
+\BOOKMARK [2][-]{subsection.5.2.2}{Scenario 2}{section.5.2}% 59
+\BOOKMARK [2][-]{subsection.5.2.3}{Scenario 3}{section.5.2}% 60
+\BOOKMARK [0][-]{chapter.6}{Future Work}{}% 61
+\BOOKMARK [1][-]{section.6.1}{Server}{chapter.6}% 62
+\BOOKMARK [2][-]{subsection.6.1.1}{Persistent Data Store}{section.6.1}% 63
+\BOOKMARK [2][-]{subsection.6.1.2}{HTTPS Support}{section.6.1}% 64
+\BOOKMARK [2][-]{subsection.6.1.3}{Service Oriented Architecture}{section.6.1}% 65
+\BOOKMARK [1][-]{section.6.2}{Application}{chapter.6}% 66
+\BOOKMARK [1][-]{section.6.3}{OTR}{chapter.6}% 67
+\BOOKMARK [2][-]{subsection.6.3.1}{Differences from OTR Protocol}{section.6.3}% 68
+\BOOKMARK [2][-]{subsection.6.3.2}{Socialist Millionaires Protocol}{section.6.3}% 69
+\BOOKMARK [1][-]{section.6.4}{JWCL}{chapter.6}% 70
+\BOOKMARK [2][-]{subsection.6.4.1}{Binary Data}{section.6.4}% 71
+\BOOKMARK [2][-]{subsection.6.4.2}{Secure Defaults}{section.6.4}% 72
+\BOOKMARK [2][-]{subsection.6.4.3}{Class Based Interface}{section.6.4}% 73
+\BOOKMARK [2][-]{subsection.6.4.4}{Typescript Issues}{section.6.4}% 74
+\BOOKMARK [0][-]{chapter.7}{Conclusion}{}% 75
+\BOOKMARK [1][-]{section.7.1}{Evaluation}{chapter.7}% 76
+\BOOKMARK [1][-]{section.7.2}{Discussion}{chapter.7}% 77
+\BOOKMARK [0][-]{chapter*.25}{BIBLIOGRAPHY}{}% 78

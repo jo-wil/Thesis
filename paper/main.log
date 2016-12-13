@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2016.9.20)  11 DEC 2016 17:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2015/dev/Debian) (preloaded format=pdflatex 2016.9.20)  12 DEC 2016 17:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -799,27 +799,27 @@ Writing index file main.idx
 \glo@main@file=\write5
 \openout5 = `main.glo'.
 
-Package glossaries Info: Writing glossary file main.glo on input line 32.
+Package glossaries Info: Writing glossary file main.glo on input line 33.
 (./main.aux (./chapters/introduction.aux) (./chapters/background.aux)
 (./chapters/related-work.aux) (./chapters/implementation.aux)
 (./chapters/validation.aux) (./chapters/future-work.aux)
 (./chapters/conclusion.aux))
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 76.
-LaTeX Font Info:    ... okay on input line 76.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 77.
+LaTeX Font Info:    ... okay on input line 77.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: float package is loaded.
@@ -898,7 +898,7 @@ e
 
 \c@lstlisting=\count344
 \AtBeginShipoutBox=\box48
-Package hyperref Info: Link coloring OFF on input line 76.
+Package hyperref Info: Link coloring OFF on input line 77.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
@@ -907,9 +907,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count345
 )
-LaTeX Info: Redefining \ref on input line 76.
-LaTeX Info: Redefining \pageref on input line 76.
-LaTeX Info: Redefining \nameref on input line 76.
+LaTeX Info: Redefining \ref on input line 77.
+LaTeX Info: Redefining \pageref on input line 77.
+LaTeX Info: Redefining \nameref on input line 77.
 
 (./main.out) (./main.out)
 \@outlinefile=\write6
@@ -920,34 +920,34 @@ LaTeX Info: Redefining \nameref on input line 76.
 \openout4 = `main.ist'.
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 88.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 89.
  (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 88.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 89.
 
 [2]
-LaTeX Font Info:    Try loading font information for U+msa on input line 91.
+LaTeX Font Info:    Try loading font information for U+msa on input line 92.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 91.
+LaTeX Font Info:    Try loading font information for U+msb on input line 92.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Overfull \hbox (216.0877pt too wide) in paragraph at lines 91--91
+Overfull \hbox (216.0877pt too wide) in paragraph at lines 92--92
 []|[] 
  []
 
 
-Overfull \hbox (216.0877pt too wide) in paragraph at lines 91--91
+Overfull \hbox (216.0877pt too wide) in paragraph at lines 92--92
 []|[] 
  []
 
 
-Overfull \hbox (216.0877pt too wide) in paragraph at lines 91--91
+Overfull \hbox (216.0877pt too wide) in paragraph at lines 92--92
 []|[] 
  []
 
@@ -995,50 +995,42 @@ Missing character: There is no ™ in font cmr12!
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 19.
 LaTeX Font Info:    Try loading font information for OML+cmr on input line 21.
 (/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
 File: omlcmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <12> not available
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 21.
  [3
 
 
 
-] [4]
-Overfull \hbox (17.57921pt too wide) in paragraph at lines 58--59
-[][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-[5] [6]
-Overfull \hbox (3.47923pt too wide) in paragraph at lines 112--113
-[][][][][][][][][][][][][][][][][] 
- []
-
-[7] [8]
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
- [9]
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
-Missing character: There is no â in font cmr12!
-Missing character: There is no € in font cmr12!
-Missing character: There is no ™ in font cmr12!
+] [4] [5] [6]
+[7] [8] [9]
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
  [10]
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
+Missing character: There is no â in font cmr12!
+Missing character: There is no € in font cmr12!
+Missing character: There is no ™ in font cmr12!
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
@@ -1069,89 +1061,111 @@ Missing character: There is no ™ in font cmr12!
 
  (./chapters/implementation.tex
 \uppercase {Chapter} 4.
-<figures/architecture.png, id=608, 1104.125pt x 537.00626pt>
+<figures/architecture.png, id=624, 1104.125pt x 537.00626pt>
 File: figures/architecture.png Graphic file (type png)
 
 <use figures/architecture.png>
-Package pdftex.def Info: figures/architecture.png used on input line 8.
+Package pdftex.def Info: figures/architecture.png used on input line 10.
 (pdftex.def)             Requested size: 433.62001pt x 210.89833pt.
  [17
 
 
 
  <./figures/architecture.png>] [18] [19]
-[20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31] [32] [33] [34]
-[35] [36] [37] [38] [39] [40]) [41]
+[20] [21] [22] [23] [24] [25] [26]
+Overfull \hbox (13.14464pt too wide) in paragraph at lines 194--195
+[][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (19.7147pt too wide) in paragraph at lines 198--199
+[][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (32.5147pt too wide) in paragraph at lines 187--212
+ [][] 
+ []
+
+[27] [28] [29] [30] [31] [32] [33] [34] [35] [36] [37] [38] [39] [40] [41]
+[42]
+Overfull \hbox (65.70518pt too wide) in paragraph at lines 459--460
+[][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+) [43] [44] [45]
 \openout2 = `chapters/validation.aux'.
 
  (./chapters/validation.tex
 \uppercase {Chapter} 5.
-[42
+[46
 
 
 
-] [43] [44] [45] [46]) [47]
+] [47] [48] [49] [50]) [51]
 \openout2 = `chapters/future-work.aux'.
 
  (./chapters/future-work.tex
 \uppercase {Chapter} 6.
-[48
+[52
 
 
 
-] [49] [50] [51] [52] [53] [54]) [55]
+] [53] [54] [55] [56] [57] [58]) [59]
 \openout2 = `chapters/conclusion.aux'.
 
  (./chapters/conclusion.tex
 \uppercase {Chapter} 7.
-[56
+[60
 
 
 
-]) [57]) (./main.bbl
+]) [61]) (./main.bbl
 Missing character: There is no â in font cmr12!
 Missing character: There is no € in font cmr12!
 Missing character: There is no ™ in font cmr12!
- [58
+ [62
 
 
-] [59]) (./appendix-outline.tex)
+] [63]) (./appendix-outline.tex)
 
 Package glossaries Warning: No \printglossary or \printglossaries found.
 (Remove \makeglossaries if you don't want any glossaries.)
 This document will not have a glossary.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 136.
-[60]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 136.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 137.
+[64]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 137.
  (./main.aux (./chapters/introduction.aux) (./chapters/background.aux)
 (./chapters/related-work.aux) (./chapters/implementation.aux)
 (./chapters/validation.aux) (./chapters/future-work.aux)
 (./chapters/conclusion.aux))
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 136.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 136.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 137.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 137.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 9A9742D13AD26AB87FB449A5522AD935;4919.
+(rerunfilecheck)             Checksum: 54C2D1630850938E038203D63CC05908;4979.
  ) 
 Here is how much of TeX's memory you used:
- 16615 strings out of 493105
- 255397 string characters out of 6137072
- 448055 words of memory out of 5000000
- 19493 multiletter control sequences out of 15000+600000
- 10152 words of font info for 38 fonts, out of 8000000 for 9000
+ 16700 strings out of 493105
+ 256641 string characters out of 6137072
+ 470055 words of memory out of 5000000
+ 19510 multiletter control sequences out of 15000+600000
+ 11400 words of font info for 43 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 46i,11n,42p,2214b,1661s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 46i,16n,42p,2214b,1331s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmti12.pfb>
-Output written on main.pdf (70 pages, 232766 bytes).
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmti12.pfb>
+Output written on main.pdf (74 pages, 272205 bytes).
 PDF statistics:
- 927 PDF objects out of 1000 (max. 8388607)
- 837 compressed objects within 9 object streams
- 252 named destinations out of 1000 (max. 500000)
- 622 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1053 PDF objects out of 1200 (max. 8388607)
+ 956 compressed objects within 10 object streams
+ 320 named destinations out of 1000 (max. 500000)
+ 630 words of extra memory for PDF output out of 10000 (max. 10000000)
 

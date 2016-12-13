@@ -13,9 +13,9 @@ This chapter discusses some of the concepts, tools, and API’s used in developm
 Javascript executes on a single thread. To keep the user interface responsive during computation long running computations in javascript are performed asynchronously. Promises are a type that functions in Javascript can now return as a promise that they will complete the asynchronous operation in the future. The Promise API has come along to assist developers in writing readable code while taking full advantage of asynchronous operations. Let’s look a a basic promise example.
 
 
-\begin{lstlisting}
-
-
+\begin{figure}[!htbp]
+\centering
+\begin{lstlisting}[basicstyle=\small]
 var asyncAddOne = funciton (num) {
    return new Promise(function (resolve, reject) {
       if (num < 10) {
@@ -26,8 +26,6 @@ var asyncAddOne = funciton (num) {
       }  
    }); 
 }; 
-
-
 asyncAddOne(1)
 .then( (result) => {
    console.log(result); // will print 2
@@ -35,12 +33,13 @@ asyncAddOne(1)
 .catch( (error) => {
   console.error(error);
 });
-
-
 \end{lstlisting}
+\caption{Promise Example}
+\label{fig:promise}
+\end{figure}
 
 
-This example shows the basic pattern of creating an asynchronous function and how to call it. The function asyncAddOne takes a number as a parameter. This number is checked to be less than 10. If that is the case the function doSomethingThatTakesALongTime is called then returns the number plus 1 by calling the resolve function. If the number is greater than 10 reject is called with the error message "$num > 10$". The anonymous function passed to then will be called if resolve is called in the promise with result being the value passed to resolve. The anonymous function passed to catch will be called if reject is called with the value passed to reject as the error value. The function call doSomethingThatTakesALongTime could be replaced with a network request or computationally expensive mathematical operations.
+The example in figure \ref{fig:promise} shows the basic pattern of creating an asynchronous function and how to call it. The function asyncAddOne takes a number as a parameter. This number is checked to be less than 10. If that is the case the function doSomethingThatTakesALongTime is called then returns the number plus 1 by calling the resolve function. If the number is greater than 10 reject is called with the error message "$num > 10$". The anonymous function passed to then will be called if resolve is called in the promise with result being the value passed to resolve. The anonymous function passed to catch will be called if reject is called with the value passed to reject as the error value. The function call doSomethingThatTakesALongTime could be replaced with a network request or computationally expensive mathematical operations.
 
 
 Now Promises are nice and definitely an improvement over the callback centric patterns of the past but even Promises have their issues as the chain of calls to then can get quite long if there are a lot of asynchronous computations that need to be performed in order. The next specification for the Javascript language has support for syntax called async await that makes asynchronous operations even easier to work with and reason about than the Promise API currently available.
@@ -51,31 +50,28 @@ Now Promises are nice and definitely an improvement over the callback centric pa
 
 Async await is the latest syntax for writing and calling asynchronous functions in Javascript. Let's take a look at the same example used above written with the async await syntax \cite{js-asyncawait}.
 
-
-\begin{lstlisting}
-
-
+\begin{figure}[!htbp]
+\centering
+\begin{lstlisting}[basicstyle=\small]
 var asyncAddOne = async function (num) { // Notice async keyword
-    if (num < 10) {
-         doSomethingThatTakesALongTime(num);
-         return num + 1;
-      } else {
-         throw new Error("num > 10");
-      }   
-}   
-
-
+   if (num < 10) {
+      doSomethingThatTakesALongTime(num);
+      return num + 1;
+   } else {
+      throw new Error("num > 10");
+   }   
+};   
 try {
    console.log(await asyncAddOne(1)); // will print 2
 } catch (error) {
    console.error(error);
 }
-
-
 \end{lstlisting}
+\caption{Async Await Example}
+\label{fig:asyncawait}
+\end{figure}
 
-
-This example shows how with this new syntax it has become trivial to turn synchronous code into asynchronous code. Other than adding the async keyword to the function definition and adding the await keyword before the function call the syntax reads exactly the same as if this code was synchronous. The only issue with this is right now browsers do not support this syntax. How this syntax was used is talked about in the Typescript section of this chapter. This syntax was really important to this project though because all of the Web Crypto API function calls are asynchronous, so using this syntax allowed the focus of development to be on getting the cryptography correct and not handling asynchronous function calls correctly.
+The example in figure \ref{fig:asyncawait} shows how with this new syntax it has become trivial to turn synchronous code into asynchronous code. Other than adding the async keyword to the function definition and adding the await keyword before the function call the syntax reads exactly the same as if this code was synchronous. The only issue with this is right now browsers do not support this syntax. How this syntax was used is talked about in the Typescript section of this chapter. This syntax was really important to this project though because all of the Web Crypto API function calls are asynchronous, so using this syntax allowed the focus of development to be on getting the cryptography correct and not handling asynchronous function calls correctly.
 
 
 \section{Binary Data in Javascript}
@@ -102,9 +98,9 @@ The Web Crypto API provides a low level interface to cryptographic operations an
 The design of the API is to overload these functions. These functions all work on Array Buffers as their input and output types. These functions are also all asynchronous and return Promises. To see how this API functions let's look at an example, the crypto.subtle.encrypt function.
 
 
-\begin{lstlisting}
-
-
+\begin{figure}[!htbp]
+\centering
+\begin{lstlisting}[basicstyle=\small]
 window.crypto.subtle.encrypt({
         name: "AES-CBC",
         //Don't re-use initialization vectors!
@@ -121,12 +117,13 @@ window.crypto.subtle.encrypt({
 .catch(function(err){
     console.error(err);
 });
-
-
 \end{lstlisting}
+\caption{Web Crypto API Example}
+\label{fig:wcexample}
+\end{figure}
 
 
-This example was gotten from \cite{aes-example}.
+This example in \ref{fig:wcexample} was gotten from \cite{aes-example}.
 
 
 This example shows the overloaded nature of the function. This first parameter is a Javascript object containing the options for encrypt. In this case the name was "AES-CBC", since CBC mode takes an IV, this is also passed in. If the mode was CTR then a counter would be passed in. A side effect of this is the user of this API needs to have knowledge of the different encryption methods and what parameters they require. This function is also used for public private key encryption as well. In the case of RSA the same function is called with different options. These functions are very overloaded. In the example it is shown how the input data and output encrypted data are Array Buffers. Also notice the then function that is called, this is because the encrypt function returns a promise. All of the other Web Crypto API functions provide a similar overloaded interface and their respective call signatures can be seen in the specification \cite{webcrypto-overview}.

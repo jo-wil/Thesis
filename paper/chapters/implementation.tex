@@ -3,7 +3,9 @@
 
 This chapter discusses the messaging application implementing the OTR messaging protocol. The implementation was broken into four distinct pieces. The application server that provides authentication and message passing functionality. The application client that provides the user interface and the application functionality. The OTR implementation that provides the cryptographic messaging functionality. The JWCL wrapper that make the native Web Crypto API more usable to the OTR implementation. All source code can be found on github at https://github.com/jo-wil/Thesis.
 
-\begin{figure}[ht]
+<TODO write about this figure>
+
+\begin{figure}[!htbp]
     \centering
     \includegraphics[width=1\textwidth]{architecture.png}
     \caption{Implementation Architecture}
@@ -177,7 +179,40 @@ For the following sections describing the authenticated key exchange implementat
 \subsection{Authenticated Key Exchange State 1}
 
 
-In this state Bob starts by generating a random key that will be called R. Bob then generates an ECDH key pair called GX. The public part of GX is encrypted using R as that key, that value will be called aesGx. The public part of GX is also hashed using SHA256 that value will be called hashGx. Bob stores R and GX in his local storage. Bob also places GX in his key storage as his current key pair with Alice. Bob then generates his next key pair for the conversation and stores that as well. The network out object type field is set to "ake1". The aesGx and hashGx fields of network out are set to the their corresponding values.
+In this state Bob starts by generating a random key that will be called R. Bob then generates an ECDH key pair called GX. The public part of GX is encrypted using R as that key, that value will be called aesGx. The public part of GX is also hashed using SHA256 that value will be called hashGx. Bob stores R and GX in his local storage. Bob also places GX in his key storage as his current key pair with Alice. Bob then generates his next key pair for the conversation and stores that as well. The network out object type field is set to "ake1". The aesGx and hashGx fields of network out are set to the their corresponding values. The table \ref{table:ake1} shows the specification in the protocol as well as the implementation. This figure is an example of how the protocol was translated to Typescript.
+
+
+\begin{table}[!htbp]
+\centering
+\begin{tabular}{|c|} 
+ \hline
+ Picks a random value r (128 bits) \\ 
+ Picks a random value x (at least 320 bits) \\ 
+ Sends Alice AESr(gx), HASH(gx) \\
+ \hline 
+ \begin{lstlisting}[basicstyle=\small]
+ export const ake1 = async function (local, networkIn, networkOut) {
+      const r = jwcl.random(16);
+      const gx   = await jwcl.ecc.ecdh.generate();
+      local.ourKeys[local.ourKeyId - 1] = gx;
+      local.ourKeys[local.ourKeyId] = await jwcl.ecc.ecdh.generate();
+      const aes  = new jwcl.cipher.aes(r);
+      const aesGx = await aes.encrypt(gx.publicKey);
+      const hashGx = await jwcl.hash.sha256(gx.publicKey);
+      local.r = r;
+      local.gx = gx;
+      networkOut.type = 'ake1';
+      networkOut.aesGx = aesGx;
+      networkOut.hashGx = hashGx;
+   };
+ \end{lstlisting}
+  \\
+  \hline
+\end{tabular}
+\caption{Authenticated Key Exchange 1 Implementation}
+\label{table:ake1}
+\end{table}
+
 
 
 \subsection{Authenticated Key Exchange State 2}
@@ -315,6 +350,21 @@ Sign returns a Promise of type string which is the signature. Sign takes one par
 
 Verify returns a Promise of type boolean which is whether or not the signature verifies. Verify takes two parameters which are the signature and the plaintext both of type string. The process of creating the CryptoKey is exactly the same as in sign except the action parameter is set to "verify" and not "sign". After this is done the Web Crypto verify function is called. This function takes four parameters name, key, signature, and plaintext. The name is set to "HMAC" since that is the verification the class performs. The key is set to the CryptoKey. The plaintext and signature both came is as strings and this function takes TypedArrays. Since the resulting signature in sign was base64 encoded b64tob is called to translate the signature to a TypedArray. The plaintext on the other hand is a regular string so stob is used. The result of the Web Crypto verify is a boolean and that is what is returned.
 
+The figure \ref{fig:jwcl.hash} shows an example of the internal JWCL code. Notice the type of the plaintext is a string and the return type is a string. The output string will be a base64 encoded. In the internal function code the plaintext string is converted into it's binary representation and then the resulting binary value is converted to a base64 encoded string. All of the JWCL modules handle these type conversions automatically so the input and output can always be network portable.
+
+\begin{figure}[!htbp]
+\centering
+ \begin{lstlisting}[basicstyle=\small]
+const hash = 
+async function(name: string, plaintext: string): Promise<string> {
+   return utils.btob64(new Uint8Array(await crypto.digest({
+      name: name
+   }, utils.stob(plaintext))));
+};
+ \end{lstlisting}
+\caption{JWCL hash Implementation}
+\label{fig:jwcl.hash}
+\end{figure}
 
 \subsection{jwcl.cipher}
 
@@ -357,4 +407,68 @@ The sign function takes one parameter of type string as input. This is the plain
 
 
 The verify function takes two parameters signature and plaintext and returns a Promise of typed boolean signifying if the signature verified or not. The public key is used for signature verification so that is converted to a CryptoKey in the same way the private key was in sign. Next the Web Crypto verify function is called. This function takes five parameters, name, hash, public key, signature, and plaintext. The name and hash are set to the same values as sign. The public key is set to the CryptoKey representation of the public key. Both the signature and plaintext expected TypedArray so the input must be converted. This is done by calling b64tob for the signature since it was base64 encoded, stob is used for the plaintext. The boolean result of verify is returned.
- 
+
+\subsection{Impact}
+
+Figures \ref{fig:ake1njaa} and \ref{fig:ake1njaactd} show an example of the OTR implementation code before the implementation of JWCL and the adoption of the async await syntax. This code does the same things as the code in \ref{table:ake1}. This example shows how much the development of JWCL optimized the code quality and length of the OTR implementation. 
+
+<TODO talk about the story of not having to look up all the parameters for basic usage>
+
+\begin{figure}[!htbp]
+\centering
+ \begin{lstlisting}[basicstyle=\small]
+promise = new Promise(function (resolve, reject) {
+   let r, gx;
+   // Picks a random value r (128 bits)
+   let pickR = function () {
+      return window.crypto.subtle.generateKey({
+         name: 'AES-CTR', length: 128
+      }, true, ['encrypt', 'decrypt']);
+   }.bind(this);  
+   // Picks a random value x (at least 320 bits)
+   let pickGX = function () {
+      return window.crypto.subtle.generateKey({
+         name: 'ECDH', namedCurve: 'P-256'
+      }, true, ['deriveKey', 'deriveBits']);
+   }.bind(this);
+   let encryptGX = function (r, gx) {
+      let encoder = new TextEncoder();
+      let plaintext = encoder.encode(gx);
+      let counter = new Uint8Array(16);
+      counter[0] = 0;
+      return window.crypto.subtle.encrypt(
+         {name: "AES-CTR", counter: counter, length: 128},
+         r, plaintext)   
+   }.bind(this);
+ \end{lstlisting}
+  \caption{Authenticated Key Exchange 1 Implementation Without JWCL or Async Await}
+\label{fig:ake1njaa}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+ \begin{lstlisting}[basicstyle=\small]
+Promise.all([pickR(), pickGX()])
+   .then(function (results) {
+      r = results[0];
+      gx = results[1];
+      this._data.r = r;
+      this._data.gx = gx;
+      // Export GX, todo encrypt 
+      return window.crypto.subtle.exportKey(
+         'jwk', gx.publicKey);
+   }.bind(this)).then(function (result) {
+      return Promise.all([encryptGX(this._data.r, JSON.stringify(result))]);
+   }.bind(this)).then(function (results) {
+      let otr = {};
+      let decoder = new TextDecoder();
+      otr.test = decoder.decode(new Uint8Array(results[0])); 
+      data.otr = otr;
+      resolve(data);
+   }.bind(this));
+}.bind(this));
+ \end{lstlisting}
+  \caption{Authenticated Key Exchange 1 Implementation Without JWCL or Async Await Continued}
+\label{fig:ake1njaactd}
+\end{figure}
+
