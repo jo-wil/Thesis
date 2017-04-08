@@ -3,55 +3,55 @@
 \chapter{Future Work}
 
 
-This chapter discusses future improvements to the project that could help it become a production level, real world application.
+This chapter discusses future improvements to the project that could enable it to become a production level, real world application.
 
 
 \section{Server}
 
 
-The server part of this application works well, but is missing a lot of features that a deployable server side would need. These features are a persistent data store, HTTPS support, and separation of services.
+The server part of this application works well, but is missing a lot of features that a deployable server side would need. These features include, but are not limited to a persistent data store, HTTPS support, and separation of services.
 
 
 \subsection{Persistent Data Store}
 
 
-The server uses a python dictionary object as a database right now. The result of this is that every time the server is restarted the database is reset. If the server were to actually be deployed as a real application this would not work. The data model is simple, there is just storage of username, password hashes, and public keys. This could easily be built into a relational or noSQL database engine. One note here is that the websocket instance would not be stored in the persistent storage. This is because websocket instances are not serializable and as soon as someone logs off the instance is destroyed.
+The server uses a python dictionary object as a database right now. The result of this is that every time the server is restarted the database is reset. If the server were to actually be deployed as a real application this would not work. The data model is simple, there is storage of username, password hashes, and public keys. This could easily be built into a relational or noSQL database engine. One note here is that the websocket instance would not be stored in the persistent storage. This is because websocket instances are not serializable and as soon as someone logs off the instance is destroyed.
 
 
 \subsection{HTTPS Support}
 
 
-HTTPS support is a critical part of the security of this application. The OTR protocol relies on the authenticated transfer of the long term public keys. Since the server handles this action, HTTPS between the server and the clients is important to ensure the public keys are correct and OTR can complete the authenticated key exchange correctly. HTTPS support could be added by placing the Python application behind a reverse proxy such as Nginx \cite{nginx}. Nginx has HTTPS support out of the box and is easily configurable to use. This is how HTTPS would be added.
+HTTPS support is a critical part of the security of this application. The OTR protocol relies on the authenticated transfer of the long term public keys. Since the server handles this action, HTTPS between the server and the clients is important to ensure the public keys are correct and OTR can complete the authenticated key exchange correctly. HTTPS support could be added by placing the Python application behind a reverse proxy such as Nginx \cite{nginx}. Nginx has HTTPS support out of the box and is easily configurable to use. This is how HTTPS could be added.
 
 
 \subsection{Service Oriented Architecture}
 
 
-Right now both the authentication and messaging take place in the same application context. While there is nothing inherently wrong with this, separating them has benefits. The separation of responsibility between two applications would make development changes easier to reason about. 
+Right now both the authentication and messaging take place in the same application context. While there is nothing inherently wrong with this, separating them has benefits. The separation of responsibility between two applications would make future development and scaling easier. 
 
 
-The changes needed to implement the server as a service oriented architecture start at the database and go from there. First the database would have to be separated. There would need to be two databases, one holding the usernames and password hashes and another holding the public keys and any other messaging transactional data. Next the Json Web Token implementation would have to be updated to support asymmetric key pairs. Separating the message service from the authentication service would entail the messaging service gets the authentication public key and uses that to verify the JWT signature. Other than this is would be just writing two separate Python files and running them on different ports. Then using Nginx as the proxy the correct service would be ran based on the URI. 
+The changes needed to implement the server as a service oriented architecture start at the database and go from there. First the database would have to be separated. There would need to be two databases, one holding the usernames and password hashes and another holding the public keys and any other messaging transactional data. Next the JWT implementation would have to be updated to support asymmetric key pairs. Separating the message service from the authentication service would entail the messaging service gets the authentication service public key and uses that to verify the JWT signature. Other than this, it would be writing two separate Python files and running them on different ports. Then, using Nginx as the proxy the correct service would be executed based on the URI. 
 
 
 \section{Application}
 
 
-The application part of the this implementation is very barebones and was built to show the functionality of the underlying OTR and JWCL implementations. 
+The application part of the this implementation is very barebones and was built to show the functionality of the underlying OTR and JWCL implementations and not much else. 
 
 
-The first improvement would be to add an interface for users to interact with signup API on the entry page. Right now test users are signed up through the tests scripts making calls to the API. This would not be a complicated undertaking but is an improvement to make the application usable to real users.
+The first improvement, would be to add an interface for users to interact with the signup API on the entry page. Right now test users are signed up through the tests scripts making calls to the API. This would not be a complicated undertaking, but is an improvement to make the application usable to real users.
 
 
-On the chat page, the app has a list of the available users and their status at the top, this information is fine but the way it is displayed could be better. An issue can arise when the user tries to send a message. Right now the user must correctly type in the desired recipient's username. If there is a typo by the user, their message would not reach the desired recipient and they could become frustrated with the application. A feature where the user can click on the desired recipient or was provided with a searchable dropdown in the "to" form field would help alleviate this issue.
+On the chat page, the application has a list of the available users and their status at the top, this information is fine but the way it is displayed could be better. An issue can arise when the user tries to send a message. Right now the user must correctly type in the desired recipient's username. If there is a typo by the user, their message would not reach the desired recipient and they could become frustrated with the application. A feature where the user can click on the desired recipient or was provided with a searchable dropdown in the to form field would help alleviate this issue.
 
 
-Another improvement in the chat UI would be the concept of conversations. The chat box now just appends the most recent message with the To and From users next to the plaintext. It would make it much more pleasant to view conversations if they only consisted of one person. Think back to your old flip phone and how annoying texting was before conversations were added to phones.
+Another improvement in the chat UI, would be the concept of conversations. The chat box appends the most recent message with the to and from fields directly next to the plaintext. It would make it much more pleasant to view conversations, if they only consisted of one recipient. Think back to your old flip phone and how annoying texting was before the concept of conversations were added to phones.
 
 
-The application could also fail more gracefully. Right now an error message is displayed to the user but sometimes an error can leave the application in a bad state. In these cases a page refresh is needed to reset the client. Error handling needs improvement to ensure that the application is always left in a functional state.
+The application could also fail more gracefully. Right now an error message is displayed to the user, but sometimes an error can leave the application in a bad state. In these cases a page refresh is needed to reset the client. Error handling needs improvement to ensure that the application is always left in a functional state.
 
 
-There are message storage features that the application could provide but these have security considerations so they are discussed here and left up to the future worker to decided if they should be implemented. The feature discussed here will be the storage of old messages. OTR discards all old key material so as soon as a message is read and the keys are cycled, that message can never be retrieved again. From a user perspective this could provide a poor experience if every time the application was closed all past message history was deleted. A option to alleviate this problem could be to use a KDF on the user's password and store the messages on the client by encrypting them using the symmetric key generated by the KDF. This is a reasonable option, but one thing to consider is what do you do in the case of the user forgetting a password? Now all of the saved messages are still lost. This shows how storing anything in this application leads to a lot of decisions about the tradeoffs of security and usability.
+There are message storage features that the application could provide but these have security considerations, so they are discussed here and left up to the future worker to decided if they should be implemented. The feature discussed here will be the storage of old messages. OTR discards all old key material so as soon as a message is read and the keys are cycled, that message can never be retrieved again. From a user perspective this could provide a poor experience, if every time the application was closed all past message history was deleted. A option to alleviate this problem could be to use a KDF with the user's password and store the messages on the client, by encrypting them using the generated key. This is a reasonable option, but a consideration is what do you do in the case of the user forgetting a password? Now all of the saved messages are again lost. This shows how storing anything in this application leads to a lot of decisions about the tradeoffs of security and usability. Future research in this area is needed.
 
 
 \section{OTR}
@@ -60,52 +60,52 @@ There are message storage features that the application could provide but these 
 \subsection{Differences from OTR Protocol}
 
 
-This implementation diverges slightly from the protocol description \cite{otr-protocol}. There are two area's where the implementation differs. The first is the use of elliptic curve cryptography for the diffie hellman and dsa primitives. The second is the state machine handling the conversation.
+This implementation diverges slightly from the protocol description \cite{otr-protocol}. There are two area's where this implementation differs. The first, is the use of elliptic curve cryptography for the diffie hellman and digital signing algorithm primitives. The second, is the state machine handling the conversation.
 
 
-In the protocol the authors use diffie hellman and dsa over the set of integers. This implementation used the elliptic curve set, simply because chromium has not and will not support either of these algorithms over the set of integers in the future. According to the developer documentation is "No longer part of the spec" \cite{webcrypto-chromium}. A side effect of this is that public private key pair generation in ake1 and ake2 is done by calling a generate function rather than doing the modular multiplication of g to the x and y respectively ourselves. The results are logically the same though as the public private key pair are still available to the implementation.  
+In the protocol, the authors use DH and DSA over the set of integers. This implementation used the elliptic curve set, because chromium has not and will not support either of these algorithms over the set of integers in the future. According to the developer documentation, support of traditional diffie hellman is "No longer part of the spec" \cite{webcrypto-chromium}. A side effect of this, is that public private key pair generation in ake1 and ake2 is done by calling a generate function rather than doing the modular multiplication of g to the x and y respectively. The results are logically the same, as the public private key pair are still available to the implementation.  
 
 
-The state machine was implemented in a simpler manner to the OTR specification but because of the limitations of this implementation there were some states omitted. In the protocol specification, the state machine is more fault tolerant and more generic. This implementation is more constrained in what input it can handle. An example can be used to illustrate this. In this implementation if "ake2" is received but "ake3" was expected the implementation would crash. The protocol would handle this situation based upon its internal state variables. An interesting thing about the protocol is that there are situations in which ignoring the message is the specified action. The reason behind this implementation not currently handling this is the fact there is not a direct API to the OTR functions. Since users interact with the send and receive functions only there is no way for a honest client to send an out of order message. In the case of a malicious client sending an out of order message availability would be affected as the application could crash but confidentiality and integrity of past messages would not change. 
+The state machine was implemented to the OTR specification, but because of the limitations of this implementation there were some states omitted. In the protocol specification, the state machine is more fault tolerant and more generic. This implementation is more constrained in what input it can handle. An example will be used to illustrate this. In this implementation if, "ake2" is received but "ake3" was expected the implementation would crash. The official OTR protocol, would handle this situation based upon its internal state variables. An interesting note about the protocol is that there are situations in which ignoring the message is the specified action. The reason behind this implementation not currently handling this is the fact there is not a direct API to the OTR functions. Since users interact with the send and receive functions only there is no way for a honest client to send an out of order message. In the case of a malicious client sending an out of order message availability would be affected as the application could crash but confidentiality and integrity of past messages would not change. 
 
 
-The state machine needs to be improved to function to the specification of the protocol if the OTR implementation is to be completely decoupled from the application implementation. This work would make the implementation more robust and specification compliant as well as more portable for others to use in their applications.
+The state machine needs to be improved to function exactly as specified by the protocol if the OTR implementation is to be completely decoupled from the application implementation. This work would make the implementation more robust and specification compliant, as well as more portable for others to use in their applications.
 
 
 \subsection{Socialist Millionaires Protocol}
 
 
-The OTR specification also has another protocol in it called the Socialist Millionaires Protocol. This protocol is used to test if x equals y, without revealing any other information than the value of x equals y. So if x and y are secret and if x is not equal to y, Alice and Bob gain no information about the other's secret. This can be used during OTR if Alice or Bob suspect impersonation or man in the middle attacks. They can use the Socialist Millionaires Protocol to check secret information for equality. There was no work done on this protocol in this thesis but it could be a nice future project to implement.
+The OTR specification also has another protocol in it called the Socialist Millionaires Protocol. This protocol is used to test if x equals y, without revealing any other information than the value of x equals y. So if x and y are secret and if x is not equal to y, Alice and Bob gain no information about the other's secret. This can be used during OTR if Alice or Bob suspect impersonation or man in the middle attacks. They can use the Socialist Millionaires Protocol to check secret information for equality. There was no work done on this protocol in this thesis, but it could be a nice future project to implement.
 
 
 \section{JWCL}
 
 
-JWCL was developed to make the native Web Crypto API easier to work with. The main issues that JWCL tries to solve from working with the Web Crypto API directly are transparent handling of binary data, secure defaults for all optional parameters, and to provide a class based interface.
+JWCL was developed to make the native Web Crypto API easier to work with. The main issues that JWCL tries to solve are transparent handling of binary data, secure defaults for all optional parameters, and providing a class based interface.
 
 
 \subsection{Binary Data}
 
 
-The JWCL implementation in this project handles binary data without issues but there are some tradeoffs. The binary data is handled transparently in all the functions but it is base64 encoded. To get back to the Typed Arrays of Javascript calls to the utility b64tob functions must be made. In the future the output type of JWCL would be customizable. In the case of sending output over the network base64 encoding is a nice approach for its url safety. In the case of working only in one browser it is a lot of overhead to constantly encode and decode base64 to work on the raw data. In this case it would be nice to be able to configure JWCL to output the raw binary data.
+The JWCL implementation in this project handles binary data without issues, but there are some tradeoffs. The binary data is handled transparently in all the functions, but it is base64 encoded. To get back to the Typed Arrays of Javascript, calls to the utility b64tob functions must be made. In the future the output type of JWCL could be customizable. In the case of sending output over the network base64 encoding is a solid approach for its url safety. In the case of working only in one browser, there is overhead to constantly encode and decode base64, to be able to work on the raw data. In this case, it would be good to be able to configure JWCL, to output raw binary data.
 
 
-The JWCL implementation handling of keys, especially public and private keys faces a similar issue. It is a non configurable option that what is returned is a base64 encoded representation of the keys. This is fine if you are only working with JWCL. It is not fine in the case that the raw API would like to be mixed with JWCL because the decode process to get back to a CryptoKey instance is non trivial. In the future this would be another customizable parameter. This parameter would allow the user to configure what output format she expects her key output to be. 
+The JWCL implementation handling of keys, especially public and private keys faces a similar issue. It is a non configurable option, that what is returned is a base64 encoded representation of the keys. This is fine if you are only working with JWCL. It is not fine, in the case that the raw API would like to be mixed with JWCL because the decode process to get back to a CryptoKey instance is non trivial. In the future, this could be another customizable parameter. This parameter would allow the user to configure what output format she expects her key output to be. 
 
 
 \subsection{Secure Defaults}
 
 
-The JWCL implementation has a lot of default parameters. An example is in the HMAC class sha256 is used as the hash. This is non configurable. While this is a sensible default, what if someone wanted to use sha1 for compatibility with other systems? The Web Crypto API is highly configurable offering parameters for a lot of different options. In the future JWCL will continue to have secure and sensible defaults but allow for user customization of all the parameters to the Web Crypto API. This strategy will attempt to protect the novice cryptographer from himself while allowing the expert cryptographer full access to the underlying API.
+The JWCL implementation has a lot of default parameters. An example is in the HMAC class, sha256 is used as the hash. This is non configurable. While this is a sensible default, what if someone wanted to use sha1 for compatibility with other systems? The Web Crypto API is highly configurable, offering parameters for a lot of different options. In the future, JWCL could continue to have secure and sensible defaults but allow for user customization of all the parameters to the Web Crypto API. This strategy will attempt to protect the novice cryptographer from himself, while allowing the expert cryptographer full access to the underlying API.
 
 
 \subsection{Class Based Interface}
 
 
-The JWCL implementation aims to use classes whenever there is stored keys. This allows the user to put the key in the constructor and then forget about it. The Web Crypto API is completely stateless so the user would have to remember to use the proper key for every call. This is pretty stable for all the chosen classes that were implemented.
+The JWCL implementation aims to use classes whenever there is stored state. This allows the user to put the key in the constructor and then forget about it. The Web Crypto API is completely stateless so the user would have to remember to use the proper key for every call. This is pretty stable for all the chosen classes that were implemented.
 
 
-JWCL also needs more functions and classes. Right now there is support for sha1, sha256, HMAC with sha256, AES-CTR, ECDH with curve p-256, and ECDSA-with curve-p256. Adding classes or at least configurable parameters to allow access to the full Web Crypto API is needed. The largest change would take place in the AES class. Because the CTR implementation uses a stateful counter, the counter must be managed. In the future an extended implementation to, for example AES-CBC would now use an IV and would be completely stateless. To keep the user friendly interface intact, the difference between these two cases should be transparent to the user of JWCL. This will be an interesting challenge to work on. 
+JWCL also needs more functions and classes. Right now there is support for sha1, sha256, HMAC with sha256, AES-CTR, ECDH with curve p-256, and ECDSA-with curve-p256. Adding classes or at least configurable parameters to allow access to the full Web Crypto API is needed. The largest change would take place in the AES class. Because the CTR implementation uses a stateful counter, the counter must be managed. In the future an extended implementation to, for example AES-CBC would now use an IV and would be completely stateless. To keep the user friendly interface intact, the difference between these two cases should be transparent to the user of JWCL. This would be an interesting challenge to work on. 
 
 
 JWCL is a project I intended to separate from this implementation and continue working on. I plan to make the changes discussed in this section as well as improve upon the test suite in the validation section and then open souce JWCL for others to use.

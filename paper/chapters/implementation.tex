@@ -79,7 +79,7 @@ If the action is equal to "register" the registration workflow is started. The u
 If the action is equal to "message" the messaging workflow is started. In this workflow the "to" field of the data is checked to determine who to send this message to. The recipients websocket instance is retrieved from the database and the message is forwarded unchanged, with the exception of deleting the JWT token from the message, as this is used for authentication with only the server and should remain private.
 
 
-\subsection{Error conditions}
+\subsubsection{Error conditions}
 
 
 This endpoint has three points of failure in the two workflows. The first two have to do with authentication. If the user doesn't provide a token the error message "auth no token" is returned. If the user's token does not validate the error message "auth invalid token" is returned. The third error is in the messaging workflow. If a user attempts to send a message to a user that is not online the error message "unavailable" is returned.
@@ -259,7 +259,7 @@ The OTR class is the go between that lets the application talk to the OTR functi
 The constructor takes no arguments and creates an empty conversations object. The conversations object is a key value mapping between the username of recipients and their corresponding conversation information. There are two functions that the OTR class has which are send and receive. They both take the same list of parameters which are ws, token, contacts, username, longKey, message. Ws is the websocket connection. Token is the JWT. Contacts is a list of all the active user objects in the system. Username is the username for the active user. LongKey is public private key pair for the active user. Message is the message object being passed in from the application. The message object has the fields action, token, from, to, and text. The send and receive functions in this class add one field to the message object called otr, this holds all of the otr information from the ake1-5 and ed1-2 network out parameters. So how this is related to the function signatures of each of our states mentioned above is as follows. The conversations objects mapping is used as the local store, the otr object is the receiving case is the network in object, the otr object in the sending case is set to the network out object.  
 
 
-\subsubsection{send}
+\subsubsection{Send}
 
 
 The send function has two cases to handle, which are a new conversation and a continuing conversation.
@@ -274,7 +274,7 @@ In the case of a continuing conversation ed1 is called to encrypt the message. T
 A new message object is created with the fields action, token, from, to and otr. Action, token, from, and to are set to the identical fields from the message object that was passed in. Otr is set to the otr object that was created. This object is returned back to application to actually be sent.
 
 
-\subsubsection{receive}
+\subsubsection{Receive}
 
 
 The receive function has six cases to handle, which are based on the type of message that is received. These are "query", "ake1", "ake2", "ake3", "ake4", and "ed1".

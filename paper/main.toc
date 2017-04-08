@@ -19,77 +19,76 @@
 \contentsline {subsection}{\numberline {2.8.1}Encrypted Messaging Properties}{12}{subsection.2.8.1}
 \contentsline {subsection}{\numberline {2.8.2}Protocol}{13}{subsection.2.8.2}
 \contentsline {section}{\numberline {2.9}Trust Model}{13}{section.2.9}
-\contentsline {chapter}{\numberline {3}Related Work}{14}{chapter.3}
-\contentsline {section}{\numberline {3.1}Signal Protocol}{14}{section.3.1}
-\contentsline {section}{\numberline {3.2}Allo Google Chat}{15}{section.3.2}
-\contentsline {section}{\numberline {3.3}SJCL}{16}{section.3.3}
-\contentsline {chapter}{\numberline {4}Implementation}{17}{chapter.4}
-\contentsline {section}{\numberline {4.1}Application Server}{18}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}/api/login}{18}{subsection.4.1.1}
-\contentsline {subsubsection}{Success Flow}{18}{subsubsection*.8}
-\contentsline {subsubsection}{Error conditions}{18}{subsubsection*.9}
-\contentsline {subsection}{\numberline {4.1.2}/api/signup}{19}{subsection.4.1.2}
-\contentsline {subsubsection}{Success Flow}{19}{subsubsection*.10}
-\contentsline {subsubsection}{Error conditions}{19}{subsubsection*.11}
-\contentsline {subsection}{\numberline {4.1.3}/socket}{19}{subsection.4.1.3}
-\contentsline {subsubsection}{Success Flows}{20}{subsubsection*.12}
-\contentsline {subsection}{\numberline {4.1.4}Error conditions}{21}{subsection.4.1.4}
-\contentsline {subsection}{\numberline {4.1.5}Database}{21}{subsection.4.1.5}
-\contentsline {subsection}{\numberline {4.1.6}Hash Function}{21}{subsection.4.1.6}
-\contentsline {subsection}{\numberline {4.1.7}JWT Implementation}{22}{subsection.4.1.7}
-\contentsline {subsubsection}{Encode}{22}{subsubsection*.13}
-\contentsline {subsubsection}{Decode}{22}{subsubsection*.14}
-\contentsline {section}{\numberline {4.2}Application Client}{23}{section.4.2}
-\contentsline {section}{\numberline {4.3}OTR}{25}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}Authenticated Key Exchange State 1}{26}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}Authenticated Key Exchange State 2}{27}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}Authenticated Key Exchange State 3}{28}{subsection.4.3.3}
-\contentsline {subsection}{\numberline {4.3.4}Authenticated Key Exchange State 4}{28}{subsection.4.3.4}
-\contentsline {subsection}{\numberline {4.3.5}Authenticated Key Exchange State 5}{29}{subsection.4.3.5}
-\contentsline {subsection}{\numberline {4.3.6}Exchange Data State 1}{30}{subsection.4.3.6}
-\contentsline {subsection}{\numberline {4.3.7}Exchange Data State 2}{30}{subsection.4.3.7}
-\contentsline {subsection}{\numberline {4.3.8}OTR Class}{31}{subsection.4.3.8}
-\contentsline {subsubsection}{send}{31}{subsubsection*.16}
-\contentsline {subsubsection}{receive}{32}{subsubsection*.17}
-\contentsline {subsection}{\numberline {4.3.9}Key Management}{33}{subsection.4.3.9}
-\contentsline {section}{\numberline {4.4}JWCL}{34}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}jwcl.utils}{34}{subsection.4.4.1}
-\contentsline {subsection}{\numberline {4.4.2}jwcl.random()}{36}{subsection.4.4.2}
-\contentsline {subsection}{\numberline {4.4.3}jwcl.hash}{36}{subsection.4.4.3}
-\contentsline {subsection}{\numberline {4.4.4}jwcl.cipher}{39}{subsection.4.4.4}
-\contentsline {subsection}{\numberline {4.4.5}jwcl.ecc}{40}{subsection.4.4.5}
-\contentsline {subsection}{\numberline {4.4.6}Impact}{43}{subsection.4.4.6}
-\contentsline {chapter}{\numberline {5}Validation}{46}{chapter.5}
-\contentsline {section}{\numberline {5.1}Automated Tests}{46}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Server Tests}{46}{subsection.5.1.1}
-\contentsline {subsubsection}{/api/signup}{46}{subsubsection*.21}
-\contentsline {subsubsection}{/api/login}{47}{subsubsection*.22}
-\contentsline {subsection}{\numberline {5.1.2}Application Tests}{47}{subsection.5.1.2}
-\contentsline {subsection}{\numberline {5.1.3}OTR Tests}{47}{subsection.5.1.3}
-\contentsline {subsubsection}{Implementation Tests}{48}{subsubsection*.23}
-\contentsline {subsubsection}{API Tests}{48}{subsubsection*.24}
-\contentsline {subsection}{\numberline {5.1.4}JWCL Tests}{49}{subsection.5.1.4}
-\contentsline {section}{\numberline {5.2}Manual Tests}{50}{section.5.2}
-\contentsline {subsection}{\numberline {5.2.1}Scenario 1}{51}{subsection.5.2.1}
-\contentsline {subsection}{\numberline {5.2.2}Scenario 2}{51}{subsection.5.2.2}
-\contentsline {subsection}{\numberline {5.2.3}Scenario 3}{51}{subsection.5.2.3}
-\contentsline {chapter}{\numberline {6}Future Work}{52}{chapter.6}
-\contentsline {section}{\numberline {6.1}Server}{52}{section.6.1}
-\contentsline {subsection}{\numberline {6.1.1}Persistent Data Store}{52}{subsection.6.1.1}
-\contentsline {subsection}{\numberline {6.1.2}HTTPS Support}{52}{subsection.6.1.2}
-\contentsline {subsection}{\numberline {6.1.3}Service Oriented Architecture}{53}{subsection.6.1.3}
-\contentsline {section}{\numberline {6.2}Application}{53}{section.6.2}
-\contentsline {section}{\numberline {6.3}OTR}{55}{section.6.3}
-\contentsline {subsection}{\numberline {6.3.1}Differences from OTR Protocol}{55}{subsection.6.3.1}
-\contentsline {subsection}{\numberline {6.3.2}Socialist Millionaires Protocol}{56}{subsection.6.3.2}
-\contentsline {section}{\numberline {6.4}JWCL}{57}{section.6.4}
-\contentsline {subsection}{\numberline {6.4.1}Binary Data}{57}{subsection.6.4.1}
-\contentsline {subsection}{\numberline {6.4.2}Secure Defaults}{58}{subsection.6.4.2}
-\contentsline {subsection}{\numberline {6.4.3}Class Based Interface}{58}{subsection.6.4.3}
-\contentsline {subsection}{\numberline {6.4.4}Typescript Issues}{59}{subsection.6.4.4}
-\contentsline {chapter}{\numberline {7}Conclusion}{60}{chapter.7}
-\contentsline {section}{\numberline {7.1}Evaluation}{60}{section.7.1}
-\contentsline {section}{\numberline {7.2}Discussion}{60}{section.7.2}
-\contentsline {chapter}{BIBLIOGRAPHY}{62}{chapter*.25}
+\contentsline {chapter}{\numberline {3}Related Work}{15}{chapter.3}
+\contentsline {section}{\numberline {3.1}Signal Protocol}{15}{section.3.1}
+\contentsline {section}{\numberline {3.2}Allo Google Chat}{16}{section.3.2}
+\contentsline {section}{\numberline {3.3}SJCL}{17}{section.3.3}
+\contentsline {chapter}{\numberline {4}Implementation}{18}{chapter.4}
+\contentsline {section}{\numberline {4.1}Application Server}{19}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}/api/login}{19}{subsection.4.1.1}
+\contentsline {subsubsection}{\numberline {4.1.1.1}Success Flow}{19}{subsubsection.4.1.1.1}
+\contentsline {subsubsection}{\numberline {4.1.1.2}Error conditions}{19}{subsubsection.4.1.1.2}
+\contentsline {subsection}{\numberline {4.1.2}/api/signup}{20}{subsection.4.1.2}
+\contentsline {subsubsection}{\numberline {4.1.2.1}Success Flow}{20}{subsubsection.4.1.2.1}
+\contentsline {subsubsection}{\numberline {4.1.2.2}Error conditions}{20}{subsubsection.4.1.2.2}
+\contentsline {subsection}{\numberline {4.1.3}/socket}{20}{subsection.4.1.3}
+\contentsline {subsubsection}{\numberline {4.1.3.1}Success Flows}{21}{subsubsection.4.1.3.1}
+\contentsline {subsubsection}{\numberline {4.1.3.2}Error conditions}{22}{subsubsection.4.1.3.2}
+\contentsline {subsection}{\numberline {4.1.4}Database}{22}{subsection.4.1.4}
+\contentsline {subsection}{\numberline {4.1.5}Hash Function}{22}{subsection.4.1.5}
+\contentsline {subsection}{\numberline {4.1.6}JWT Implementation}{23}{subsection.4.1.6}
+\contentsline {subsubsection}{\numberline {4.1.6.1}Encode}{23}{subsubsection.4.1.6.1}
+\contentsline {subsubsection}{\numberline {4.1.6.2}Decode}{23}{subsubsection.4.1.6.2}
+\contentsline {section}{\numberline {4.2}Application Client}{24}{section.4.2}
+\contentsline {section}{\numberline {4.3}OTR}{26}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Authenticated Key Exchange State 1}{27}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Authenticated Key Exchange State 2}{28}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}Authenticated Key Exchange State 3}{29}{subsection.4.3.3}
+\contentsline {subsection}{\numberline {4.3.4}Authenticated Key Exchange State 4}{29}{subsection.4.3.4}
+\contentsline {subsection}{\numberline {4.3.5}Authenticated Key Exchange State 5}{30}{subsection.4.3.5}
+\contentsline {subsection}{\numberline {4.3.6}Exchange Data State 1}{31}{subsection.4.3.6}
+\contentsline {subsection}{\numberline {4.3.7}Exchange Data State 2}{31}{subsection.4.3.7}
+\contentsline {subsection}{\numberline {4.3.8}OTR Class}{32}{subsection.4.3.8}
+\contentsline {subsubsection}{\numberline {4.3.8.1}Send}{32}{subsubsection.4.3.8.1}
+\contentsline {subsubsection}{\numberline {4.3.8.2}Receive}{33}{subsubsection.4.3.8.2}
+\contentsline {subsection}{\numberline {4.3.9}Key Management}{34}{subsection.4.3.9}
+\contentsline {section}{\numberline {4.4}JWCL}{35}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}jwcl.utils}{35}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}jwcl.random()}{37}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}jwcl.hash}{37}{subsection.4.4.3}
+\contentsline {subsection}{\numberline {4.4.4}jwcl.cipher}{40}{subsection.4.4.4}
+\contentsline {subsection}{\numberline {4.4.5}jwcl.ecc}{41}{subsection.4.4.5}
+\contentsline {subsection}{\numberline {4.4.6}Impact}{44}{subsection.4.4.6}
+\contentsline {chapter}{\numberline {5}Validation}{47}{chapter.5}
+\contentsline {section}{\numberline {5.1}Automated Tests}{47}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Server Tests}{47}{subsection.5.1.1}
+\contentsline {subsubsection}{\numberline {5.1.1.1}/api/signup}{47}{subsubsection.5.1.1.1}
+\contentsline {subsubsection}{\numberline {5.1.1.2}/api/login}{48}{subsubsection.5.1.1.2}
+\contentsline {subsection}{\numberline {5.1.2}Application Tests}{48}{subsection.5.1.2}
+\contentsline {subsection}{\numberline {5.1.3}OTR Tests}{49}{subsection.5.1.3}
+\contentsline {subsubsection}{\numberline {5.1.3.1}Implementation Tests}{49}{subsubsection.5.1.3.1}
+\contentsline {subsubsection}{\numberline {5.1.3.2}API Tests}{49}{subsubsection.5.1.3.2}
+\contentsline {subsection}{\numberline {5.1.4}JWCL Tests}{50}{subsection.5.1.4}
+\contentsline {section}{\numberline {5.2}Manual Tests}{51}{section.5.2}
+\contentsline {subsection}{\numberline {5.2.1}Scenario 1}{52}{subsection.5.2.1}
+\contentsline {subsection}{\numberline {5.2.2}Scenario 2}{52}{subsection.5.2.2}
+\contentsline {subsection}{\numberline {5.2.3}Scenario 3}{53}{subsection.5.2.3}
+\contentsline {chapter}{\numberline {6}Future Work}{54}{chapter.6}
+\contentsline {section}{\numberline {6.1}Server}{54}{section.6.1}
+\contentsline {subsection}{\numberline {6.1.1}Persistent Data Store}{54}{subsection.6.1.1}
+\contentsline {subsection}{\numberline {6.1.2}HTTPS Support}{54}{subsection.6.1.2}
+\contentsline {subsection}{\numberline {6.1.3}Service Oriented Architecture}{55}{subsection.6.1.3}
+\contentsline {section}{\numberline {6.2}Application}{55}{section.6.2}
+\contentsline {section}{\numberline {6.3}OTR}{57}{section.6.3}
+\contentsline {subsection}{\numberline {6.3.1}Differences from OTR Protocol}{57}{subsection.6.3.1}
+\contentsline {subsection}{\numberline {6.3.2}Socialist Millionaires Protocol}{58}{subsection.6.3.2}
+\contentsline {section}{\numberline {6.4}JWCL}{59}{section.6.4}
+\contentsline {subsection}{\numberline {6.4.1}Binary Data}{59}{subsection.6.4.1}
+\contentsline {subsection}{\numberline {6.4.2}Secure Defaults}{60}{subsection.6.4.2}
+\contentsline {subsection}{\numberline {6.4.3}Class Based Interface}{60}{subsection.6.4.3}
+\contentsline {subsection}{\numberline {6.4.4}Typescript Issues}{61}{subsection.6.4.4}
+\contentsline {chapter}{\numberline {7}Conclusion}{62}{chapter.7}
+\contentsline {section}{\numberline {7.1}Evaluation}{62}{section.7.1}
+\contentsline {section}{\numberline {7.2}Discussion}{62}{section.7.2}
+\contentsline {chapter}{BIBLIOGRAPHY}{64}{chapter*.13}
 \let \l@chapter \l@section 
-\noindent APPENDICES 

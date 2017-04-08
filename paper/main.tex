@@ -24,10 +24,10 @@
 \usepackage{titlesec}
 \usepackage[breaklinks=true,hidelinks,pdfusetitle]{hyperref}
 \usepackage{ifthen}
-% Start Added By Joey
+% Start added By Joey
 \usepackage{listings}
 \usepackage{longtable}
-% End Added By Joey
+% End added By Joey
 
 \makeindex
 \makeglossaries
@@ -50,7 +50,10 @@
 
 \setlength{\parindent}{0.25in} \setlength{\parskip}{6pt}
 \geometry{verbose,nohead,tmargin=1in,bmargin=1in,lmargin=1.5in,rmargin=1in}
-\setcounter{tocdepth}{2}
+\setcounter{tocdepth}{3}
+% Start added by Joey
+\setcounter{secnumdepth}{3}
+% End added by Joey
 
 % Different font in captions (single-spaced, bold) ------------
 \newcommand{\captionfonts}{\small\bf\ssp}
@@ -99,8 +102,13 @@
 \input{acknowledgements}
 \end{acknowledgements}
 
+% Start added by Joey
+\begin{NoHyper}
+% End added by Joey
 \tableofcontents
-
+% Start added by Joey
+\end{NoHyper}
+% End added by Joey
 \listoftables
 
 \listoffigures
@@ -127,11 +135,11 @@
 \makeatother
 
 % Hack to make Appendices to appear in Table of Contents
-\addtocontents{toc}{%
-   \noindent APPENDICES
-}
-\begin{appendices}
-\input{appendix-outline}
-\end{appendices}
+%\addtocontents{toc}{%
+%   \noindent APPENDICES
+%}
+%\begin{appendices}
+%\input{appendix-outline}
+%\end{appendices}
 
 \end{document}

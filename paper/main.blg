@@ -15,45 +15,46 @@ Warning--empty journal in websocket-rfc
 Warning--empty institution in dsa-rfc
 Warning--empty institution in jwt-rfc
 Warning--empty journal in pkcs-rfc
-You've used 31 entries,
+Warning--empty journal in pycrypto
+You've used 32 entries,
             2118 wiz_defined-function locations,
-            613 strings with 6095 characters,
-and the built_in function-call counts, 6722 in all, are:
-= -- 633
-> -- 239
+            616 strings with 6144 characters,
+and the built_in function-call counts, 6927 in all, are:
+= -- 651
+> -- 246
 < -- 1
-+ -- 102
-- -- 70
-* -- 238
-:= -- 1131
-add.period$ -- 93
-call.type$ -- 31
-change.case$ -- 131
++ -- 105
+- -- 72
+* -- 244
+:= -- 1164
+add.period$ -- 96
+call.type$ -- 32
+change.case$ -- 135
 chr.to.int$ -- 0
-cite$ -- 36
-duplicate$ -- 245
-empty$ -- 667
-format.name$ -- 70
-if$ -- 1447
+cite$ -- 38
+duplicate$ -- 252
+empty$ -- 689
+format.name$ -- 72
+if$ -- 1491
 int.to.chr$ -- 0
-int.to.str$ -- 31
+int.to.str$ -- 32
 missing$ -- 4
-newline$ -- 157
-num.names$ -- 60
-pop$ -- 255
+newline$ -- 162
+num.names$ -- 62
+pop$ -- 266
 preamble$ -- 1
-purify$ -- 97
+purify$ -- 100
 quote$ -- 0
-skip$ -- 222
+skip$ -- 229
 stack$ -- 0
-substring$ -- 188
+substring$ -- 193
 swap$ -- 36
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 124
-warning$ -- 5
-while$ -- 63
-width$ -- 33
-write$ -- 311
-(There were 5 warnings)
+type$ -- 128
+warning$ -- 6
+while$ -- 65
+width$ -- 34
+write$ -- 320
+(There were 6 warnings)

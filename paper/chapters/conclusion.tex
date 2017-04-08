@@ -4,17 +4,21 @@
 \section{Evaluation}
 
 
-In the introduction paragraph it was stated that it was important to explore the Web Crypto API for capabilities and interfaces. This project did just that. The capabilities were tested by developing a functional OTR messaging application. The interfaces were tested during this development as well and JWCL was developed to add additional usability features that were not available in the API. This thesis accomplished the goal of evaluating the Web Crypto API.
+The OTR application demonstrates that the Web Crypto API provides the functionality necessary to develop real world secure messaging application in the browser without the use of 3rd party libraries. This will allow users to take advantage of the portability and convenience of the browser, without making tradeoffs of their security and privacy.
+
+
+JWCL provides an improved development experience over working with the Web Crypto API directly. Less time is spent determing correct parameters and converting binary data types. This time and focus can instead be used on the cryptographic protocol under development. This leads to cleaner code being developed in less time and having fewer bugs. 
 
 
 \section{Discussion}
 
 
-The Web Crypto API is a large step forward in making the web more secure development environment, but it is not a silver bullet. As the API is specified right now it is very low level and allows a lot of configuration to the cryptographic operations. While this freedom is nice, it can be daunting or even outright dangerous to developers without understanding of cryptography. The API also does not remove the need for using TLS, it actually makes it even stronger. The Chromium browser won't even allow the Web Crypto API to run on non secure origins. This is because a false sense of security can happen when developers think that all of the security can be done on the client. Yet without TLS, the correct crypto code is not even guaranteed to reach the client intact. 
+The Web Crypto API is an important step forward in making the web browser more secure, but it is not perfect. The Web Crypto API specification is low level, comprised completely of static functions, and requires a large number of configuration parameters to function correctly. While this freedom is nice, it can be daunting, or even outright dangerous to developers without a strong understanding of cryptographic primitives. This is hinted at, by the name of the global variable being "crypto.subtle". Also, the Web Crypto API does not remove the need for using TLS, it actually makes it even stronger. The Chromium browser won't allow the Web Crypto API to run on non secure origins. This is because developers may think that all of the security and cryptogrpahy can now be done on the client. Yet without TLS, the correct code is not even guaranteed to reach the client intact in the case of a man in the middle attack. 
+
+Performing cryptography in Javascript is a hotly debated topic right now. The side for using crypto in Javascript, argue that everything is moving to the browser and it is necessary for crypto to follow, to ensure applications are remain secure. The side against it, argue that there is too many variables in the browser. With the code being sent to the browser on every visit to a website, it is difficult to ensure you are getting the correct code everytime. The Web Crypto API alleviates part of this concern, as the primitive operations now execute natively in the browser. Still, the application level code is sent on every visit. Another concern is browser extensions that users install. It is difficult to guaratee that the extensions are not acting maliciously, rendering the crypto code running on a webpage useless.
 
 
-With these warning in mind the Web Crypto API is also a very powerful tool. Not only does this API provide support for end to end encrypted messaging, it also has many other use cases. Some examples are protected document exchange, secure cloud storage, document signing, and local storage integrity. All of these use cases can now be accomplished by using a uniform cryptographic API and not relying on 3rd party libraries. This will allow for more reusable secure conscious code to be created and shared. 
+With these considerations in mind, the Web Crypto API powerful tool. Not only does this API provide support for end to end encrypted messaging, it also has many other use cases. Some examples are, protected document exchange, secure cloud storage, document signing, and local storage integrity. All of these use cases can now be accomplished with a uniform cryptographic API. This will allow for more reusable, secure conscious code to be created and shared. The use of native code to implement the Web Crypto API, allows for substantial gain in performace and reliability over 3rd party libraries written in Javascript \cite{pref}. 
 
 
-In conclusion the Web Crypto API should be adopted by modern web applications looking to add client side cryptographic operations to their application but it should be done so carefully and delicately.
-
+In conclusion the Web Crypto API should be adopted by modern web applications looking to add client side cryptographic operations to their application.

@@ -6,10 +6,11 @@
 \contentsline {figure}{\numberline {2.3}{\ignorespaces Web Crypto API Example\relax }}{8}{figure.caption.6}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Implementation Architecture\relax }}{17}{figure.caption.7}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces JWCL hash Implementation\relax }}{38}{figure.caption.18}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await\relax }}{44}{figure.caption.19}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await Continued\relax }}{45}{figure.caption.20}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Implementation Architecture\relax }}{18}{figure.caption.7}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces JWCL hash Implementation\relax }}{39}{figure.caption.9}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await\relax }}{45}{figure.caption.10}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Authenticated Key Exchange 1 Implementation Without JWCL or Async Await Continued\relax }}{46}{figure.caption.11}
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces QUnit Example\relax }}{47}{figure.caption.12}
 \addvspace {10\p@ }
 \addvspace {10\p@ }

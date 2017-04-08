@@ -4,12 +4,21 @@
 \section{Motivation}
 
 
-With the modern web browser now supporting everything from static html documents to complex interactive applications, support for security features needs to be examined. The Web Crypto API is a small, but important component of the overall security features being made available in today's browsers. The Web Crypto API is implemented in native code and exposes low level cryptographic operations, as well as key generation and management functions, to the higher level Javascript API. The Web Crypto API is in the editor's draft stage of the standards recommendation process \cite{webcrypto-overview}. Despite the infancy and status of the Web Crypto API, browsers have began implementing it. The Chromium browser project has completed their implementation of the Web Crypto API as of version 53 \cite{webcrypto-chromium}. This is the first available API for browser based Javascript, that implements cryptographic operations in native code. Prior to the Web Crypto API, all Javascript cryptography was performed by 3rd party Javascript libraries, such as the Stanford Javascript Crypto Library \cite{sjcl-library}. This is a major improvement in the maturity of the browser for becoming a platform for security and privacy focused applications. The exploration of this new API is important to determine its capabilities and evaluate its interfaces.
+With the modern web browser now supporting everything from static html documents to complex, interactive applications, support for security features needs to be researched. The Web Crypto API is a small, but important component of the overall security suite available in today's browsers. The Web Crypto API is implemented in native code and exposes low level cryptographic operations, as well as key generation and management functions, as a Javascript API. The Web Crypto API is in the editor's draft stage of the standards recommendation process \cite{webcrypto-overview}. Despite the infancy and status of the Web Crypto API, browsers have began implementing it. The Chromium browser project has completed their implementation of the Web Crypto API as of version 53 \cite{webcrypto-chromium}. This is the first available API for browser based Javascript, that implements cryptographic operations in native code. Prior to the Web Crypto API, all Javascript cryptography was performed by 3rd party Javascript libraries, such as the Stanford Javascript Crypto Library \cite{sjcl-library}. This is a major improvement in the maturity of the browser for becoming a platform for security and privacy focused applications. 
 
 
 \section{Our Contribution}
 
 
-At Cal Poly the theme of each department's educational goals is "learn by doing". In this thesis that was the goal. The Web Crypto API specification has a chapter on use cases. One of these use cases is secure messaging. The API says "A web application may wish to employ message layer security using schemes such as off-the-record (OTR) messaging, even when these messages have been securely received, such as over TLS" \cite{webcrypto-overview}. This thesis aims to test the Web Crypto API by doing exactly that. The OTR messaging protocol is implemented in Typescript by using the Web Crypto API for all of the cryptographic operations and key management functionality. This work is novel, as it uses the new Web Crypto API to implement a fully functional end to end encrypted messaging application.  
+At Cal Poly the theme of each department's educational goals is "learn by doing". In this thesis that was the goal. The Web Crypto API specification has a chapter on use cases. One of these use cases is secure messaging. The API says, "A web application may wish to employ message layer security using schemes such as off-the-record (OTR) messaging, even when these messages have been securely received, such as over TLS" \cite{webcrypto-overview}. 
+
+
+This work describes the following contributions 
+
+\begin{itemize}  
+\item An implementation of a fully functional, proof of concept, browser based, end to end encrypted messaging system, applying the OTR protocol
+\item Development of JWCL, a wrapper library around the Web Crypto API, that provides a high level interface, network safe input and output, and a class based, sensible interface
+\end{itemize}
+
 
 The relevant background concepts used to implement the OTR messaging application are reviewed in chapter 2. Related work is covered in chapter 3. The implementation itself is detailed in chapter 4. The validation of how the implementation was tested is examined in chapter 5. Future work that to improve the implementation is discussed in chapter 6. Finally the conclusion is in chapter 7.
